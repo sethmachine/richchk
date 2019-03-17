@@ -130,4 +130,11 @@ if __name__ == '__main__':
     c = chkr.read(infile)
     save_sections_to_dir(c.sections, '../../data/chk-sections')
     z = c.get_sections('STR ')[0]
-    a = z.compile(header=False)
+    od = z.data
+    # a = z.compile(header=False)
+    # # z.add_string('addme')
+    # print(z.get_index('Nexus1'))
+    # idx = z.remove_string('Nexus2')
+    # z.syncdata()
+    # print(z.get_index('Nexus1'))
+    # d = z.compile(header=False)

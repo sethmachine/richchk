@@ -37,6 +37,9 @@ class ChkUnk(_Base, ChkSection):
     def compile(self, header=True) -> bytes:
         return self.data
 
+    def to_json(self) -> dict:
+        return {'name': self.name, 'data': self.data}
+
     def __repr__(self):
         return 'Unknown Section {}'.format(self.name)
 

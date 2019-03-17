@@ -65,7 +65,6 @@ class ChkSection(abc.ABC):
         header += struct.pack('I', size)
         return header
 
-    @classmethod
     @abc.abstractmethod
     def compile(self, header=True) -> bytes:
         """Compiles the ChkSection object into the binary format as decompiled from.
@@ -73,6 +72,20 @@ class ChkSection(abc.ABC):
         :param header: include the name (u32) and size (u32) headers
         :return:
         """
+        pass
+
+    def syncdata(self):
+        """Synchronizes the binary data to the fields of this CHK section.
+
+        :return: True if the new compiled data is different from the old data; False otherwise
+        """
+        newdata = self.compile(header=False)
+        ret = newdata != self.data
+        self.data = newdata
+        return ret
+
+    @abc.abstractmethod
+    def to_json(self) -> dict:
         pass
 
 
