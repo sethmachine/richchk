@@ -3,6 +3,8 @@
 .DS_Store
 logs/
 *.log
+data/
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
