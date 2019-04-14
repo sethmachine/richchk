@@ -2,9 +2,9 @@
 
 """
 
-from . import chkunk, chkstr
+from . import chkunk, chkstr, chkunix, chkunis
 
-_SECTIONS = [chkstr.ChkStr]
+_SECTIONS = [chkstr.ChkStr, chkunix.ChkUnix, chkunis.ChkUnis]
 _NAME2SECTION = {sect.name: sect for sect in _SECTIONS}
 
 
