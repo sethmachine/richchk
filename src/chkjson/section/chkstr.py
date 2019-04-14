@@ -71,6 +71,9 @@ class ChkStr(_Base, ChkSection):
     def get_string(self, index) -> str:
         return self.index2string[index]
 
+    def exists(self, string_) -> bool:
+        return string_ in self.stringset
+
     def add_string(self, string_) -> bool:
         """Adds a new string, updating the number of strings, string offsets, and related fields.
 
