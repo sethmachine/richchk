@@ -35,7 +35,11 @@ class ChkUnk(_Base, ChkSection):
         return cls(data=data.read())
 
     def compile(self, header=True) -> bytes:
+        if header:
+            header_ = self._compile_header(self.name, len(self.data))
+            return header_ + self.data
         return self.data
+
 
     def to_json(self) -> dict:
         return {'name': self.name, 'data': self.data}
