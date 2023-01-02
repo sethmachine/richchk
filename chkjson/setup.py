@@ -9,7 +9,5 @@ setup(name='chkjson',
       license='MIT',
       install_requires=[],
       packages=['chkjson'],
-      # package_dir={'org.mitre.nlp.mbv':'org/mitre/nlp/mbv'},
-      # package_data={'pyw3x':['data/storm/*.*', 'data/storm/win-64/*.*']},
       zip_safe=False)
 

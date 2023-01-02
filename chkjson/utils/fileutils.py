@@ -6,15 +6,16 @@ import os
 import re
 
 
-def absolute_filepaths(directory, depth=0, file_regex=re.compile(r'.+')):
-    """Lists all files joined to directory path.
+def absolute_filepaths(directory, depth=0, file_regex=re.compile(r".+")):
+    """List all absolute filepaths recursively from a directory.
 
-    Args:
-        depth (int): How many subdirectories to explore.
-                    A depth of 0 only explores the first subdirectory,
-                    while a depth of -1 explores all subdirectories.
-        file_regex : Valid regular expression denoting which
-                            files to yield in directory exploration.
+    :param directory: the directory to begin finding matching files
+    :param depth: how many directory levels to explore;
+    a depth of 0 explores only the level of the first directory
+    while a depth of -1 recursively explores all subdirectories.
+    :param file_regex: an optional compiled regular expression;
+    only base file names matching the regex are yielded.
+    :return: an iterator of absolute filepaths found
 
     """
     for x in os.listdir(directory):
@@ -27,7 +28,7 @@ def absolute_filepaths(directory, depth=0, file_regex=re.compile(r'.+')):
                 yield f
 
 
-def absolute_dirpaths(directory, depth=0, file_pattern=r'.+'):
+def absolute_dirpaths(directory, depth=0, file_pattern=r".+"):
     """Lists all files joined to directory path.
 
     Args:
@@ -49,5 +50,16 @@ def absolute_dirpaths(directory, depth=0, file_pattern=r'.+'):
                     yield f
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    """List all files recursively from a directory.
+
+    Args:
+
+        depth (int): How many subdirectories to explore.
+                    A depth of 0 only explores the first subdirectory,
+                    while a depth of -1 explores all subdirectories.
+        file_regex : Valid regular expression denoting which
+                            files to yield in directory exploration.
+
+    """
     pass
