@@ -15,8 +15,10 @@ But that seems pretty hacky, so I'm just going to manually register each parser 
 from typing import TypeVar
 
 from chkjson.model.chk.chk_section_names import ChkSectionName
-from chkjson.parsers.abstract_chk_section_parser import AbstractChkSectionParser
-from chkjson.parsers.chk_str_parser import ChkStrParser
+from chkjson.parsers.sections.abstract_chk_section_parser import (
+    AbstractChkSectionParser,
+)
+from chkjson.parsers.sections.chk_str_parser import ChkStrParser
 
 T = TypeVar("T", bound=AbstractChkSectionParser)
 

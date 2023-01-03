@@ -7,19 +7,20 @@ import struct
 from collections import defaultdict
 from typing import Optional
 
-import utils.logger
-
+import chkjson.utils.logger
 from chkjson.model.chk.base_chk_section import BaseChkSection
 from chkjson.model.chk.chk_header import ChkHeader
 from chkjson.model.chk.chk_section_names import ChkSectionName
 from chkjson.model.chk.chk_unknown import ChkUnknown
-from chkjson.parsers.abstract_chk_section_parser import AbstractChkSectionParser
 from chkjson.parsers.chk_section_parser_registry import ChkSectionParserRegistry
+from chkjson.parsers.sections.abstract_chk_section_parser import (
+    AbstractChkSectionParser,
+)
 
 
 class ChkParser:
     def __init__(self):
-        self._log = utils.logger.get_logger(self.__class__.__name__)
+        self._log = chkjson.utils.logger.get_logger(self.__class__.__name__)
 
     def parse_file(self, chkfile: str) -> dict[str, list[BaseChkSection]]:
         """Parse a CHK file into JSON serializable objects.
@@ -79,11 +80,19 @@ class ChkParser:
         parser: AbstractChkSectionParser = (
             ChkSectionParserRegistry.get_by_chk_section_name(chk_header.name)()
         )
-        self._log.info("FOUND SECTION: {}".format(chk_header.name))
+        self._log.info(
+            "FOUND SECTION: {}.  Size: {}".format(
+                chk_header.name, chk_header.size_in_bytes
+            )
+        )
         return parser.parse(data)
 
 
 if __name__ == "__main__":
+    from chkjson.parsers.sections.chk_str_parser import ChkStrParser
+
     cp = ChkParser()
     infile = "/Users/sdworman/Desktop/projects/personal/chkjson/data/chk/demon_lore_yatapi_test.chk"
-    sections = cp.parse_file(infile)
+    s = cp.parse_file(infile)
+    st = s.get("STR ")[0]
+    sp = ChkStrParser()
