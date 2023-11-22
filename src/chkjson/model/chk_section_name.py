@@ -10,7 +10,6 @@ u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
 """
 
 from enum import Enum
-from typing import Optional
 
 
 class ChkSectionName(Enum):

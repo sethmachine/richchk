@@ -51,15 +51,8 @@ def absolute_dirpaths(directory, depth=0, file_pattern=r".+"):
 
 
 if __name__ == "__main__":
-    """List all files recursively from a directory.
-
-    Args:
-
-        depth (int): How many subdirectories to explore.
-                    A depth of 0 only explores the first subdirectory,
-                    while a depth of -1 explores all subdirectories.
-        file_regex : Valid regular expression denoting which
-                            files to yield in directory exploration.
-
-    """
-    pass
+    indir = "/Users/sdworman/desktop/old-projects"
+    files = absolute_filepaths(indir, -1, re.compile(r"^.+?\.py$", re.IGNORECASE))
+    pys = [x for x in files]
+    for x in pys:
+        print(x)
