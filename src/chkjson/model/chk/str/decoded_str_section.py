@@ -21,14 +21,35 @@ to this NUL character. Note that STR sections can be stacked in a similar fashio
 
 """
 
-
 import dataclasses
 
-from chkjson.model.chk.base_chk_section import BaseChkSection
+from chkjson.model.chk.decoded_chk_section import DecodedChkSection
+from chkjson.model.chk_section_name import ChkSectionName
 
 
-@dataclasses.dataclass
-class ChkStr(BaseChkSection):
-    num_strings: int
-    string_offsets: list[int]
-    strings: list[str]
+@dataclasses.dataclass(frozen=True)
+class DecodedStrSection(DecodedChkSection):
+    # u16: Number of strings in the section (Default: 1024)
+    _number_of_strings: int
+    # u16[Number of strings]: 1 integer for each string specifying the offset
+    # (the spot where the string starts in the section from the start of it).
+    _strings_offset: list[int]
+    # Strings: After the offsets, this is where every string in the map goes, one after another.
+    # Each one is terminated by a null character.
+    _strings: list[str]
+
+    @classmethod
+    def section_name(cls) -> ChkSectionName:
+        return ChkSectionName.STR
+
+    @property
+    def number_of_strings_u16(self) -> int:
+        return self._number_of_strings
+
+    @property
+    def strings_offset_u16(self) -> list[int]:
+        return self._strings_offset.copy()
+
+    @property
+    def strings(self) -> list[str]:
+        return self._strings.copy()
