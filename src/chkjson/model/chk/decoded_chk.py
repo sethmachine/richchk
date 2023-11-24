@@ -2,15 +2,16 @@
 
 """
 
-import dataclasses
+from copy import deepcopy
+from dataclasses import dataclass
 
-from chkjson.model.chk.decoded_chk_section import DecodedChkSection
+from .decoded_chk_section import DecodedChkSection
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class DecodedChk:
-    decoded_chk_sections: list[DecodedChkSection]
+    _decoded_chk_sections: list[DecodedChkSection]
 
-
-if __name__ == "__main__":
-    pass
+    @property
+    def decoded_chk_sections(self) -> list[DecodedChkSection]:
+        return deepcopy(self._decoded_chk_sections)

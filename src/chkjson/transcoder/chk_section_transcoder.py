@@ -6,13 +6,16 @@ import struct
 from abc import abstractmethod
 from typing import Protocol, TypeVar
 
-from chkjson.model.chk.decoded_chk_section import DecodedChkSection
-from chkjson.model.chk_section_name import ChkSectionName
+from ..model.chk.decoded_chk_section import DecodedChkSection
+from ..model.chk_section_name import ChkSectionName
 
 T = TypeVar("T", bound=DecodedChkSection, contravariant=True)
 
 
 class ChkSectionTranscoder(Protocol[T]):
+    def __call__(self, *args, **kwargs):
+        pass
+
     @abstractmethod
     def decode(self, chk_section_binary_data: bytes) -> DecodedChkSection:
         raise NotImplementedError
