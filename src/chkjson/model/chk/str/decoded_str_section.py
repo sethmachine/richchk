@@ -23,8 +23,8 @@ to this NUL character. Note that STR sections can be stacked in a similar fashio
 
 import dataclasses
 
-from chkjson.model.chk.decoded_chk_section import DecodedChkSection
-from chkjson.model.chk_section_name import ChkSectionName
+from ...chk_section_name import ChkSectionName
+from ..decoded_chk_section import DecodedChkSection
 
 
 @dataclasses.dataclass(frozen=True)
