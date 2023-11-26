@@ -1,0 +1,13 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-yaml
+-   repo: https://github.com/PyCQA/isort
+    rev: b67a6a595803710f6af52865d82d996f264224c6
+    hooks:
+    -   id: isort
+-   repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+    -   id: black
