@@ -1,6 +1,4 @@
-"""
-
-"""
+""""""
 
 from typing import ClassVar, Optional, Type
 
@@ -21,7 +19,7 @@ class ChkSectionTranscoderFactory:
     def make_chk_section_transcoder(
         cls, chk_section_name: ChkSectionName
     ) -> ChkSectionTranscoder:
-        """Factory for making ChkSectionTranscoder for a given CHK section name"""
+        """Factory for making ChkSectionTranscoder for a given CHK section name."""
         try:
             retval: ChkSectionTranscoder = cls.transcoders[chk_section_name]()
         except KeyError as err:
