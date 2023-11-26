@@ -5,9 +5,10 @@ CHunK).
 
 Each section begins with an 8-byte header:
 
-u32 Name - A 4-byte string uniquely identifying that chunk's purpose. u32 Size - The
-size, in bytes, of the chunk (not including this header) Followed by as many bytes as
-'Size', in a format described below.
+u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
+
+u32 Size - The size, in bytes, of the chunk (not including this header) Followed by as
+many bytes as 'Size', in a format described below.
 
 Some things to keep in mind about the CHK section:
 
