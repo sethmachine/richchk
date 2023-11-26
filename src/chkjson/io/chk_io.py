@@ -1,20 +1,28 @@
 """Read and write CHK data.
 
-The CHK is split into several named chunks (hence the file extension, an abbreviation of CHunK).
+The CHK is split into several named chunks (hence the file extension, an abbreviation of
+CHunK).
 
 Each section begins with an 8-byte header:
 
-u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
-u32 Size - The size, in bytes, of the chunk (not including this header)
-Followed by as many bytes as 'Size', in a format described below.
+u32 Name - A 4-byte string uniquely identifying that chunk's purpose. u32 Size - The
+size, in bytes, of the chunk (not including this header) Followed by as many bytes as
+'Size', in a format described below.
 
 Some things to keep in mind about the CHK section:
 
-Invalid sections can exist and will be ignored. While Size is unsigned, it can safely be a negative value to read a chunk earlier in the file. This allows for "section stacking", allowing smaller sections to be placed inside of larger ones or duplicate triggers or units to take less space in the file.
-All sections will marked "Not required." are never read by StarCraft and can safely be omitted. However they may or may not be read by StarEdit, and may cause the map to be unreadable in an editor.
-Note "Hybrid", or "Enhanced", maps were introduced in 1.04. They are supported both by Original StarCraft and Brood War and usually contain sections for both types (e.g., UPGS and UPGx, TECS and TECx), but both sections aren't necessarily read.
-Duplicate sections will overwrite previously defined section data, except where noted. Note this only applies to those section that pass the specified "validation" parameters, as any section that does not successfully validate will be ignored
-
+Invalid sections can exist and will be ignored. While Size is unsigned, it can safely be
+a negative value to read a chunk earlier in the file. This allows for "section
+stacking", allowing smaller sections to be placed inside of larger ones or duplicate
+triggers or units to take less space in the file. All sections will marked "Not
+required." are never read by StarCraft and can safely be omitted. However they may or
+may not be read by StarEdit, and may cause the map to be unreadable in an editor. Note
+"Hybrid", or "Enhanced", maps were introduced in 1.04. They are supported both by
+Original StarCraft and Brood War and usually contain sections for both types (e.g., UPGS
+and UPGx, TECS and TECx), but both sections aren't necessarily read. Duplicate sections
+will overwrite previously defined section data, except where noted. Note this only
+applies to those section that pass the specified "validation" parameters, as any section
+that does not successfully validate will be ignored
 """
 
 import struct

@@ -1,6 +1,4 @@
-"""Represents an abstract class for decoding and encoding binary CHK section data.
-
-"""
+"""Represents an abstract class for decoding and encoding binary CHK section data."""
 
 import struct
 from abc import abstractmethod

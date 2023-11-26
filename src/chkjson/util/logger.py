@@ -2,7 +2,6 @@
 
 Taken from:
 http://stackoverflow.com/questions/11927278/how-to-configure-logging-in-python
-
 """
 
 import logging
@@ -46,11 +45,7 @@ class Logger(object):
 
 
 def get_logger(name, logfile=BASE_LOG, logdir=LOGDIR):
-    """
-
-    Define absolute paths for logfile and logdir for outside usage!
-
-    """
+    """Define absolute paths for logfile and logdir for outside usage!"""
     return Logger(name, log_file=logfile, log_dir=logdir).get()
 
 

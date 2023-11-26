@@ -1,6 +1,4 @@
-"""
-
-"""
+""""""
 import dataclasses
 from typing import TypeVar
 
@@ -51,7 +49,8 @@ def _get_actual_section_name_for_chk_section(
 ) -> str:
     """Resolve a DecodedChkSection to its actual CHK section name.
 
-    This handles the edge case where the UnknownChkSection stores the actual name in a field variable.
+    This handles the edge case where the UnknownChkSection stores the actual name in a
+    field variable.
 
     :param decoded_chk_section:
     :return:

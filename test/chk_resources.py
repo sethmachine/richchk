@@ -1,6 +1,4 @@
-"""Provides absolute paths to CHK files used for unit tests.
-
-"""
+"""Provides absolute paths to CHK files used for unit tests."""
 
 from pathlib import Path
 

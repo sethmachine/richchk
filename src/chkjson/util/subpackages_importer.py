@@ -1,7 +1,6 @@
 """Load all modules from a given subpackage relative to a parent package.
 
 Use this to enable the factory pattern for dynamic class registration.
-
 """
 
 import importlib
