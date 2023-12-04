@@ -26,9 +26,10 @@ applies to those section that pass the specified "validation" parameters, as any
 that does not successfully validate will be ignored
 """
 
+import logging
 import struct
 from io import BytesIO
-from typing import Protocol
+from typing import Any, Protocol
 
 from ..model.chk.decoded_chk import DecodedChk
 from ..model.chk.decoded_chk_section import DecodedChkSection
@@ -48,8 +49,8 @@ class _ByteStream(Protocol):
 
 
 class ChkIo:
-    def __init__(self):
-        self.log = logger.get_logger(ChkIo.__name__)
+    def __init__(self) -> None:
+        self.log: logging.Logger = logger.get_logger(ChkIo.__name__)
 
     def decode_chk_file(self, chk_file_path: str) -> DecodedChk:
         with open(chk_file_path, "rb") as f:
@@ -64,7 +65,7 @@ class ChkIo:
         pass
 
     def encode_chk_to_bytes(self, decoded_chk: DecodedChk) -> bytes:
-        pass
+        return b""
 
     def _decode_chk_byte_stream(self, chk_byte_stream: _ByteStream) -> DecodedChk:
         decoded_chk_sections: list[DecodedChkSection] = []
@@ -108,10 +109,10 @@ class ChkIo:
         if chk_section_name.value == "STR ":
             print("Hi")
         try:
-            transcoder: ChkSectionTranscoder = (
-                ChkSectionTranscoderFactory.make_chk_section_transcoder(
-                    chk_section_name
-                )
+            transcoder: ChkSectionTranscoder[
+                Any
+            ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
+                chk_section_name
             )
             return transcoder.decode(chk_section_binary_data)
         except NotImplementedError:

@@ -2,23 +2,24 @@
 
 import struct
 from abc import abstractmethod
-from typing import Protocol, TypeVar
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from ..model.chk.decoded_chk_section import DecodedChkSection
 from ..model.chk_section_name import ChkSectionName
 
-T = TypeVar("T", bound=DecodedChkSection, contravariant=True)
+_T = TypeVar("_T", bound=DecodedChkSection, contravariant=True)
 
 
-class ChkSectionTranscoder(Protocol[T]):
-    def __call__(self, *args, **kwargs):
+@runtime_checkable
+class ChkSectionTranscoder(Protocol[_T]):
+    def __call__(self, *args: list[Any], **kwargs: dict[str, Any]) -> Any:
         pass
 
     @abstractmethod
     def decode(self, chk_section_binary_data: bytes) -> DecodedChkSection:
         raise NotImplementedError
 
-    def encode(self, decoded_chk_section: T) -> bytes:
+    def encode(self, decoded_chk_section: _T) -> bytes:
         chk_binary_data = self._encode(decoded_chk_section)
         return (
             self._encode_chk_section_header(
@@ -28,7 +29,7 @@ class ChkSectionTranscoder(Protocol[T]):
         )
 
     @abstractmethod
-    def _encode(self, decoded_chk_section: T) -> bytes:
+    def _encode(self, decoded_chk_section: _T) -> bytes:
         raise NotImplementedError
 
     @classmethod

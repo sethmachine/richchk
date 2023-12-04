@@ -2,9 +2,12 @@
 
 import os
 import re
+from typing import Iterator
 
 
-def absolute_filepaths(directory, depth=0, file_regex=re.compile(r".+")):
+def absolute_filepaths(
+    directory: str, depth: int = 0, file_regex: re.Pattern[str] = re.compile(r".+")
+) -> Iterator[str]:
     """List all absolute filepaths recursively from a directory.
 
     :param directory: the directory to begin finding matching files
@@ -25,7 +28,9 @@ def absolute_filepaths(directory, depth=0, file_regex=re.compile(r".+")):
                 yield f
 
 
-def absolute_dirpaths(directory, depth=0, file_pattern=r".+"):
+def absolute_dirpaths(
+    directory: str, depth: int = 0, file_pattern: str = r".+"
+) -> Iterator[str]:
     """Lists all files joined to directory path.
 
     Args:     depth (int): How many subdirectories to explore.                 A depth
@@ -42,11 +47,3 @@ def absolute_dirpaths(directory, depth=0, file_pattern=r".+"):
             if depth != 0:
                 for f in absolute_dirpaths(path, depth - 1, file_pattern):
                     yield f
-
-
-if __name__ == "__main__":
-    indir = "/Users/sdworman/desktop/old-projects"
-    files = absolute_filepaths(indir, -1, re.compile(r"^.+?\.py$", re.IGNORECASE))
-    pys = [x for x in files]
-    for x in pys:
-        print(x)
