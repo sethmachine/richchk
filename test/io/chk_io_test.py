@@ -1,5 +1,4 @@
 """"""
-import dataclasses
 from typing import TypeVar
 
 from chkjson.io.chk_io import ChkIo

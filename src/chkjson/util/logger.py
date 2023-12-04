@@ -6,6 +6,7 @@ http://stackoverflow.com/questions/11927278/how-to-configure-logging-in-python
 
 import logging
 import os
+from typing import Optional
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 LOGDIR = os.path.join(SCRIPT_PATH, "logs")
@@ -13,7 +14,10 @@ BASE_LOG = os.path.join(LOGDIR, "chkjson.log")
 
 
 class Logger(object):
-    def __init__(self, name, log_file=None, log_dir=None):
+    def __init__(
+        self, name: str, log_file: Optional[str] = None, log_dir: Optional[str] = None
+    ):
+        assert isinstance(log_dir, str)
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
         if not log_file:
@@ -40,14 +44,12 @@ class Logger(object):
             logger.addHandler(shandler)
         self._logger = logger
 
-    def get(self):
+    def get(self) -> logging.Logger:
         return self._logger
 
 
-def get_logger(name, logfile=BASE_LOG, logdir=LOGDIR):
+def get_logger(
+    name: str, logfile: str = BASE_LOG, logdir: str = LOGDIR
+) -> logging.Logger:
     """Define absolute paths for logfile and logdir for outside usage!"""
     return Logger(name, log_file=logfile, log_dir=logdir).get()
-
-
-if __name__ == "__main__":
-    pass

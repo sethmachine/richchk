@@ -9,7 +9,7 @@ import pkgutil
 _CHKJSON_PACKAGE_NAME = "chkjson"
 
 
-def import_all_modules_in_subpackage(package_name: str, subpackage_name: str):
+def import_all_modules_in_subpackage(package_name: str, subpackage_name: str) -> None:
     # Get a reference to the subpackage module
     subpackage = importlib.import_module(
         f"{package_name}.{subpackage_name}", package=_CHKJSON_PACKAGE_NAME
