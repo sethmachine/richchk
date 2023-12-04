@@ -52,7 +52,7 @@ class ChkSectionTranscoderFactory:
         return [x for x in cls.transcoders.keys()]
 
 
-# import all transcoders to register with the factory
+# import all transcoder to register with the factory
 # must happen after factory definition; otherwise causes circular import error
 _THIS_MODULE_PARENT_PACKAGE_NAME = ".transcoder"
 _TRANSCODERS_SUBPACKAGE_NAME = "transcoders"

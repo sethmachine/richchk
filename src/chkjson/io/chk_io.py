@@ -27,6 +27,7 @@ that does not successfully validate will be ignored
 """
 
 import logging
+import os
 import struct
 from io import BytesIO
 from typing import Any, Protocol
@@ -62,10 +63,30 @@ class ChkIo:
     def encode_chk_to_file(
         self, decoded_chk: DecodedChk, chk_output_file_path: str
     ) -> None:
-        pass
+        if os.path.exists(chk_output_file_path):
+            error_msg: str = (
+                f"Refusing to overwrite an existing CHK file {chk_output_file_path} "
+                f"due to safety issues.  Instead, always make a new CHK file "
+                f"when editing to prevent loss of data."
+            )
+            self.log.error(error_msg)
+            raise FileExistsError(error_msg)
+        with open(chk_output_file_path, "wb") as f:
+            f.write(self.encode_chk_to_bytes(decoded_chk))
 
     def encode_chk_to_bytes(self, decoded_chk: DecodedChk) -> bytes:
-        return b""
+        data = b""
+        for decoded_chk_section in decoded_chk.decoded_chk_sections:
+            if isinstance(decoded_chk_section, DecodedUnknownSection):
+                data += self._encode_unknown_chk_section(decoded_chk_section)
+            else:
+                transcoder: ChkSectionTranscoder[
+                    Any
+                ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
+                    decoded_chk_section.section_name()
+                )
+                data += transcoder.encode(decoded_chk_section)
+        return data
 
     def _decode_chk_byte_stream(self, chk_byte_stream: _ByteStream) -> DecodedChk:
         decoded_chk_sections: list[DecodedChkSection] = []
@@ -95,7 +116,7 @@ class ChkIo:
         self, maybe_chk_section_name: str, chk_section_binary_data: bytes
     ) -> DecodedChkSection:
         if not ChkSectionName.contains(maybe_chk_section_name):
-            self.log.warn(
+            self.log.warning(
                 f"Unknown CHK section name not found in ChkSectionName enum: "
                 f"{maybe_chk_section_name}.  "
                 f"Will decode as unknown section."
@@ -106,8 +127,6 @@ class ChkIo:
         chk_section_name: ChkSectionName = ChkSectionName.get_by_value(
             maybe_chk_section_name
         )
-        if chk_section_name.value == "STR ":
-            print("Hi")
         try:
             transcoder: ChkSectionTranscoder[
                 Any
@@ -130,3 +149,14 @@ class ChkIo:
         cls, unknown_chk_section_name: str, chk_section_binary_data: bytes
     ) -> DecodedUnknownSection:
         return DecodedUnknownSection(unknown_chk_section_name, chk_section_binary_data)
+
+    @classmethod
+    def _encode_unknown_chk_section(
+        cls, unknown_chk_section: DecodedUnknownSection
+    ) -> bytes:
+        data = ChkSectionTranscoder.encode_chk_section_header(
+            unknown_chk_section.actual_section_name,
+            len(unknown_chk_section.chk_binary_data),
+        )
+        data += unknown_chk_section.chk_binary_data
+        return data
