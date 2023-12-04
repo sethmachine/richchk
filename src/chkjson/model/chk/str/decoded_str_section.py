@@ -15,7 +15,7 @@ u16: Number of strings in the section (Default: 1024) u16[Number of strings]: 1 
 for each string specifying the offset (the spot where the string starts in the section
 from the start of it). Strings: After the offsets, this is where every string in the map
 goes, one after another. Each one is terminated by a null character. This section can
-contain more or less then 1024 string offsests and will work in Starcraft. By default
+contain more or less than 1024 string offsets and will work in Starcraft. By default,
 the first byte in Strings is a NUL character, and all unused offsets in the STR section
 point to this NUL character. Note that STR sections can be stacked in a similar fashion
 as MTXM
