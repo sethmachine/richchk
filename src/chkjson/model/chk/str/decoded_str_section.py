@@ -33,7 +33,7 @@ class DecodedStrSection(DecodedChkSection):
     _number_of_strings: int
     # u16[Number of strings]: 1 integer for each string specifying the offset
     # (the spot where the string starts in the section from the start of it).
-    _strings_offset: list[int]
+    _string_offsets: list[int]
     # Strings: After the offsets, this is where every string in the map goes,
     # one after another. Each one is terminated by a null character.
     _strings: list[str]
@@ -43,12 +43,12 @@ class DecodedStrSection(DecodedChkSection):
         return ChkSectionName.STR
 
     @property
-    def number_of_strings_u16(self) -> int:
+    def number_of_strings(self) -> int:
         return self._number_of_strings
 
     @property
-    def strings_offset_u16(self) -> list[int]:
-        return self._strings_offset.copy()
+    def strings_offsets(self) -> list[int]:
+        return self._string_offsets.copy()
 
     @property
     def strings(self) -> list[str]:

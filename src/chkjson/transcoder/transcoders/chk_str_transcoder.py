@@ -21,6 +21,10 @@ from io import BytesIO
 from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
 from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
+from ...transcoder.strings_common import (
+    _NULL_TERMINATE_CHAR_FOR_STRING,
+    _STRING_ENCODING,
+)
 
 
 class ChkStrTranscoder(
@@ -28,10 +32,6 @@ class ChkStrTranscoder(
     _RegistrableTranscoder,
     chk_section_name=DecodedStrSection.section_name(),
 ):
-    _NULL_TERMINATE_CHAR_FOR_STRING: str = "\x00"
-    # note that a different encoding is possible (e.g. non-English language maps)
-    _STRING_ENCODING: str = "utf-8"
-
     def decode(self, chk_section_binary_data: bytes) -> DecodedStrSection:
         bytes_stream: BytesIO = BytesIO(chk_section_binary_data)
 
@@ -45,19 +45,30 @@ class ChkStrTranscoder(
             # strings won't store the null terminators
             chars: list[str] = []
             char: str = struct.unpack("c", bytes_stream.read(1))[0].decode(
-                self._STRING_ENCODING
+                _STRING_ENCODING
             )
-            while char != self._NULL_TERMINATE_CHAR_FOR_STRING:
+            while char != _NULL_TERMINATE_CHAR_FOR_STRING:
                 chars.append(char)
                 char = struct.unpack("c", bytes_stream.read(1))[0].decode(
-                    self._STRING_ENCODING
+                    _STRING_ENCODING
                 )
             strings.append("".join(chars))
         return DecodedStrSection(
             _number_of_strings=num_strings,
-            _strings_offset=string_offsets,
+            _string_offsets=string_offsets,
             _strings=strings,
         )
 
     def _encode(self, decoded_chk_section: DecodedStrSection) -> bytes:
-        return b""
+        data = b""
+        data += struct.pack("H", decoded_chk_section.number_of_strings)
+        for i in range(decoded_chk_section.number_of_strings):
+            data += struct.pack("H", decoded_chk_section.strings_offsets[i])
+        for string_ in decoded_chk_section.strings:
+            data += struct.pack(
+                "{}s".format(len(string_)), bytes(string_, _STRING_ENCODING)
+            )
+            data += struct.pack(
+                "1s", bytes(_NULL_TERMINATE_CHAR_FOR_STRING, _STRING_ENCODING)
+            )
+        return data
