@@ -20,14 +20,16 @@ class ChkSectionTranscoder(Protocol[_T]):
     def decode(self, chk_section_binary_data: bytes) -> DecodedChkSection:
         raise NotImplementedError
 
-    def encode(self, decoded_chk_section: _T) -> bytes:
+    def encode(self, decoded_chk_section: _T, include_header: bool = True) -> bytes:
         chk_binary_data = self._encode(decoded_chk_section)
-        return (
-            self.encode_chk_section_header(
-                decoded_chk_section.section_name(), len(chk_binary_data)
+        if include_header:
+            return (
+                self.encode_chk_section_header(
+                    decoded_chk_section.section_name(), len(chk_binary_data)
+                )
+                + chk_binary_data
             )
-            + chk_binary_data
-        )
+        return chk_binary_data
 
     @abstractmethod
     def _encode(self, decoded_chk_section: _T) -> bytes:
