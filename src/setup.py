@@ -9,9 +9,7 @@ setup(
     author_email="sethmachine01@gmail.com",
     license="MIT",
     install_requires=[],
-    package_data={
-        package: ["py.typed"] for package in find_packages()
-    },
+    package_data={package: ["py.typed"] for package in find_packages()},
     packages=find_packages(),
     zip_safe=False,
 )

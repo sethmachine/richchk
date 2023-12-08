@@ -1,25 +1,36 @@
 """Read and write CHK data.
 
-The CHK is split into several named chunks (hence the file extension, an abbreviation of CHunK).
+The CHK is split into several named chunks (hence the file extension, an abbreviation of
+CHunK).
 
 Each section begins with an 8-byte header:
 
 u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
-u32 Size - The size, in bytes, of the chunk (not including this header)
-Followed by as many bytes as 'Size', in a format described below.
+
+u32 Size - The size, in bytes, of the chunk (not including this header) Followed by as
+many bytes as 'Size', in a format described below.
 
 Some things to keep in mind about the CHK section:
 
-Invalid sections can exist and will be ignored. While Size is unsigned, it can safely be a negative value to read a chunk earlier in the file. This allows for "section stacking", allowing smaller sections to be placed inside of larger ones or duplicate triggers or units to take less space in the file.
-All sections will marked "Not required." are never read by StarCraft and can safely be omitted. However they may or may not be read by StarEdit, and may cause the map to be unreadable in an editor.
-Note "Hybrid", or "Enhanced", maps were introduced in 1.04. They are supported both by Original StarCraft and Brood War and usually contain sections for both types (e.g., UPGS and UPGx, TECS and TECx), but both sections aren't necessarily read.
-Duplicate sections will overwrite previously defined section data, except where noted. Note this only applies to those section that pass the specified "validation" parameters, as any section that does not successfully validate will be ignored
-
+Invalid sections can exist and will be ignored. While Size is unsigned, it can safely be
+a negative value to read a chunk earlier in the file. This allows for "section
+stacking", allowing smaller sections to be placed inside of larger ones or duplicate
+triggers or units to take less space in the file. All sections will marked "Not
+required." are never read by StarCraft and can safely be omitted. However they may or
+may not be read by StarEdit, and may cause the map to be unreadable in an editor. Note
+"Hybrid", or "Enhanced", maps were introduced in 1.04. They are supported both by
+Original StarCraft and Brood War and usually contain sections for both types (e.g., UPGS
+and UPGx, TECS and TECx), but both sections aren't necessarily read. Duplicate sections
+will overwrite previously defined section data, except where noted. Note this only
+applies to those section that pass the specified "validation" parameters, as any section
+that does not successfully validate will be ignored
 """
 
+import logging
+import os
 import struct
 from io import BytesIO
-from typing import Protocol
+from typing import Any, Protocol
 
 from ..model.chk.decoded_chk import DecodedChk
 from ..model.chk.decoded_chk_section import DecodedChkSection
@@ -39,8 +50,8 @@ class _ByteStream(Protocol):
 
 
 class ChkIo:
-    def __init__(self):
-        self.log = logger.get_logger(ChkIo.__name__)
+    def __init__(self) -> None:
+        self.log: logging.Logger = logger.get_logger(ChkIo.__name__)
 
     def decode_chk_file(self, chk_file_path: str) -> DecodedChk:
         with open(chk_file_path, "rb") as f:
@@ -52,10 +63,30 @@ class ChkIo:
     def encode_chk_to_file(
         self, decoded_chk: DecodedChk, chk_output_file_path: str
     ) -> None:
-        pass
+        if os.path.exists(chk_output_file_path):
+            error_msg: str = (
+                f"Refusing to overwrite an existing CHK file {chk_output_file_path} "
+                f"due to safety issues.  Instead, always make a new CHK file "
+                f"when editing to prevent loss of data."
+            )
+            self.log.error(error_msg)
+            raise FileExistsError(error_msg)
+        with open(chk_output_file_path, "wb") as f:
+            f.write(self.encode_chk_to_bytes(decoded_chk))
 
     def encode_chk_to_bytes(self, decoded_chk: DecodedChk) -> bytes:
-        pass
+        data = b""
+        for decoded_chk_section in decoded_chk.decoded_chk_sections:
+            if isinstance(decoded_chk_section, DecodedUnknownSection):
+                data += self._encode_unknown_chk_section(decoded_chk_section)
+            else:
+                transcoder: ChkSectionTranscoder[
+                    Any
+                ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
+                    decoded_chk_section.section_name()
+                )
+                data += transcoder.encode(decoded_chk_section)
+        return data
 
     def _decode_chk_byte_stream(self, chk_byte_stream: _ByteStream) -> DecodedChk:
         decoded_chk_sections: list[DecodedChkSection] = []
@@ -85,7 +116,7 @@ class ChkIo:
         self, maybe_chk_section_name: str, chk_section_binary_data: bytes
     ) -> DecodedChkSection:
         if not ChkSectionName.contains(maybe_chk_section_name):
-            self.log.warn(
+            self.log.warning(
                 f"Unknown CHK section name not found in ChkSectionName enum: "
                 f"{maybe_chk_section_name}.  "
                 f"Will decode as unknown section."
@@ -96,13 +127,11 @@ class ChkIo:
         chk_section_name: ChkSectionName = ChkSectionName.get_by_value(
             maybe_chk_section_name
         )
-        if chk_section_name.value == "STR ":
-            print("Hi")
         try:
-            transcoder: ChkSectionTranscoder = (
-                ChkSectionTranscoderFactory.make_chk_section_transcoder(
-                    chk_section_name
-                )
+            transcoder: ChkSectionTranscoder[
+                Any
+            ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
+                chk_section_name
             )
             return transcoder.decode(chk_section_binary_data)
         except NotImplementedError:
@@ -120,3 +149,14 @@ class ChkIo:
         cls, unknown_chk_section_name: str, chk_section_binary_data: bytes
     ) -> DecodedUnknownSection:
         return DecodedUnknownSection(unknown_chk_section_name, chk_section_binary_data)
+
+    @classmethod
+    def _encode_unknown_chk_section(
+        cls, unknown_chk_section: DecodedUnknownSection
+    ) -> bytes:
+        data = ChkSectionTranscoder.encode_chk_section_header(
+            unknown_chk_section.actual_section_name,
+            len(unknown_chk_section.chk_binary_data),
+        )
+        data += unknown_chk_section.chk_binary_data
+        return data

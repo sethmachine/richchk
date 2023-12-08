@@ -1,12 +1,11 @@
 """Define the possible CHK section string names that can be found.
 
-The CHK is split into several named chunks
-(hence the file extension, an abbreviation of CHunK).
+The CHK is split into several named chunks (hence the file extension, an abbreviation of
+CHunK).
 
 Each section begins with an 8-byte header:
 
 u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
-
 """
 
 from enum import Enum

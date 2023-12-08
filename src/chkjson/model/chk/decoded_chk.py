@@ -1,6 +1,4 @@
-"""Represents the ordered list of decoded CHK sections from a decoded CHK file.
-
-"""
+"""Represents the ordered list of decoded CHK sections from a decoded CHK file."""
 
 from copy import deepcopy
 from dataclasses import dataclass
