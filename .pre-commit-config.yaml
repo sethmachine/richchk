@@ -1,0 +1,29 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-yaml
+-   repo: https://github.com/PyCQA/isort
+    rev: b67a6a595803710f6af52865d82d996f264224c6
+    hooks:
+    -   id: isort
+-   repo: https://github.com/PyCQA/docformatter
+    rev: 01e0a5d59dbedc23edc8d79dcf4bcc63c0573988
+    hooks:
+    -   id: docformatter
+        args: ["--in-place", "--black", "--force-wrap"]
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+    -   id: flake8
+        args: ["--config=.flake8"]
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+    -   id: mypy
+        args: ["--strict", "--ignore-missing-imports"]
+        exclude: ^test/
+-   repo: https://github.com/psf/black
+    rev: 22.12.0
+    hooks:
+    -   id: black

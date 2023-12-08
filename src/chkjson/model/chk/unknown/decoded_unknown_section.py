@@ -1,7 +1,7 @@
 """Handler for unknown CHK sections.
 
-UNKNOWN is not an actual CHK section name.
-This is just convenience to allow handling partially decoded CHK files.
+UNKNOWN is not an actual CHK section name. This is just convenience to allow handling
+partially decoded CHK files.
 """
 
 from dataclasses import dataclass
@@ -33,7 +33,3 @@ class DecodedUnknownSection(DecodedChkSection):
             f"(_actual_section_name='{self._actual_section_name}', "
             f"total bytes={len(self._chk_binary_data)})"
         )
-
-    @classmethod
-    def cast(cls, decoded_chk_section: DecodedChkSection) -> "DecodedUnknownSection":
-        return cls()
