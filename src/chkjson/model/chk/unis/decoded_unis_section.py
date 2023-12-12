@@ -56,7 +56,7 @@ class DecodedUnisSection(DecodedChkSection):
     # u16[228]: Gas cost, in order of Unit ID
     _unit_gas_costs: list[int]
     # u16[228]: String number, in order of Unit ID
-    _unit_string_offsets: list[int]
+    _unit_string_ids: list[int]
     # u16[100]: Base weapon damage the weapon does,
     # in weapon ID order (#List of Unit Weapon# IDs)
     _unit_base_weapon_damages: list[int]
@@ -96,8 +96,8 @@ class DecodedUnisSection(DecodedChkSection):
         return self._unit_gas_costs.copy()
 
     @property
-    def unit_string_offsets(self) -> list[int]:
-        return self._unit_string_offsets.copy()
+    def unit_string_ids(self) -> list[int]:
+        return self._unit_string_ids.copy()
 
     @property
     def unit_base_weapon_damages(self) -> list[int]:
