@@ -88,7 +88,7 @@ class ChkUnisTranscoder(
             _unit_build_times=build_time,
             _unit_mineral_costs=minerals,
             _unit_gas_costs=gas,
-            _unit_string_offsets=string_ids,
+            _unit_string_ids=string_ids,
             _unit_base_weapon_damages=weapon_damage,
             _unit_upgrade_weapon_damages=weapon_bonus,
         )
@@ -118,7 +118,7 @@ class ChkUnisTranscoder(
             "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_gas_costs
         )
         data += struct.pack(
-            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_string_offsets
+            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_string_ids
         )
         data += struct.pack(
             "{}H".format(self._NUM_WEAPONS),
