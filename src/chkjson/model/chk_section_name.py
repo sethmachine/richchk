@@ -22,6 +22,7 @@ class ChkSectionName(Enum):
     STR = ("STR ",)
     UNIS = ("UNIS",)
     MRGN = ("MRGN",)
+    TRIG = ("TRIG",)
     # special case for unhandled/unknown CHK section
     # this does not correspond to any real CHK section name
     UNKNOWN = ("UNKNOWN",)
