@@ -44,10 +44,10 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 import struct
 from io import BytesIO
 
-from ...model.chk.uprp.decoded_cuwp_slot import DecodedCuwpSlot
-from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
-from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
+from ....model.chk.uprp.decoded_cuwp_slot import DecodedCuwpSlot
+from ....model.chk.uprp.decoded_uprp_section import DecodedUprpSection
+from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
 
 class ChkUprpTranscoder(

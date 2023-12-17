@@ -3,7 +3,7 @@ from chkjson.model.chk.trig.decoded_condition import DecodedCondition
 from chkjson.model.chk.trig.decoded_player_execution import DecodedPlayerExecution
 from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
 from chkjson.model.chk.trig.decoded_trigger import DecodedTrigger
-from chkjson.transcoder.transcoders.chk_trig_transcoder import ChkTrigTranscoder
+from chkjson.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
 
