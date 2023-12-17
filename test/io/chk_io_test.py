@@ -4,7 +4,7 @@ from typing import TypeVar
 
 import pytest
 
-from chkjson.io.chk_io import ChkIo
+from chkjson.io.chk.chk_io import ChkIo
 from chkjson.model.chk.decoded_chk import DecodedChk
 from chkjson.model.chk.decoded_chk_section import DecodedChkSection
 from chkjson.model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
