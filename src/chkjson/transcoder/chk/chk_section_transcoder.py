@@ -4,9 +4,9 @@ import struct
 from abc import abstractmethod
 from typing import Any, Protocol, TypeVar, Union, runtime_checkable
 
-from ..model.chk.decoded_chk_section import DecodedChkSection
-from ..model.chk_section_name import ChkSectionName
-from .strings_common import _STRING_ENCODING
+from ...model.chk.decoded_chk_section import DecodedChkSection
+from ...model.chk_section_name import ChkSectionName
+from ...transcoder.chk.strings_common import _STRING_ENCODING
 
 _T = TypeVar("_T", bound=DecodedChkSection, contravariant=True)
 

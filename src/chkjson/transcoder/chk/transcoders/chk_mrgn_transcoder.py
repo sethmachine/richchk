@@ -44,10 +44,10 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 import struct
 from io import BytesIO
 
-from ...model.chk.mrgn.decoded_location import DecodedLocation
-from ...model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
-from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
+from ....model.chk.mrgn.decoded_location import DecodedLocation
+from ....model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
+from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
 
 class ChkMrgnTranscoder(

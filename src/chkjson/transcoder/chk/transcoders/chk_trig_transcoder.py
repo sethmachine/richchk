@@ -132,13 +132,13 @@ will add more triggers.
 import struct
 from io import BytesIO
 
-from ...model.chk.trig.decoded_action import DecodedAction
-from ...model.chk.trig.decoded_condition import DecodedCondition
-from ...model.chk.trig.decoded_player_execution import DecodedPlayerExecution
-from ...model.chk.trig.decoded_trig_section import DecodedTrigSection
-from ...model.chk.trig.decoded_trigger import DecodedTrigger
-from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
+from ....model.chk.trig.decoded_action import DecodedAction
+from ....model.chk.trig.decoded_condition import DecodedCondition
+from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
+from ....model.chk.trig.decoded_trig_section import DecodedTrigSection
+from ....model.chk.trig.decoded_trigger import DecodedTrigger
+from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
 
 class ChkTrigTranscoder(

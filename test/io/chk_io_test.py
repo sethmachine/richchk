@@ -9,7 +9,7 @@ from chkjson.model.chk.decoded_chk import DecodedChk
 from chkjson.model.chk.decoded_chk_section import DecodedChkSection
 from chkjson.model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from chkjson.model.chk_section_name import ChkSectionName
-from chkjson.transcoder.chk_section_transcoder_factory import (
+from chkjson.transcoder.chk.chk_section_transcoder_factory import (
     ChkSectionTranscoderFactory,
 )
 

@@ -2,6 +2,7 @@
 
 import dataclasses
 
+from ..str.rich_string import RichString
 from .unit_id import UnitId
 
 
@@ -14,7 +15,7 @@ class UnitSetting:
     _build_time: int
     _mineral_cost: int
     _gas_cost: int
-    _custom_unit_name: str
+    _custom_unit_name: RichString
     _base_damage: int
     _upgrade_damage: int
 
@@ -47,7 +48,7 @@ class UnitSetting:
         return self._gas_cost
 
     @property
-    def custom_unit_name(self) -> str:
+    def custom_unit_name(self) -> RichString:
         return self._custom_unit_name
 
     @property

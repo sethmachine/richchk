@@ -32,10 +32,10 @@ non-empty string values.
 import struct
 from io import BytesIO
 
-from ...model.chk.str.decoded_str_section import DecodedStrSection
-from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
-from ...transcoder.strings_common import (
+from ....model.chk.str.decoded_str_section import DecodedStrSection
+from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
+from ....transcoder.chk.strings_common import (
     _NULL_TERMINATE_CHAR_FOR_STRING,
     _STRING_ENCODING,
 )

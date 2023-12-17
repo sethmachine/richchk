@@ -33,9 +33,9 @@ u16[100]: Upgrade bonus weapon damage, in weapon ID order
 import struct
 from io import BytesIO
 
-from ...model.chk.unis.decoded_unis_section import DecodedUnisSection
-from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
+from ....model.chk.unis.decoded_unis_section import DecodedUnisSection
+from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
 
 class ChkUnisTranscoder(

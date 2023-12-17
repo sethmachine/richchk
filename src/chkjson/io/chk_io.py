@@ -36,8 +36,8 @@ from ..model.chk.decoded_chk import DecodedChk
 from ..model.chk.decoded_chk_section import DecodedChkSection
 from ..model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ..model.chk_section_name import ChkSectionName
-from ..transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ..transcoder.chk_section_transcoder_factory import ChkSectionTranscoderFactory
+from ..transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ..transcoder.chk.chk_section_transcoder_factory import ChkSectionTranscoderFactory
 from ..util import logger
 
 _CHK_SECTION_NAME_NUM_BYTES: int = 4

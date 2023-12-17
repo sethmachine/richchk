@@ -2,8 +2,8 @@
 
 from typing import Any, ClassVar, Optional, Type, Union
 
-from ..model.chk_section_name import ChkSectionName
-from ..util.subpackages_importer import import_all_modules_in_subpackage
+from ...model.chk_section_name import ChkSectionName
+from ...util.subpackages_importer import import_all_modules_in_subpackage
 from .chk_section_transcoder import ChkSectionTranscoder
 
 
@@ -54,7 +54,7 @@ class ChkSectionTranscoderFactory:
 
 # import all transcoder to register with the factory
 # must happen after factory definition; otherwise causes circular import error
-_THIS_MODULE_PARENT_PACKAGE_NAME = ".transcoder"
+_THIS_MODULE_PARENT_PACKAGE_NAME = ".transcoder.chk"
 _TRANSCODERS_SUBPACKAGE_NAME = "transcoders"
 
 import_all_modules_in_subpackage(

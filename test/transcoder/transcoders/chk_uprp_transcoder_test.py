@@ -1,6 +1,6 @@
 from chkjson.model.chk.uprp.decoded_cuwp_slot import DecodedCuwpSlot
 from chkjson.model.chk.uprp.decoded_uprp_section import DecodedUprpSection
-from chkjson.transcoder.transcoders.chk_uprp_transcoder import ChkUprpTranscoder
+from chkjson.transcoder.chk.transcoders.chk_uprp_transcoder import ChkUprpTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
 
