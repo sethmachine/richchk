@@ -15,9 +15,9 @@ u8[64]: 1 byte for each trigger unit properties slot
 import struct
 from io import BytesIO
 
-from ...model.chk.upus.decoded_upus_section import DecodedUpusSection
-from ...transcoder.chk_section_transcoder import ChkSectionTranscoder
-from ...transcoder.chk_section_transcoder_factory import _RegistrableTranscoder
+from ....model.chk.upus.decoded_upus_section import DecodedUpusSection
+from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
+from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
 
 class ChkUpusTranscoder(

@@ -2,12 +2,12 @@
 
 from typing import Any, ClassVar, Optional, Type, Union
 
-from ..model.chk_section_name import ChkSectionName
-from ..util.subpackages_importer import import_all_modules_in_subpackage
-from .chk_section_transcoder import ChkSectionTranscoder
+from ...model.chk_section_name import ChkSectionName
+from ...util.subpackages_importer import import_all_modules_in_subpackage
+from .richchk_section_transcoder import RichChkSectionTranscoder
 
 
-class _RegistrableTranscoder:
+class _RichChkRegistrableTranscoder:
     def __init_subclass__(cls, chk_section_name: Optional[ChkSectionName] = None):
         ChkSectionTranscoderFactory.register(chk_section_name, cls)
 
@@ -16,21 +16,23 @@ class ChkSectionTranscoderFactory:
     transcoders: ClassVar[
         dict[
             ChkSectionName,
-            Type[Union[ChkSectionTranscoder[Any], _RegistrableTranscoder]],
+            Type[
+                Union[RichChkSectionTranscoder[Any, Any], _RichChkRegistrableTranscoder]
+            ],
         ]
     ] = {}
 
     @classmethod
     def make_chk_section_transcoder(
         cls, chk_section_name: ChkSectionName
-    ) -> ChkSectionTranscoder[Any]:
+    ) -> RichChkSectionTranscoder[Any, Any]:
         """Factory for making ChkSectionTranscoder for a given CHK section name."""
         try:
             maybe_transcoder: Union[
-                ChkSectionTranscoder[Any], _RegistrableTranscoder
+                RichChkSectionTranscoder[Any, Any], _RichChkRegistrableTranscoder
             ] = cls.transcoders[chk_section_name]()
-            assert isinstance(maybe_transcoder, ChkSectionTranscoder)
-            retval: ChkSectionTranscoder[Any] = maybe_transcoder
+            assert isinstance(maybe_transcoder, RichChkSectionTranscoder)
+            retval: RichChkSectionTranscoder[Any, Any] = maybe_transcoder
             return retval
         except KeyError as err:
             raise NotImplementedError(f"{chk_section_name=} doesn't exist") from err
@@ -39,7 +41,7 @@ class ChkSectionTranscoderFactory:
     def register(
         cls,
         chk_section_name: Optional[ChkSectionName],
-        subclass: Type[_RegistrableTranscoder],
+        subclass: Type[_RichChkRegistrableTranscoder],
     ) -> None:
         if ChkSectionName is None:
             raise ValueError("ChkSectionName must be defined")
@@ -54,7 +56,7 @@ class ChkSectionTranscoderFactory:
 
 # import all transcoder to register with the factory
 # must happen after factory definition; otherwise causes circular import error
-_THIS_MODULE_PARENT_PACKAGE_NAME = ".transcoder"
+_THIS_MODULE_PARENT_PACKAGE_NAME = ".transcoder.richchk"
 _TRANSCODERS_SUBPACKAGE_NAME = "transcoders"
 
 import_all_modules_in_subpackage(

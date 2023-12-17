@@ -1,5 +1,5 @@
 from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
-from chkjson.transcoder.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
+from chkjson.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
 
