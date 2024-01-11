@@ -35,6 +35,9 @@ import dataclasses
 from ...chk_section_name import ChkSectionName
 from ..decoded_chk_section import DecodedChkSection
 
+# modified unit settings that keep the default name use this value for the string ID
+_STRING_ID_FOR_DEFAULT_UNIT_NAME: int = 0
+
 
 @dataclasses.dataclass(frozen=True)
 class DecodedUnisSection(DecodedChkSection):

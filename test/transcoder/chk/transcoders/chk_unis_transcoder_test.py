@@ -1,7 +1,7 @@
 from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
 from chkjson.transcoder.chk.transcoders.chk_unis_transcoder import ChkUnisTranscoder
 
-from ...chk_resources import CHK_SECTION_FILE_PATHS
+from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 # these units were modified so they don't use the default settings flags
 # [TERRAN_MARINE, TERRAN_GHOST, TERRAN_FIREBAT]
@@ -28,7 +28,7 @@ def _read_chk_section() -> bytes:
     return chk_binary_data
 
 
-def test_it_decodes_str_chk_section_with_expected_unit_settings():
+def test_it_decodes_unis_chk_section_with_expected_unit_settings():
     transcoder: ChkUnisTranscoder = ChkUnisTranscoder()
     chk_binary_data = _read_chk_section()
     unis_section: DecodedUnisSection = transcoder.decode(chk_binary_data)

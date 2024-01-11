@@ -1,7 +1,7 @@
 from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from chkjson.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
 
-from ...chk_resources import CHK_SECTION_FILE_PATHS
+from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 # a "Location 0" was made with the following data in a GUI editor
 _EXPECTED_LOCATION_LEFT = 192

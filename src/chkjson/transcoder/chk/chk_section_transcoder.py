@@ -14,7 +14,7 @@ _T = TypeVar("_T", bound=DecodedChkSection, contravariant=True)
 @runtime_checkable
 class ChkSectionTranscoder(Protocol[_T]):
     def __call__(self, *args: list[Any], **kwargs: dict[str, Any]) -> Any:
-        pass
+        return self
 
     @abstractmethod
     def decode(self, chk_section_binary_data: bytes) -> DecodedChkSection:
