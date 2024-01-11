@@ -1,6 +1,6 @@
 """Represents each Starcraft unit's unique unit ID.
 
-These are referenced throughout various CHK sections and are harcoded.  E.g. a Terran
+These are referenced throughout various CHK sections and are hardcoded.  E.g. a Terran
 Marine is always identified as unit ID 0 in all CHK sections.  Based on the list here:
 https://staredit-network.fandom.com/wiki/List_of_units.
 Use the "name" column from the table in the wiki.

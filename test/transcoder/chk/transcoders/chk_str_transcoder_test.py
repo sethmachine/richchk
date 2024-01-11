@@ -1,7 +1,7 @@
 from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
 from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 
-from ...chk_resources import CHK_SECTION_FILE_PATHS
+from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 # these strings were added into the CHK section by using a GUI map editor
 _EXPECTED_STRINGS = [

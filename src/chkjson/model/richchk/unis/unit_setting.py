@@ -1,9 +1,11 @@
 """Represents a single modified unit setting for an entry in UNIS or UNIX."""
 
+import copy
 import dataclasses
 
 from ..str.rich_string import RichString
 from .unit_id import UnitId
+from .weapon_setting import WeaponSetting
 
 
 @dataclasses.dataclass(frozen=True)
@@ -16,8 +18,7 @@ class UnitSetting:
     _mineral_cost: int
     _gas_cost: int
     _custom_unit_name: RichString
-    _base_damage: int
-    _upgrade_damage: int
+    _weapons: list[WeaponSetting]
 
     @property
     def unit_id(self) -> UnitId:
@@ -52,9 +53,5 @@ class UnitSetting:
         return self._custom_unit_name
 
     @property
-    def base_damage(self) -> int:
-        return self._base_damage
-
-    @property
-    def upgrade_damage(self) -> int:
-        return self._upgrade_damage
+    def weapons(self) -> list[WeaponSetting]:
+        return copy.deepcopy(self._weapons)
