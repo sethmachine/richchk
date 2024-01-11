@@ -1,5 +1,6 @@
 import os
 import uuid
+from test.chk_resources import DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH
 from typing import TypeVar
 
 import pytest
@@ -12,8 +13,6 @@ from chkjson.model.chk_section_name import ChkSectionName
 from chkjson.transcoder.chk.chk_section_transcoder_factory import (
     ChkSectionTranscoderFactory,
 )
-
-from ..chk_resources import DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH
 
 T = TypeVar("T", bound=DecodedChkSection, covariant=True)
 

@@ -2,7 +2,7 @@ from chkjson.model.chk.uprp.decoded_cuwp_slot import DecodedCuwpSlot
 from chkjson.model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from chkjson.transcoder.chk.transcoders.chk_uprp_transcoder import ChkUprpTranscoder
 
-from ...chk_resources import CHK_SECTION_FILE_PATHS
+from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 
 def _read_chk_section() -> bytes:
