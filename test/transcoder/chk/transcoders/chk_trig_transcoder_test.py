@@ -5,7 +5,7 @@ from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
 from chkjson.model.chk.trig.decoded_trigger import DecodedTrigger
 from chkjson.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
 
-from ...chk_resources import CHK_SECTION_FILE_PATHS
+from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 # these are the default triggers in melee/SCM maps
 # CONDITION: always ACTION: modify resources for current player set to 50 minerals

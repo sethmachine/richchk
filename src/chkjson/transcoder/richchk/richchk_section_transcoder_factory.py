@@ -9,10 +9,10 @@ from .richchk_section_transcoder import RichChkSectionTranscoder
 
 class _RichChkRegistrableTranscoder:
     def __init_subclass__(cls, chk_section_name: Optional[ChkSectionName] = None):
-        ChkSectionTranscoderFactory.register(chk_section_name, cls)
+        RichChkSectionTranscoderFactory.register(chk_section_name, cls)
 
 
-class ChkSectionTranscoderFactory:
+class RichChkSectionTranscoderFactory:
     transcoders: ClassVar[
         dict[
             ChkSectionName,
@@ -26,7 +26,7 @@ class ChkSectionTranscoderFactory:
     def make_chk_section_transcoder(
         cls, chk_section_name: ChkSectionName
     ) -> RichChkSectionTranscoder[Any, Any]:
-        """Factory for making ChkSectionTranscoder for a given CHK section name."""
+        """Factory for making RichChkSectionTranscoder for a given CHK section name."""
         try:
             maybe_transcoder: Union[
                 RichChkSectionTranscoder[Any, Any], _RichChkRegistrableTranscoder
@@ -52,6 +52,10 @@ class ChkSectionTranscoderFactory:
     @classmethod
     def get_all_registered_chk_section_names(cls) -> list[ChkSectionName]:
         return [x for x in cls.transcoders.keys()]
+
+    @classmethod
+    def supports_transcoding_chk_section(cls, chk_section_name: ChkSectionName) -> bool:
+        return chk_section_name in cls.transcoders
 
 
 # import all transcoder to register with the factory

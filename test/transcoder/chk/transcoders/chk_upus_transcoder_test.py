@@ -1,7 +1,7 @@
 from chkjson.model.chk.upus.decoded_upus_section import DecodedUpusSection
 from chkjson.transcoder.chk.transcoders.chk_upus_transcoder import ChkUpusTranscoder
 
-from ...chk_resources import CHK_SECTION_FILE_PATHS
+from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 
 def _read_chk_section() -> bytes:
