@@ -21,6 +21,7 @@ class ChkSectionName(Enum):
     OWNR = ("OWNR",)
     STR = ("STR ",)
     UNIS = ("UNIS",)
+    UNIX = ("UNIx",)
     MRGN = ("MRGN",)
     TRIG = ("TRIG",)
     UPRP = ("UPRP",)
