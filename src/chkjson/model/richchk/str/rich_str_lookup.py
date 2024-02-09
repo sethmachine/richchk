@@ -1,4 +1,4 @@
-"""Lookup an STR string by its integer string ID.
+"""Lookup an STR string by its integer string ID or vice versa.
 
 Construct this class from a DecodedStrSection using RichStrLookupBuilder.  This class's
 main purpose is to decode DecodedChk sections into human-readable RichChk section
@@ -15,6 +15,7 @@ from .rich_string import RichNullString, RichString
 @dataclasses.dataclass(frozen=True)
 class RichStrLookup:
     _string_by_id_lookup: dict[int, RichString]
+    _id_by_string_lookup: dict[str, int]
     _log: logging.Logger = dataclasses.field(
         default_factory=lambda: logger.get_logger(RichStrLookup.__name__)
     )
@@ -36,3 +37,6 @@ class RichStrLookup:
                 f"as this means the object uses its default name."
             )
         return self._string_by_id_lookup.get(string_id, RichNullString())
+
+    def get_id_by_string(self, rich_string: RichString) -> int:
+        return self._id_by_string_lookup[rich_string.value]
