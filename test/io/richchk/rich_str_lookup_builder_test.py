@@ -41,3 +41,7 @@ def test_it_builds_lookup_with_expected_structure():
         assert lookup.get_string_by_id(expected_string["id"]) == RichString(
             _value=expected_string["string"]
         )
+        assert (
+            lookup.get_id_by_string(RichString(_value=expected_string["string"]))
+            == expected_string["id"]
+        )
