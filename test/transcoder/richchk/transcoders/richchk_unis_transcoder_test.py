@@ -3,8 +3,10 @@ import pytest
 
 from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
 from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
+from chkjson.model.richchk.richchk_encode_context import RichChkEncodeContext
 from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
 from chkjson.model.richchk.str.rich_string import RichNullString, RichString
+from chkjson.model.richchk.unis.rich_unis_section import RichUnisSection
 from chkjson.model.richchk.unis.unit_id import UnitId
 from chkjson.model.richchk.unis.weapon_id import WeaponId
 from chkjson.model.richchk.unis.weapon_setting import WeaponSetting
@@ -51,7 +53,8 @@ def _get_unit_setting_by_unit_id(rich_unis, unit_id):
 def rich_chk_decode_context():
     return RichChkDecodeContext(
         _rich_str_lookup=RichStrLookup(
-            {123: RichString(_value="custom terran marine name")}
+            {123: RichString(_value="custom terran marine name")},
+            _id_by_string_lookup={"custom terran marine name": 123},
         )
     )
 
@@ -118,8 +121,8 @@ def decoded_unis_section_with_no_modified_units():
         _unit_mineral_costs=[0] * len(UnitId),
         _unit_gas_costs=[0] * len(UnitId),
         _unit_string_ids=[0] * len(UnitId),
-        _unit_base_weapon_damages=[0] * len(WeaponId),
-        _unit_upgrade_weapon_damages=[0] * len(WeaponId),
+        _unit_base_weapon_damages=[0] * 100,
+        _unit_upgrade_weapon_damages=[0] * 100,
     )
 
 
@@ -195,10 +198,28 @@ def test_it_decodes_empty_rich_unis_if_no_modified_units(
     rich_unis = rich_transcoder.decode(
         decoded_chk_section=decoded_unis_section_with_no_modified_units,
         rich_chk_decode_context=RichChkDecodeContext(
-            _rich_str_lookup=RichStrLookup({})
+            _rich_str_lookup=RichStrLookup(
+                _string_by_id_lookup={}, _id_by_string_lookup={}
+            )
         ),
     )
     assert len(rich_unis.unit_settings) == 0
+
+
+def test_it_encodes_empty_rich_unis_to_non_modified_decoded_unis(
+    decoded_unis_section_with_no_modified_units,
+):
+    rich_transcoder = RichChkUnisTranscoder()
+    empty_rich_unis = RichUnisSection(_unit_settings=[])
+    actual_encoded_unis = rich_transcoder.encode(
+        rich_chk_section=empty_rich_unis,
+        rich_chk_encode_context=RichChkEncodeContext(
+            _rich_str_lookup=RichStrLookup(
+                _string_by_id_lookup={}, _id_by_string_lookup={}
+            )
+        ),
+    )
+    assert actual_encoded_unis == decoded_unis_section_with_no_modified_units
 
 
 def test_integration_it_decodes_rich_unis_with_expected_unit_settings():
@@ -209,7 +230,9 @@ def test_integration_it_decodes_rich_unis_with_expected_unit_settings():
     rich_unis = rich_transcoder.decode(
         decoded_chk_section=decoded_unis,
         rich_chk_decode_context=RichChkDecodeContext(
-            _rich_str_lookup=RichStrLookup(_string_by_id_lookup={})
+            _rich_str_lookup=RichStrLookup(
+                _string_by_id_lookup={}, _id_by_string_lookup={}
+            )
         ),
     )
     for expected_unit_id in _MODIFIED_UNIT_IDS:

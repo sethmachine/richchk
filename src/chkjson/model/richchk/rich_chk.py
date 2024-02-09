@@ -12,8 +12,11 @@ RichChk to an edited and saved .scm/.scx map file.
 
 import copy
 import dataclasses
+import functools
+from collections import defaultdict
 from typing import Union
 
+from ...model.chk_section_name import ChkSectionName
 from ..chk.decoded_chk_section import DecodedChkSection
 from .rich_chk_section import RichChkSection
 
@@ -25,3 +28,17 @@ class RichChk:
     @property
     def chk_sections(self) -> list[Union[RichChkSection, DecodedChkSection]]:
         return copy.deepcopy(self._chk_sections)
+
+    @functools.cached_property
+    def _sections_by_name(
+        self,
+    ) -> dict[ChkSectionName, list[Union[RichChkSection, DecodedChkSection]]]:
+        sections_by_name = defaultdict(list)
+        for section in self._chk_sections:
+            sections_by_name[section.section_name()].append(section)
+        return sections_by_name
+
+    def get_sections_by_name(
+        self, chk_section_name: ChkSectionName
+    ) -> list[Union[RichChkSection, DecodedChkSection]]:
+        return copy.deepcopy(self._sections_by_name[chk_section_name])

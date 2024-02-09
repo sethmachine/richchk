@@ -1,4 +1,10 @@
-"""Represents a single modified unit setting for an entry in UNIS or UNIX."""
+"""Represents a single modified unit setting for an entry in UNIS or UNIX.
+
+It is possible for a map to save custom settings to the UNIS setting but set the unit
+default settings flag to 1.  Starcraft will ignore the custom settings but the UNIS
+still store the unused data.  The field `UnitSetting#use_default_unit_settings` will
+indicate whether this is the case.
+"""
 
 import copy
 import dataclasses
@@ -19,6 +25,11 @@ class UnitSetting:
     _gas_cost: int
     _custom_unit_name: RichString
     _weapons: list[WeaponSetting]
+    _use_default_unit_settings: bool = False
+
+    @property
+    def use_default_unit_settings(self) -> bool:
+        return self._use_default_unit_settings
 
     @property
     def unit_id(self) -> UnitId:
