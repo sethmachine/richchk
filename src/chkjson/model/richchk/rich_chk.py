@@ -10,7 +10,6 @@ This mixed data structure format is chosen so it is possible to go directly from
 RichChk to an edited and saved .scm/.scx map file.
 """
 
-import copy
 import dataclasses
 import functools
 from collections import defaultdict
@@ -27,7 +26,7 @@ class RichChk:
 
     @property
     def chk_sections(self) -> list[Union[RichChkSection, DecodedChkSection]]:
-        return copy.deepcopy(self._chk_sections)
+        return self._chk_sections
 
     @functools.cached_property
     def _sections_by_name(
@@ -41,4 +40,4 @@ class RichChk:
     def get_sections_by_name(
         self, chk_section_name: ChkSectionName
     ) -> list[Union[RichChkSection, DecodedChkSection]]:
-        return copy.deepcopy(self._sections_by_name[chk_section_name])
+        return self._sections_by_name[chk_section_name]
