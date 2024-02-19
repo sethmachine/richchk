@@ -64,13 +64,14 @@ def test_integration_rich_chk_io_decodes_decoded_chk_into_all_sections():
 
 
 def test_integration_rich_chk_io_decodes_and_encodes_back_unchanged():
+    # this test could break, probably better to verify
+    # you can get the same rich chk again
     chkio = ChkIo()
     richhk_io = RichChkIo()
     chk: DecodedChk = chkio.decode_chk_file(DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH)
     rich_chk: RichChk = richhk_io.decode_chk(chk)
     actual_encoded_chk: DecodedChk = richhk_io.encode_chk(rich_chk)
-    assert len(actual_encoded_chk.decoded_chk_sections) == len(chk.decoded_chk_sections)
-    assert actual_encoded_chk == chk
+    assert_chks_are_equal(actual_encoded_chk, chk)
 
 
 def assert_all_supported_rich_chk_sections_are_present(rich_chk: RichChk):
@@ -82,3 +83,13 @@ def assert_all_supported_rich_chk_sections_are_present(rich_chk: RichChk):
         assert isinstance(
             rich_chk.get_sections_by_name(chk_section_name)[0], RichChkSection
         )
+
+
+def assert_chks_are_equal(decoded_chk1: DecodedChk, decoded_chk2: DecodedChk):
+    assert len(decoded_chk1.decoded_chk_sections) == len(
+        decoded_chk2.decoded_chk_sections
+    )
+    for index, section in enumerate(decoded_chk1.decoded_chk_sections):
+        # if section != decoded_chk2.decoded_chk_sections[index]:
+        #     foo = 5
+        assert section == decoded_chk2.decoded_chk_sections[index]

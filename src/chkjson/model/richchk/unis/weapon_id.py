@@ -6,6 +6,9 @@ UNIS/UNIX sections.  There are 100 weapons in original Starcraft and 130 in Broo
 
 from enum import Enum
 
+_NUM_SCM_WEAPONS = 100
+_NUM_SCX_WEAPONS = 130
+
 
 class WeaponId(Enum):
     GAUSS_RIFLE_NORMAL = (0,)

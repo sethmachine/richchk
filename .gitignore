@@ -10,6 +10,7 @@ chkjson-v1/
 chkjson-v2/
 examples/
 tst/
+test/prof
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,7 +1,6 @@
 """Contains all the global CHK context needed to produce DecodedChk from RichChk
 representations."""
 
-import copy
 import dataclasses
 
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
@@ -13,4 +12,4 @@ class RichChkEncodeContext:
 
     @property
     def rich_str_lookup(self) -> RichStrLookup:
-        return copy.deepcopy(self._rich_str_lookup)
+        return self._rich_str_lookup

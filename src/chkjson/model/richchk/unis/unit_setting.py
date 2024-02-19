@@ -8,6 +8,7 @@ indicate whether this is the case.
 
 import copy
 import dataclasses
+from decimal import Decimal
 
 from ..str.rich_string import RichString
 from .unit_id import UnitId
@@ -17,7 +18,9 @@ from .weapon_setting import WeaponSetting
 @dataclasses.dataclass(frozen=True)
 class UnitSetting:
     _unit_id: UnitId
-    _hitpoints: int
+    # it is possible to have values less than 256
+    # or not a multiple of 256 in the DecodedUnis
+    _hitpoints: Decimal
     _shieldpoints: int
     _armorpoints: int
     _build_time: int
@@ -36,7 +39,7 @@ class UnitSetting:
         return self._unit_id
 
     @property
-    def hitpoints(self) -> int:
+    def hitpoints(self) -> Decimal:
         return self._hitpoints
 
     @property
