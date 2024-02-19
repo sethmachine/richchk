@@ -34,6 +34,7 @@ import struct
 from io import BytesIO
 
 from ....model.chk.unis.decoded_unis_section import DecodedUnisSection
+from ....model.chk.unis.unis_constants import NUM_SCM_WEAPONS, NUM_UNITS
 from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
 from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
@@ -43,42 +44,33 @@ class ChkUnisTranscoder(
     _RegistrableTranscoder,
     chk_section_name=DecodedUnisSection.section_name(),
 ):
-    _NUM_UNITS = 228
-    _NUM_WEAPONS = 100
-
     def decode(self, chk_section_binary_data: bytes) -> DecodedUnisSection:
         bytes_stream: BytesIO = BytesIO(chk_section_binary_data)
         use_settings_flags = [
-            struct.unpack("B", bytes_stream.read(1))[0] for _ in range(self._NUM_UNITS)
+            struct.unpack("B", bytes_stream.read(1))[0] for _ in range(NUM_UNITS)
         ]
         hitpoints = [
-            struct.unpack("I", bytes_stream.read(4))[0] for _ in range(self._NUM_UNITS)
+            struct.unpack("I", bytes_stream.read(4))[0] for _ in range(NUM_UNITS)
         ]
         shields = [
-            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(self._NUM_UNITS)
+            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_UNITS)
         ]
-        armor = [
-            struct.unpack("B", bytes_stream.read(1))[0] for _ in range(self._NUM_UNITS)
-        ]
+        armor = [struct.unpack("B", bytes_stream.read(1))[0] for _ in range(NUM_UNITS)]
         build_time = [
-            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(self._NUM_UNITS)
+            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_UNITS)
         ]
         minerals = [
-            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(self._NUM_UNITS)
+            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_UNITS)
         ]
-        gas = [
-            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(self._NUM_UNITS)
-        ]
+        gas = [struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_UNITS)]
         string_ids = [
-            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(self._NUM_UNITS)
+            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_UNITS)
         ]
         weapon_damage = [
-            struct.unpack("H", bytes_stream.read(2))[0]
-            for _ in range(self._NUM_WEAPONS)
+            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_SCM_WEAPONS)
         ]
         weapon_bonus = [
-            struct.unpack("H", bytes_stream.read(2))[0]
-            for _ in range(self._NUM_WEAPONS)
+            struct.unpack("H", bytes_stream.read(2))[0] for _ in range(NUM_SCM_WEAPONS)
         ]
         return DecodedUnisSection(
             _unit_default_settings_flags=use_settings_flags,
@@ -96,36 +88,34 @@ class ChkUnisTranscoder(
     def _encode(self, decoded_chk_section: DecodedUnisSection) -> bytes:
         data: bytes = b""
         data += struct.pack(
-            "{}B".format(self._NUM_UNITS),
-            *decoded_chk_section.unit_default_settings_flags
+            "{}B".format(NUM_UNITS), *decoded_chk_section.unit_default_settings_flags
         )
         data += struct.pack(
-            "{}I".format(self._NUM_UNITS), *decoded_chk_section.unit_hitpoints
+            "{}I".format(NUM_UNITS), *decoded_chk_section.unit_hitpoints
         )
         data += struct.pack(
-            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_shieldpoints
+            "{}H".format(NUM_UNITS), *decoded_chk_section.unit_shieldpoints
         )
         data += struct.pack(
-            "{}B".format(self._NUM_UNITS), *decoded_chk_section.unit_armorpoints
+            "{}B".format(NUM_UNITS), *decoded_chk_section.unit_armorpoints
         )
         data += struct.pack(
-            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_build_times
+            "{}H".format(NUM_UNITS), *decoded_chk_section.unit_build_times
         )
         data += struct.pack(
-            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_mineral_costs
+            "{}H".format(NUM_UNITS), *decoded_chk_section.unit_mineral_costs
         )
         data += struct.pack(
-            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_gas_costs
+            "{}H".format(NUM_UNITS), *decoded_chk_section.unit_gas_costs
         )
         data += struct.pack(
-            "{}H".format(self._NUM_UNITS), *decoded_chk_section.unit_string_ids
+            "{}H".format(NUM_UNITS), *decoded_chk_section.unit_string_ids
         )
         data += struct.pack(
-            "{}H".format(self._NUM_WEAPONS),
-            *decoded_chk_section.unit_base_weapon_damages
+            "{}H".format(NUM_SCM_WEAPONS), *decoded_chk_section.unit_base_weapon_damages
         )
         data += struct.pack(
-            "{}H".format(self._NUM_WEAPONS),
+            "{}H".format(NUM_SCM_WEAPONS),
             *decoded_chk_section.unit_upgrade_weapon_damages
         )
         return data
