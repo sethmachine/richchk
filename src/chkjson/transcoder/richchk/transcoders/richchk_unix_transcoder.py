@@ -179,6 +179,7 @@ class RichChkUnixTranscoder(
             unit_default_settings_flags[unit_setting.unit_id.id] = int(
                 unit_setting.use_default_unit_settings
             )
+            # this is a lossy conversion, should add logging to monitor this
             hitpoints[unit_setting.unit_id.id] = int(
                 Decimal(unit_setting.hitpoints) * Decimal(256)
             )
