@@ -30,6 +30,8 @@ IDs)
 u16[100]: Upgrade bonus weapon damage, in weapon ID order
 """
 
+from decimal import Decimal
+
 from ....model.chk.unis.decoded_unis_section import DecodedUnisSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -77,7 +79,9 @@ class RichChkUnisTranscoder(
             unit_settings.append(
                 UnitSetting(
                     _unit_id=UnitId.get_by_id(unit_id),
-                    _hitpoints=decoded_chk_section.unit_hitpoints[unit_id] // 256,
+                    _hitpoints=Decimal(
+                        decoded_chk_section.unit_hitpoints[unit_id] // 256
+                    ),
                     _shieldpoints=decoded_chk_section.unit_shieldpoints[unit_id],
                     _armorpoints=decoded_chk_section.unit_armorpoints[unit_id],
                     _build_time=decoded_chk_section.unit_build_times[unit_id],
@@ -160,7 +164,7 @@ class RichChkUnisTranscoder(
             unit_default_settings_flags[unit_setting.unit_id.id] = int(
                 unit_setting.use_default_unit_settings
             )
-            hitpoints[unit_setting.unit_id.id] = unit_setting.hitpoints * 256
+            hitpoints[unit_setting.unit_id.id] = int(unit_setting.hitpoints * 256)
             shieldpoints[unit_setting.unit_id.id] = unit_setting.shieldpoints
             armorpoints[unit_setting.unit_id.id] = unit_setting.armorpoints
             build_times[unit_setting.unit_id.id] = unit_setting.build_time
