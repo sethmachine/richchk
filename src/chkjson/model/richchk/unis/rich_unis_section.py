@@ -1,4 +1,3 @@
-import copy
 import dataclasses
 
 from ...chk_section_name import ChkSectionName
@@ -17,4 +16,4 @@ class RichUnisSection(RichChkSection):
 
     @property
     def unit_settings(self) -> list[UnitSetting]:
-        return copy.deepcopy(self._unit_settings)
+        return self._unit_settings
