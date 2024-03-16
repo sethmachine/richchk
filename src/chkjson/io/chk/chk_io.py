@@ -61,9 +61,12 @@ class ChkIo:
         return self._decode_chk_byte_stream(BytesIO(chk_binary_data))
 
     def encode_chk_to_file(
-        self, decoded_chk: DecodedChk, chk_output_file_path: str
+        self,
+        decoded_chk: DecodedChk,
+        chk_output_file_path: str,
+        force_create: bool = False,
     ) -> None:
-        if os.path.exists(chk_output_file_path):
+        if not force_create and os.path.exists(chk_output_file_path):
             error_msg: str = (
                 f"Refusing to overwrite an existing CHK file {chk_output_file_path} "
                 f"due to safety issues.  Instead, always make a new CHK file "
