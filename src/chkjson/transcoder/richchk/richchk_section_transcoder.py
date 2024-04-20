@@ -15,7 +15,7 @@ _U = TypeVar("_U", bound=DecodedChkSection, contravariant=False, covariant=False
 @runtime_checkable
 class RichChkSectionTranscoder(Protocol[_T, _U]):
     def __call__(self, *args: list[Any], **kwargs: dict[str, Any]) -> Any:
-        pass
+        return self
 
     @abstractmethod
     def decode(
