@@ -41,7 +41,6 @@ Note that in typical locations Right is always larger than Left and Bottom is al
 larger than Top. However, you can reverse one or both of these for Inverted Locations.
 """
 
-import copy
 import dataclasses
 
 from ...chk_section_name import ChkSectionName
@@ -68,4 +67,4 @@ class DecodedMrgnSection(DecodedChkSection):
 
     @property
     def locations(self) -> list[DecodedLocation]:
-        return copy.deepcopy(self._locations)
+        return self._locations

@@ -9,7 +9,7 @@ from chkjson.model.richchk.unis.unit_setting import UnitSetting
 from chkjson.model.richchk.unis.weapon_id import WeaponId
 from chkjson.model.richchk.unis.weapon_setting import WeaponSetting
 
-from .fixtures.unit_settings_fixtures import (
+from ...fixtures.unit_settings_fixtures import (
     generate_empty_rich_unix,
     generate_rich_unix_with_terran_marine_setting,
     generate_unit_setting,

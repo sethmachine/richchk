@@ -39,4 +39,7 @@ class RichStrLookup:
         return self._string_by_id_lookup.get(string_id, RichNullString())
 
     def get_id_by_string(self, rich_string: RichString) -> int:
+        if isinstance(rich_string, RichNullString):
+            # zero corresponds to unused string value for the object
+            return 0
         return self._id_by_string_lookup[rich_string.value]

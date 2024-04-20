@@ -58,6 +58,7 @@ class ChkMrgnTranscoder(
     def decode(self, chk_section_binary_data: bytes) -> DecodedMrgnSection:
         bytes_stream: BytesIO = BytesIO(chk_section_binary_data)
         locations: list[DecodedLocation] = []
+        index = 0
         while bytes_stream.tell() != len(chk_section_binary_data):
             left_x1 = struct.unpack("I", bytes_stream.read(4))[0]
             top_y1 = struct.unpack("I", bytes_stream.read(4))[0]
@@ -75,6 +76,7 @@ class ChkMrgnTranscoder(
                     _elevation_flags=elevation_flags,
                 )
             )
+            index += 1
         return DecodedMrgnSection(_locations=locations)
 
     def _encode(self, decoded_chk_section: DecodedMrgnSection) -> bytes:
