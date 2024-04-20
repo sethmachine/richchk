@@ -5,7 +5,7 @@ from chkjson.model.richchk.rich_chk import RichChk
 from chkjson.model.richchk.unis.unit_id import UnitId
 from chkjson.model.richchk.unix.rich_unix_section import RichUnixSection
 
-from .fixtures.unit_settings_fixtures import (
+from ...fixtures.unit_settings_fixtures import (
     generate_rich_unix_with_terran_marine_setting,
     generate_unit_setting,
 )
