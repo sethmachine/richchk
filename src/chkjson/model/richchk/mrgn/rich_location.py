@@ -35,7 +35,7 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 """
 
 import dataclasses
-from typing import Optional
+from typing import Any, Optional
 
 from ..str.rich_string import RichString
 
@@ -54,6 +54,43 @@ class RichLocation:
     _low_air: bool = True
     _medium_air: bool = True
     _high_air: bool = True
+
+    def __eq__(self, other: object) -> bool:
+        # 2 locations are only equal if they both have been allocated an index in the MRGN
+        # and all their fields match
+        # if a location does not have an index allocated, only the exact same objects in memory can be equal
+        if isinstance(other, RichLocation):
+            if self._index is not None and other._index is not None:
+                return (
+                    self._get_fields_for_equality() == other._get_fields_for_equality()
+                )
+            else:
+                return id(self) == id(other)
+        return False
+
+    def __hash__(self) -> int:
+        # if the location has not been allocated an index, there's no way to distinguish it from a
+        # location with the same exact values
+        if self._index is None:
+            return hash(id(self))
+        # Otherwise, use a hash based on the fields x and y
+        return hash(self._get_fields_for_equality())
+
+    def _get_fields_for_equality(self) -> tuple[Any, ...]:
+        return (
+            self._left_x1,
+            self.top_y1,
+            self._right_x2,
+            self._bottom_y2,
+            self._custom_location_name,
+            self._index,
+            self._low_elevation,
+            self._medium_elevation,
+            self._high_elevation,
+            self._low_air,
+            self._medium_air,
+            self._high_air,
+        )
 
     @property
     def left_x1(self) -> int:

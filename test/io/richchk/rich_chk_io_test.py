@@ -8,6 +8,7 @@ from chkjson.io.chk.chk_io import ChkIo
 from chkjson.io.richchk.richchk_io import RichChkIo
 from chkjson.model.chk.decoded_chk import DecodedChk
 from chkjson.model.chk.decoded_chk_section import DecodedChkSection
+from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
 from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
 from chkjson.model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
@@ -35,6 +36,7 @@ def test_integration_rich_chk_io_decodes_decoded_chk():
         _decoded_chk_sections=[
             DecodedUnknownSection(ChkSectionName.UNKNOWN.value, b""),
             DecodedStrSection(_number_of_strings=0, _string_offsets=[], _strings=[]),
+            DecodedMrgnSection(_locations=[]),
             DecodedUnisSection([], [], [], [], [], [], [], [], [], []),
         ]
     )
