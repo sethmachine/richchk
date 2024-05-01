@@ -52,8 +52,7 @@ class DecodedLocation:
         aligned)
     :param _top_y1: u32 top (Y1) coordinate of location, in pixels
     :param _right_x2: u32 right (X2) coordinate of location, in pixels
-    :param _bottom_y2: u32 bottom (Y2) coordinate of location, in pixels u16: String
-        number of the name of this location
+    :param _bottom_y2: u32 bottom (Y2) coordinate of location, in pixels
     :param _string_id: u16 identifies the index of the string offset in the STR section
         for this location's name
     :param _elevation_flags: location elevation flags. If an elevation is disabled in
