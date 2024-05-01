@@ -4,6 +4,7 @@ import pytest
 from chkjson.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
 from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
+from chkjson.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
 from chkjson.model.richchk.richchk_encode_context import RichChkEncodeContext
 from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
@@ -67,6 +68,18 @@ def rich_chk_decode_context():
             {123: RichString(_value="custom terran marine name")},
             _id_by_string_lookup={"custom terran marine name": 123},
         )
+    )
+
+
+@pytest.fixture
+def rich_chk_empty_encode_context():
+    return RichChkEncodeContext(
+        _rich_str_lookup=RichStrLookup(
+            _string_by_id_lookup={}, _id_by_string_lookup={}
+        ),
+        _rich_mrgn_lookup=RichMrgnLookup(
+            _location_by_id_lookup={}, _id_by_location_lookup={}
+        ),
     )
 
 
@@ -225,17 +238,13 @@ def test_it_decodes_empty_rich_unis_if_no_modified_units(
 
 
 def test_it_encodes_empty_rich_unis_to_non_modified_decoded_unis(
-    decoded_unis_section_with_no_modified_units,
+    decoded_unis_section_with_no_modified_units, rich_chk_empty_encode_context
 ):
     rich_transcoder = RichChkUnisTranscoder()
     empty_rich_unis = RichUnisSection(_unit_settings=[])
     actual_encoded_unis = rich_transcoder.encode(
         rich_chk_section=empty_rich_unis,
-        rich_chk_encode_context=RichChkEncodeContext(
-            _rich_str_lookup=RichStrLookup(
-                _string_by_id_lookup={}, _id_by_string_lookup={}
-            )
-        ),
+        rich_chk_encode_context=rich_chk_empty_encode_context,
     )
     assert actual_encoded_unis == decoded_unis_section_with_no_modified_units
 
@@ -271,18 +280,25 @@ def test_integration_it_decodes_rich_unis_with_expected_unit_settings(
 
 
 def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
-    real_decoded_unis, real_decoded_str
+    real_decoded_unis, real_decoded_str, rich_chk_empty_encode_context
 ):
     rich_str_lookup = RichStrLookupBuilder().build_lookup(
         decoded_str_section=real_decoded_str
     )
+    rich_mrgn_lookup = RichMrgnLookup(
+        _location_by_id_lookup={}, _id_by_location_lookup={}
+    )
     rich_transcoder = RichChkUnisTranscoder()
     rich_unis = rich_transcoder.decode(
         decoded_chk_section=real_decoded_unis,
-        rich_chk_decode_context=RichChkDecodeContext(_rich_str_lookup=rich_str_lookup),
+        rich_chk_decode_context=RichChkDecodeContext(
+            _rich_str_lookup=rich_str_lookup, _rich_mrgn_lookup=rich_mrgn_lookup
+        ),
     )
     actual_decoded_unis = rich_transcoder.encode(
         rich_chk_section=rich_unis,
-        rich_chk_encode_context=RichChkEncodeContext(_rich_str_lookup=rich_str_lookup),
+        rich_chk_encode_context=RichChkEncodeContext(
+            _rich_str_lookup=rich_str_lookup, _rich_mrgn_lookup=rich_mrgn_lookup
+        ),
     )
     assert actual_decoded_unis == real_decoded_unis

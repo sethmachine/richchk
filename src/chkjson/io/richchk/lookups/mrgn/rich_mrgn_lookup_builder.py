@@ -6,12 +6,8 @@ in the RichChk representation.
 
 import logging
 
-from .....model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from .....model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
-from .....model.richchk.richchk_decode_context import RichChkDecodeContext
-from .....transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
-    RichChkMrgnTranscoder,
-)
+from .....model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from .....util import logger
 
 
@@ -19,16 +15,17 @@ class RichMrgnLookupBuilder:
     def __init__(self) -> None:
         self.log: logging.Logger = logger.get_logger(RichMrgnLookupBuilder.__name__)
 
-    def build_lookup(
-        self,
-        decoded_mrgn: DecodedMrgnSection,
-        rich_chk_decode_context: RichChkDecodeContext,
-    ) -> RichMrgnLookup:
-        transcoder: RichChkMrgnTranscoder = RichChkMrgnTranscoder()
-        rich_mrgn = transcoder.decode(decoded_mrgn, rich_chk_decode_context)
+    def build_lookup(self, rich_mrgn: RichMrgnSection) -> RichMrgnLookup:
         location_by_id = {}
-        for id_, location in enumerate(rich_mrgn.locations):
-            # string IDs are 1-indexed (0 denotes no string used)
-            actual_location_id = id_ + 1
-            location_by_id[actual_location_id] = location
-        return RichMrgnLookup(_location_by_id_lookup=location_by_id)
+        id_by_location = {}
+        for location in rich_mrgn.locations:
+            if location.index is None:
+                msg = f"Unable to build MRGN lookup if a location has not been allocated an index: {location}"
+                self.log.error(msg)
+                raise ValueError(msg)
+            # location IDs are 1-indexed (0 denotes no location used/referenced)
+            location_by_id[location.index] = location
+            id_by_location[location] = location.index
+        return RichMrgnLookup(
+            _location_by_id_lookup=location_by_id, _id_by_location_lookup=id_by_location
+        )
