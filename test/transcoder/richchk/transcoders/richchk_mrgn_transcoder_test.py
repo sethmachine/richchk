@@ -3,6 +3,7 @@ import pytest
 from chkjson.model.chk.mrgn.decoded_location import DecodedLocation
 from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from chkjson.model.richchk.mrgn.rich_location import RichLocation
+from chkjson.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from chkjson.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
 from chkjson.model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -32,7 +33,7 @@ _EXPECTED_LOCATION_BOTTOM = 448
 _EXPECTED_LOCATION_ELEVATION_FLAGS = 56
 # location 0 has a string ID of 11
 _LOCATION_ZERO_STRING_ID = 11
-_LOCATION_ZERO_INDEX = 0
+_LOCATION_ZERO_INDEX = 1
 _LOCATION_ZERO_STRING_VALUE = "LOCATION ZERO"
 _LOCATION_ANYWHERE_STRING_VALUE = "Anywhere"
 _LOCATION_ANYWHERE_STRING_ID = 3
@@ -95,8 +96,8 @@ def test_it_does_not_include_empty_locations_in_rich_mrgn():
     assert only_location.right_x2 == expected_decoded_location.right_x2
     assert only_location.bottom_y2 == expected_decoded_location.bottom_y2
     assert only_location.custom_location_name == RichNullString()
-    # the "empty" location occupies index 0
-    assert only_location.index == 1
+    # the "empty" location occupies index 1
+    assert only_location.index == 2
 
 
 def test_it_decodes_elevation_flags():
@@ -168,7 +169,10 @@ def test_integration_it_encodes_back_to_expected_decoded_location():
             _rich_str_lookup=RichStrLookup(
                 _string_by_id_lookup={},
                 _id_by_string_lookup={"foo": 0, "bar": 1},
-            )
+            ),
+            _rich_mrgn_lookup=RichMrgnLookup(
+                _location_by_id_lookup={}, _id_by_location_lookup={}
+            ),
         ),
     )
 
@@ -224,7 +228,10 @@ def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
                 _LOCATION_ZERO_STRING_VALUE: _LOCATION_ZERO_STRING_ID,
                 _LOCATION_ANYWHERE_STRING_VALUE: _LOCATION_ANYWHERE_STRING_ID,
             },
-        )
+        ),
+        _rich_mrgn_lookup=RichMrgnLookup(
+            _location_by_id_lookup={}, _id_by_location_lookup={}
+        ),
     )
     rich_transcoder = RichChkMrgnTranscoder()
     rich_mrgn = rich_transcoder.decode(

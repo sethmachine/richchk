@@ -99,7 +99,7 @@ class RichChkMrgnTranscoder(
                         _custom_location_name=rich_chk_decode_context.rich_str_lookup.get_string_by_id(
                             decoded_location.string_id
                         ),
-                        _index=loc_index,
+                        _index=loc_index + 1,
                         _low_elevation=elevation_flags.low_elevation,
                         _medium_elevation=elevation_flags.medium_elevation,
                         _high_elevation=elevation_flags.high_elevation,
@@ -163,8 +163,9 @@ class RichChkMrgnTranscoder(
     ) -> DecodedMrgnSection:
         # TODO: need to build the location index map before hand!  assign locations without indices an index
         # can be done in the RichChkEncodeContext generation step
+        # subtract 1 to get zero index used for array storage
         location_by_index = {
-            x.index: x for x in rich_chk_section.locations if x.index is not None
+            x.index - 1: x for x in rich_chk_section.locations if x.index is not None
         }
         decoded_locations: list[DecodedLocation] = []
         for location_index_in_decoded_mrgn in range(0, self._MAX_LOCATIONS):
