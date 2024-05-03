@@ -24,6 +24,12 @@ SCM_CHK_FILE: str = (
     .as_posix()
 )
 
+SCX_CHK_FILE: str = (
+    Path(Path.joinpath(_RESOURCES_DIR_PATH, "test-chkjson-scx.chk"))
+    .absolute()
+    .as_posix()
+)
+
 
 def _extract_chk_section_name_from_file_path(file_path: str) -> str:
     section_regex = re.compile(r"(?P<chk_section_name>[^.\\)]+).+")

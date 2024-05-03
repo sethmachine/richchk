@@ -30,16 +30,17 @@ class RichStrLookupBuilder:
         for id_, offset in enumerate(decoded_str_section.strings_offsets):
             # string IDs are 1-indexed (0 denotes no string used)
             actual_string_id = id_ + 1
-            rich_string = self._get_rich_string_by_offset(offset, str_binary_data)
+            rich_string = RichStrLookupBuilder.get_rich_string_by_offset(
+                offset, str_binary_data
+            )
             string_by_id[actual_string_id] = rich_string
             id_by_string[rich_string.value] = actual_string_id
         return RichStrLookup(
             _string_by_id_lookup=string_by_id, _id_by_string_lookup=id_by_string
         )
 
-    def _get_rich_string_by_offset(
-        self, offset: int, str_binary_data: bytes
-    ) -> RichString:
+    @staticmethod
+    def get_rich_string_by_offset(offset: int, str_binary_data: bytes) -> RichString:
         current_index = offset
         # read 1 char at a time from the offset until we hit a null terminator
         char: str = struct.unpack("c", bytes([str_binary_data[current_index]]))[
