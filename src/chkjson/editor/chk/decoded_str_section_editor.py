@@ -7,7 +7,9 @@ all other CHK sections.
 import copy
 import logging
 
+from ...io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from ...model.chk.str.decoded_str_section import DecodedStrSection
+from ...transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from ...util import logger
 
 
@@ -65,7 +67,12 @@ class DecodedStrSectionEditor:
         strings_: list[str] = decoded_str_section.strings.copy()
         # where the new string will start in the data
         # the start of the last string plus its length plus one for the null terminator
-        new_offset = string_offsets[-1] + len(strings_[-1]) + 1
+        # this assumes the offsets are sorted in increasing size, but this doesn't have to be true!
+        highest_offset, highest_string = self._find_highest_offset_and_string(
+            decoded_str_section
+        )
+        # new_offset = string_offsets[-1] + len(strings_[-1]) + 1
+        new_offset = (highest_offset + 2) + len(highest_string) + 1
         string_offsets.append(new_offset)
         strings_.append(string_to_add)
 
@@ -74,3 +81,17 @@ class DecodedStrSectionEditor:
             _string_offsets=string_offsets,
             _strings=strings_,
         )
+
+    def _find_highest_offset_and_string(
+        self, decoded_str_section: DecodedStrSection
+    ) -> tuple[int, str]:
+        """Finds the highest offset and its corresponding string to determine where to
+        allocate a new string."""
+        highest_offset = max(decoded_str_section.strings_offsets)
+        str_binary_data = ChkStrTranscoder().encode(
+            decoded_str_section, include_header=False
+        )
+        string_for_highest_offset = RichStrLookupBuilder.get_rich_string_by_offset(
+            offset=highest_offset, str_binary_data=str_binary_data
+        ).value
+        return highest_offset, string_for_highest_offset
