@@ -1,12 +1,14 @@
-""" "TRIG" - Triggers.Represent a single decoded trigger.
+"""TRIG - Triggers.
+
+Required for all versions. Not required for Melee. Validation: Must be a multiple of
+2400 bytes.
 
 This section contains all the triggers in the map. This along with MBRF is the most
 complicated section in the entire scenario.chk file as there is a lot of data packed
 into too little of a space. Refer to the appendix at the bottom of this page for more
 information. For easy reference, since each trigger contains 2400 bytes, the amount of
-triggers can be gotten by taking the section length and dividing by 2400.
-
-Every single trigger in the map will have the following format:
+triggers can be gotten by taking the section length and dividing by 2400. Every single
+trigger in the map will have the following format:
 
 16 Conditions (20 byte struct) Every trigger has 16 of the following format, even if
 only one condition is used. See the appendix for information on which items are used for
@@ -37,7 +39,7 @@ Bit 2 - Always display flag.
 
 Bit 3 - Unit properties is used. (Note: This is used in *.trg files)
 
-Bit 4 - Unit type is used. Cleared in "Offset + Mask" EUD conditions. May not be
+ Bit 4 - Unit type is used. Cleared in "Offset + Mask" EUD conditions. May not be
 necessary otherwise?
 
 Bit 5-7 - Unknown/unused
@@ -48,7 +50,7 @@ u16: MaskFlag: set to "SC" (0x53, 0x43) when using the bitmask for EUDs, 0 other
 actions. There will always be 64 of the following structure, even if some of them are
 unused.
 
-u32: Location - source location in "Order" and "Move Unit", dest location in "Move
+ u32: Location - source location in "Order" and "Move Unit", dest location in "Move
 Location" (1 based -- 0 refers to No Location), EUD Bitmask for a Death action if the
 MaskFlag is set to "SC"
 
@@ -60,7 +62,7 @@ u32: Seconds/milliseconds of time
 
 u32: First (or only) Group/Player affected.
 
-u32: Second group affected, secondary location (1-based), CUWP #, number, AI script
+ u32: Second group affected, secondary location (1-based), CUWP #, number, AI script
 (4-byte string), switch (0-based #)
 
 u16: Unit type, score type, resource type, alliance status
@@ -75,7 +77,7 @@ Bit 0 - Ignore a wait/transmission once.
 
 Bit 1 - Enabled flag. If on, the trigger action/condition is disabled.
 
-Bit 2 - Always display flag - when not set: if the user has turned off subtitles (see
+ Bit 2 - Always display flag - when not set: if the user has turned off subtitles (see
 sound options) the text will not display, when set: text will always display
 
 Bit 3 - Unit properties is used. Staredit uses this for *.trg files.
@@ -86,11 +88,12 @@ Bit 5-7 - Unknown/unused
 
 u8: Padding
 
-u16 (2 bytes): MaskFlag: set to "SC" (0x53, 0x43) when using the bitmask for EUDs, 0
+ u16 (2 bytes): MaskFlag: set to "SC" (0x53, 0x43) when using the bitmask for EUDs, 0
 otherwise
 
-Player Execution Following the 16 conditions and 64 actions, every trigger also has this
-structure
+Player Execution
+
+Following the 16 conditions and 64 actions, every trigger also has this structure
 
 u32: execution flags
 
@@ -102,11 +105,11 @@ Bit 2 - Preserve trigger. (Can replace Preserve Trigger action)
 
 Bit 3 - Ignore execution.
 
-Bit 4 - Ignore all of the following actions for this trigger until the next trigger
+ Bit 4 - Ignore all of the following actions for this trigger until the next trigger
 loop: Wait, PauseGame, Transmission, PlayWAV, DisplayTextMessage, CenterView,
 MinimapPing, TalkingPortrait, and MuteUnitSpeech.
 
-Bit 5 - This trigger has paused the game, ignoring subsequent calls to Pause Game
+ Bit 5 - This trigger has paused the game, ignoring subsequent calls to Pause Game
 (Unpause Game clears this flag only in the same trigger), may automatically call unpause
 at the end of action execution?
 
@@ -122,61 +125,27 @@ u8[27]: 1 byte for each player in the #List of Players/Group IDs
 
 u8: Index of the current action, in StarCraft this is incremented after each action is
 executed, trigger execution ends when this is 64 (Max Actions) or an action is
-encountered with Action byte as 0
-
-This section can be split. Additional TRIG sections will add more triggers.
+encountered with Action byte as 0 This section can be split. Additional TRIG sections
+will add more triggers.
 """
 
 import dataclasses
 
-from .decoded_player_execution import DecodedPlayerExecution
-from .decoded_trigger_action import DecodedTriggerAction
-from .decoded_trigger_condition import DecodedTriggerCondition
+from ...chk.trig.decoded_trigger import DecodedTrigger
+from ...chk_section_name import ChkSectionName
+from ..rich_chk_section import RichChkSection
 
 
 @dataclasses.dataclass(frozen=True)
-class DecodedTrigger:
-    """Represents a decoded trigger from the TRIG section.
+class RichTrigSection(RichChkSection):
+    """Represent TRIG section for all trigger data."""
 
-    :param _conditions: Conditions of the trigger. 16 Conditions (20 byte struct) Every
-        trigger has 16 of the following format, even if only one condition is used. See
-        the appendix for information on which items are used for what conditions.
-    :param _actions: Actions of the trigger. 64 Actions (32 byte struct) Immediately
-        following the 16 conditions, there are 64 actions. There will always be 64 of
-        the following structure, even if some of them are unused.
-    :param _player_execution: Player execution of the trigger. Following the 16
-        conditions and 64 actions, every trigger also has this structure.
-    """
+    _triggers: list[DecodedTrigger]
 
-    _conditions: list[DecodedTriggerCondition]
-    _actions: list[DecodedTriggerAction]
-    _player_execution: DecodedPlayerExecution
+    @classmethod
+    def section_name(cls) -> ChkSectionName:
+        return ChkSectionName.TRIG
 
     @property
-    def conditions(self) -> list[DecodedTriggerCondition]:
-        """Conditions of the trigger.
-
-        16 Conditions (20 byte struct) Every trigger has 16 of the following format,
-        even if only one condition is used. See the appendix for information on which
-        items are used for what conditions.
-        """
-        return self._conditions
-
-    @property
-    def actions(self) -> list[DecodedTriggerAction]:
-        """Actions of the trigger.
-
-        64 Actions (32 byte struct) Immediately following the 16 conditions, there are
-        64 actions. There will always be 64 of the following structure, even if some of
-        them are unused.
-        """
-        return self._actions
-
-    @property
-    def player_execution(self) -> DecodedPlayerExecution:
-        """Player execution of the trigger.
-
-        Following the 16 conditions and 64 actions, every trigger also has this
-        structure.
-        """
-        return self._player_execution
+    def triggers(self) -> list[DecodedTrigger]:
+        return self._triggers
