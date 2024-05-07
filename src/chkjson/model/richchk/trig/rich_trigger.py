@@ -129,14 +129,14 @@ This section can be split. Additional TRIG sections will add more triggers.
 
 import dataclasses
 
-from .decoded_player_execution import DecodedPlayerExecution
-from .decoded_trigger_action import DecodedTriggerAction
-from .decoded_trigger_condition import DecodedTriggerCondition
+from ...chk.trig.decoded_player_execution import DecodedPlayerExecution
+from .rich_trigger_action import RichTriggerAction
+from .rich_trigger_condition import RichTriggerCondition
 
 
 @dataclasses.dataclass(frozen=True)
-class DecodedTrigger:
-    """Represents a decoded trigger from the TRIG section.
+class RichTrigger:
+    """Represents a rich trigger from the TRIG section.
 
     :param _conditions: Conditions of the trigger. 16 Conditions (20 byte struct) Every
         trigger has 16 of the following format, even if only one condition is used. See
@@ -148,12 +148,12 @@ class DecodedTrigger:
         conditions and 64 actions, every trigger also has this structure.
     """
 
-    _conditions: list[DecodedTriggerCondition]
-    _actions: list[DecodedTriggerAction]
+    _conditions: list[RichTriggerCondition]
+    _actions: list[RichTriggerAction]
     _player_execution: DecodedPlayerExecution
 
     @property
-    def conditions(self) -> list[DecodedTriggerCondition]:
+    def conditions(self) -> list[RichTriggerCondition]:
         """Conditions of the trigger.
 
         16 Conditions (20 byte struct) Every trigger has 16 of the following format,
@@ -163,7 +163,7 @@ class DecodedTrigger:
         return self._conditions
 
     @property
-    def actions(self) -> list[DecodedTriggerAction]:
+    def actions(self) -> list[RichTriggerAction]:
         """Actions of the trigger.
 
         64 Actions (32 byte struct) Immediately following the 16 conditions, there are

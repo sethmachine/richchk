@@ -132,11 +132,11 @@ will add more triggers.
 import struct
 from io import BytesIO
 
-from ....model.chk.trig.decoded_action import DecodedAction
-from ....model.chk.trig.decoded_condition import DecodedCondition
 from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
 from ....model.chk.trig.decoded_trig_section import DecodedTrigSection
 from ....model.chk.trig.decoded_trigger import DecodedTrigger
+from ....model.chk.trig.decoded_trigger_action import DecodedTriggerAction
+from ....model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
 from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
@@ -166,10 +166,10 @@ class ChkTrigTranscoder(
     @classmethod
     def _decode_single_trigger(cls, trigger_bytes: bytes) -> DecodedTrigger:
         bytes_stream: BytesIO = BytesIO(trigger_bytes)
-        conditions: list[DecodedCondition] = cls._decode_conditions_for_single_trigger(
-            bytes_stream
-        )
-        actions: list[DecodedAction] = cls._decode_actions_for_single_trigger(
+        conditions: list[
+            DecodedTriggerCondition
+        ] = cls._decode_conditions_for_single_trigger(bytes_stream)
+        actions: list[DecodedTriggerAction] = cls._decode_actions_for_single_trigger(
             bytes_stream
         )
         player_execution = cls._decode_player_execution_for_single_trigger(bytes_stream)
@@ -181,8 +181,8 @@ class ChkTrigTranscoder(
     @classmethod
     def _decode_conditions_for_single_trigger(
         cls, bytes_stream: BytesIO
-    ) -> list[DecodedCondition]:
-        conditions: list[DecodedCondition] = []
+    ) -> list[DecodedTriggerCondition]:
+        conditions: list[DecodedTriggerCondition] = []
         # there are always 16 conditions, even if not all are used
         for _ in range(cls._NUM_CONDITIONS_PER_TRIGGER):
             location_id = struct.unpack("I", bytes_stream.read(4))[0]
@@ -195,7 +195,7 @@ class ChkTrigTranscoder(
             flags = struct.unpack("B", bytes_stream.read(1))[0]
             mask_flag = struct.unpack("H", bytes_stream.read(2))[0]
             conditions.append(
-                DecodedCondition(
+                DecodedTriggerCondition(
                     _location_id=location_id,
                     _group=group,
                     _quantity=quantity,
@@ -212,8 +212,8 @@ class ChkTrigTranscoder(
     @classmethod
     def _decode_actions_for_single_trigger(
         cls, bytes_stream: BytesIO
-    ) -> list[DecodedAction]:
-        actions: list[DecodedAction] = []
+    ) -> list[DecodedTriggerAction]:
+        actions: list[DecodedTriggerAction] = []
         # there are always 64 conditions, even if not all are used
         for _ in range(cls._NUM_ACTIONS_PER_TRIGGER):
             location_id = struct.unpack("I", bytes_stream.read(4))[0]
@@ -229,7 +229,7 @@ class ChkTrigTranscoder(
             padding = struct.unpack("B", bytes_stream.read(1))[0]
             mask_flag = struct.unpack("H", bytes_stream.read(2))[0]
             actions.append(
-                DecodedAction(
+                DecodedTriggerAction(
                     _location_id=location_id,
                     _text_string_id=text_string_id,
                     _wav_string_id=wav_string_id,
@@ -279,7 +279,7 @@ class ChkTrigTranscoder(
         return data
 
     @classmethod
-    def _encode_condition(cls, condition: DecodedCondition) -> bytes:
+    def _encode_condition(cls, condition: DecodedTriggerCondition) -> bytes:
         return (
             struct.pack("I", condition.location_id)
             + struct.pack("I", condition.group)
@@ -293,7 +293,7 @@ class ChkTrigTranscoder(
         )
 
     @classmethod
-    def _encode_action(cls, action: DecodedAction) -> bytes:
+    def _encode_action(cls, action: DecodedTriggerAction) -> bytes:
         return (
             struct.pack("I", action.location_id)
             + struct.pack("I", action.text_string_id)

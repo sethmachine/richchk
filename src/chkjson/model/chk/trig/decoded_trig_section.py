@@ -129,7 +129,6 @@ encountered with Action byte as 0 This section can be split. Additional TRIG sec
 will add more triggers.
 """
 
-import copy
 import dataclasses
 
 from ...chk_section_name import ChkSectionName
@@ -153,4 +152,4 @@ class DecodedTrigSection(DecodedChkSection):
 
     @property
     def triggers(self) -> list[DecodedTrigger]:
-        return copy.deepcopy(self._triggers)
+        return self._triggers
