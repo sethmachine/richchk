@@ -1,8 +1,8 @@
-from chkjson.model.chk.trig.decoded_action import DecodedAction
-from chkjson.model.chk.trig.decoded_condition import DecodedCondition
 from chkjson.model.chk.trig.decoded_player_execution import DecodedPlayerExecution
 from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
 from chkjson.model.chk.trig.decoded_trigger import DecodedTrigger
+from chkjson.model.chk.trig.decoded_trigger_action import DecodedTriggerAction
+from chkjson.model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from chkjson.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
@@ -12,7 +12,7 @@ from ....chk_resources import CHK_SECTION_FILE_PATHS
 _ALL_PLAYERS_EXECUTION = [0] * 17 + [1] + [0] * 9
 _EXPECTED_STARTING_RESOURCES_TRIGGER = DecodedTrigger(
     _conditions=[
-        DecodedCondition(
+        DecodedTriggerCondition(
             _location_id=0,
             _group=0,
             _quantity=0,
@@ -25,7 +25,7 @@ _EXPECTED_STARTING_RESOURCES_TRIGGER = DecodedTrigger(
         )
     ],
     _actions=[
-        DecodedAction(
+        DecodedTriggerAction(
             _location_id=0,
             _text_string_id=0,
             _wav_string_id=0,
@@ -45,7 +45,7 @@ _EXPECTED_STARTING_RESOURCES_TRIGGER = DecodedTrigger(
 # CONDITION: current player commands 0 buildings ACTION: defeat
 _EXPECTED_DEFEAT_TRIGGER = DecodedTrigger(
     _conditions=[
-        DecodedCondition(
+        DecodedTriggerCondition(
             _location_id=0,
             _group=13,
             _quantity=0,
@@ -58,7 +58,7 @@ _EXPECTED_DEFEAT_TRIGGER = DecodedTrigger(
         )
     ],
     _actions=[
-        DecodedAction(
+        DecodedTriggerAction(
             _location_id=0,
             _text_string_id=0,
             _wav_string_id=0,
@@ -79,7 +79,7 @@ _EXPECTED_DEFEAT_TRIGGER = DecodedTrigger(
 # CONDITION: non-allied victory players commands at most 0 buildings ACTION: victory
 _EXPECTED_VICTORY_TRIGGER = DecodedTrigger(
     _conditions=[
-        DecodedCondition(
+        DecodedTriggerCondition(
             _location_id=0,
             _group=26,
             _quantity=0,
@@ -92,7 +92,7 @@ _EXPECTED_VICTORY_TRIGGER = DecodedTrigger(
         )
     ],
     _actions=[
-        DecodedAction(
+        DecodedTriggerAction(
             _location_id=0,
             _text_string_id=0,
             _wav_string_id=0,

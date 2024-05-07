@@ -50,7 +50,7 @@ import dataclasses
 
 
 @dataclasses.dataclass(frozen=True)
-class DecodedAction:
+class DecodedTriggerAction:
     """Represent a decoded Action from the TRIG section.
 
     :param _location_id: u32 - Source location in "Order" and "Move Unit", dest location
@@ -69,8 +69,10 @@ class DecodedAction:
         action state, unit order, number modifier
     :param _flags: u8 - Flags (Bit 0 - Ignore a wait/transmission once, Bit 1 - Enabled
         flag, Bit 2 - Always display flag, Bit 3 - Unit properties is used, Bit 4 - Unit
-        type is used, Bit 5-7 - Unknown/unused),
-    :param _padding: u8 - just padding?
+        type is used, Bit 5-7 - Unknown/unused), Most of the time flags is either: * 100
+        (4): used when displaying text messages to players * 10000 (16): whenever a
+        "unit type" is used in the action * 0 (0): in all other cases it's 0
+    :param _padding: u8 - just padding?.  This value is almost always 0.
     :param _mask_flag: u16 - MaskFlag (set to "SC" (0x53, 0x43) when using the bitmask
         for EUDs, 0 otherwise).
     """

@@ -1,3 +1,4 @@
+import unittest
 import uuid
 from test.chk_resources import DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH
 from typing import TypeVar
@@ -10,6 +11,7 @@ from chkjson.model.chk.decoded_chk import DecodedChk
 from chkjson.model.chk.decoded_chk_section import DecodedChkSection
 from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
+from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
 from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
 from chkjson.model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from chkjson.model.chk_section_name import ChkSectionName
@@ -92,6 +94,11 @@ def assert_chks_are_equal(decoded_chk1: DecodedChk, decoded_chk2: DecodedChk):
         decoded_chk2.decoded_chk_sections
     )
     for index, section in enumerate(decoded_chk1.decoded_chk_sections):
-        # if section != decoded_chk2.decoded_chk_sections[index]:
-        #     foo = 5
-        assert section == decoded_chk2.decoded_chk_sections[index]
+        if isinstance(section, DecodedTrigSection):
+            unittest.TestCase().assertEqual(
+                section,
+                decoded_chk2.decoded_chk_sections[index],
+                "Actual trig section does not match expected trig section!",
+            )
+        else:
+            assert section == decoded_chk2.decoded_chk_sections[index]
