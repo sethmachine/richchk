@@ -41,7 +41,7 @@ import dataclasses
 
 
 @dataclasses.dataclass(frozen=True)
-class DecodedCondition:
+class DecodedTriggerCondition:
     """Represent a single decoded condition from TRIG section.
 
     :param _location_id: u32 - Location number for the condition (1 based -- 0 refers to
