@@ -27,7 +27,7 @@ class RichTriggerActionTranscoderFactory:
     ] = {}
 
     @classmethod
-    def make_rich_trig_action_transcoder(
+    def make_rich_trigger_action_transcoder(
         cls, trig_action_id: TriggerActionId
     ) -> RichTriggerActionTranscoder[Any, Any]:
         """Factory for making RichTrigActionTranscoder for a given trigger action ID."""
