@@ -48,8 +48,8 @@ class DecodedStrSection(DecodedChkSection):
 
     @property
     def strings_offsets(self) -> list[int]:
-        return self._string_offsets.copy()
+        return self._string_offsets
 
     @property
     def strings(self) -> list[str]:
-        return self._strings.copy()
+        return self._strings
