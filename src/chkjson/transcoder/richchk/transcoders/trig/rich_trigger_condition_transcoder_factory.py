@@ -28,10 +28,11 @@ class RichTriggerConditionTranscoderFactory:
     ] = {}
 
     @classmethod
-    def make_rich_trig_action_transcoder(
+    def make_rich_trigger_condition_transcoder(
         cls, condition_id: TriggerConditionId
     ) -> RichTriggerConditionTranscoder[Any, Any]:
-        """Factory for making RichTrigActionTranscoder for a given trigger action ID."""
+        """Factory for making RichTriggerConditionTranscoder for a given trigger
+        condition ID."""
         try:
             maybe_transcoder: Union[
                 RichTriggerConditionTranscoder[Any, Any],

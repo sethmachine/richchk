@@ -12,6 +12,10 @@ _CHK_SECTIONS_DIR: Path = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "transcoders", "test-chk-transcoder-inputs")
 ).absolute()
 
+_DEMON_LORE_CHK_SECTIONS_DIR: Path = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "transcoders", "demon-lore-chk-sections")
+).absolute()
+
 DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH: str = (
     Path(Path.joinpath(_RESOURCES_DIR_PATH, "demon_lore_yatapi_test.chk"))
     .absolute()
@@ -48,4 +52,13 @@ CHK_SECTION_FILE_PATHS = {
     .absolute()
     .as_posix()
     for file_path in os.listdir(_CHK_SECTIONS_DIR)
+}
+
+DEMON_LORE_CHK_SECTION_FILE_PATHS = {
+    _extract_chk_section_name_from_file_path(file_path): Path(
+        Path.joinpath(_DEMON_LORE_CHK_SECTIONS_DIR, file_path)
+    )
+    .absolute()
+    .as_posix()
+    for file_path in os.listdir(_DEMON_LORE_CHK_SECTIONS_DIR)
 }
