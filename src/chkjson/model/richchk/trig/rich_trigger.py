@@ -128,8 +128,11 @@ This section can be split. Additional TRIG sections will add more triggers.
 """
 
 import dataclasses
+from typing import Union
 
-from ...chk.trig.decoded_player_execution import DecodedPlayerExecution
+from ...chk.trig.decoded_trigger_action import DecodedTriggerAction
+from ...chk.trig.decoded_trigger_condition import DecodedTriggerCondition
+from .player_id import PlayerId
 from .rich_trigger_action import RichTriggerAction
 from .rich_trigger_condition import RichTriggerCondition
 
@@ -144,16 +147,15 @@ class RichTrigger:
     :param _actions: Actions of the trigger. 64 Actions (32 byte struct) Immediately
         following the 16 conditions, there are 64 actions. There will always be 64 of
         the following structure, even if some of them are unused.
-    :param _player_execution: Player execution of the trigger. Following the 16
-        conditions and 64 actions, every trigger also has this structure.
+    :param _players: the players for which the trigger executes
     """
 
-    _conditions: list[RichTriggerCondition]
-    _actions: list[RichTriggerAction]
-    _player_execution: DecodedPlayerExecution
+    _conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]]
+    _actions: list[Union[RichTriggerAction, DecodedTriggerAction]]
+    _players: set[PlayerId]
 
     @property
-    def conditions(self) -> list[RichTriggerCondition]:
+    def conditions(self) -> list[Union[RichTriggerCondition, DecodedTriggerCondition]]:
         """Conditions of the trigger.
 
         16 Conditions (20 byte struct) Every trigger has 16 of the following format,
@@ -163,7 +165,7 @@ class RichTrigger:
         return self._conditions
 
     @property
-    def actions(self) -> list[RichTriggerAction]:
+    def actions(self) -> list[Union[RichTriggerAction, DecodedTriggerAction]]:
         """Actions of the trigger.
 
         64 Actions (32 byte struct) Immediately following the 16 conditions, there are
@@ -173,10 +175,10 @@ class RichTrigger:
         return self._actions
 
     @property
-    def player_execution(self) -> DecodedPlayerExecution:
-        """Player execution of the trigger.
+    def players(self) -> set[PlayerId]:
+        """The players the trigger executes for.
 
         Following the 16 conditions and 64 actions, every trigger also has this
         structure.
         """
-        return self._player_execution
+        return self._players

@@ -131,21 +131,21 @@ will add more triggers.
 
 import dataclasses
 
-from ...chk.trig.decoded_trigger import DecodedTrigger
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
+from .rich_trigger import RichTrigger
 
 
 @dataclasses.dataclass(frozen=True)
 class RichTrigSection(RichChkSection):
     """Represent TRIG section for all trigger data."""
 
-    _triggers: list[DecodedTrigger]
+    _triggers: list[RichTrigger]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.TRIG
 
     @property
-    def triggers(self) -> list[DecodedTrigger]:
+    def triggers(self) -> list[RichTrigger]:
         return self._triggers
