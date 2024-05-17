@@ -84,7 +84,7 @@ def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
     )
     decoded_trig_again = rich_transcoder.encode(rich_trig, real_rich_chk_encode_context)
     assert decoded_trig_again == real_decoded_trig
-    assert (
-        rich_transcoder.decode(decoded_trig_again, real_rich_chk_decode_context)
-        == rich_trig
+    rich_trig_again = rich_transcoder.decode(
+        decoded_trig_again, real_rich_chk_decode_context
     )
+    assert rich_trig_again == rich_trig
