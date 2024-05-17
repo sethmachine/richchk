@@ -61,7 +61,7 @@ class RichTriggerConditionTranscoderFactory:
         return [x for x in cls.transcoders.keys()]
 
     @classmethod
-    def supports_transcoding_trig_action(cls, condition_id: TriggerConditionId) -> bool:
+    def supports_transcoding_condition(cls, condition_id: TriggerConditionId) -> bool:
         return condition_id in cls.transcoders
 
 
