@@ -8,7 +8,9 @@ from ....model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ....model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
-from ....model.richchk.trig.conditions.NoConditionCondition import NoConditionCondition
+from ....model.richchk.trig.conditions.no_condition_condition import (
+    NoConditionCondition,
+)
 from ....model.richchk.trig.player_id import PlayerId
 from ....model.richchk.trig.rich_trig_section import RichTrigSection
 from ....model.richchk.trig.rich_trigger import RichTrigger
@@ -21,6 +23,7 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
+from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
 from .trig.rich_trigger_action_transcoder_factory import (
     RichTriggerActionTranscoderFactory,
 )
@@ -89,7 +92,9 @@ class RichChkTrigTranscoder(
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> Optional[Union[RichTriggerCondition, DecodedTriggerCondition]]:
-        condition_id = TriggerConditionId.get_by_id(decoded_condition.condition_id)
+        condition_id = RichChkEnumTranscoder.decode_enum(
+            decoded_condition.condition_id, TriggerConditionId
+        )
         if condition_id != TriggerConditionId.NO_CONDITION:
             if RichTriggerConditionTranscoderFactory.supports_transcoding_condition(
                 condition_id
@@ -128,7 +133,9 @@ class RichChkTrigTranscoder(
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> Optional[Union[RichTriggerAction, DecodedTriggerAction]]:
-        action_id = TriggerActionId.get_by_id(decoded_action.action_id)
+        action_id = RichChkEnumTranscoder.decode_enum(
+            decoded_action.action_id, TriggerActionId
+        )
         if action_id != TriggerActionId.NO_ACTION:
             if RichTriggerActionTranscoderFactory.supports_transcoding_trig_action(
                 action_id
@@ -164,7 +171,7 @@ class RichChkTrigTranscoder(
                 msg = f"Missing player ID value in PlayerId enum, got unexpected value: {maybe_player_id}."
                 self.log.error(msg)
                 raise ValueError(msg)
-            player_id = PlayerId.get_by_id(maybe_player_id)
+            player_id = RichChkEnumTranscoder.decode_enum(maybe_player_id, PlayerId)
             if is_used:
                 players.add(player_id)
         return players
