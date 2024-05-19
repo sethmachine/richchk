@@ -9,7 +9,9 @@ from .mrgn.rich_mrgn_lookup import RichMrgnLookup
 @dataclasses.dataclass(frozen=True)
 class RichChkDecodeContext:
     _rich_str_lookup: RichStrLookup
-    _rich_mrgn_lookup: RichMrgnLookup
+    _rich_mrgn_lookup: RichMrgnLookup = RichMrgnLookup(
+        _location_by_id_lookup={}, _id_by_location_lookup={}
+    )
 
     @property
     def rich_str_lookup(self) -> RichStrLookup:
