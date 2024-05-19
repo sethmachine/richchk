@@ -51,10 +51,11 @@ From: http://www.staredit.net/wiki/index.php/Scenario.chk#Trigger_Conditions_Lis
 23 = Never
 """
 
-from enum import Enum
+
+from ..richchk_enum import RichChkEnum
 
 
-class TriggerConditionId(Enum):
+class TriggerConditionId(RichChkEnum):
     NO_CONDITION = (0, "NO_CONDITION")
     COUNTDOWN_TIMER = (1, "COUNTDOWN_TIMER")
     COMMAND = (2, "COMMAND")
@@ -79,23 +80,3 @@ class TriggerConditionId(Enum):
     SCORE = (21, "SCORE")
     ALWAYS = (22, "ALWAYS")
     NEVER = (23, "NEVER")
-
-    def __init__(self, id_: int, name: str):
-        self._id = id_
-        self._name = name
-
-    @property
-    def id(self) -> int:
-        return self._id
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @classmethod
-    def get_by_id(cls, id_: int) -> "TriggerConditionId":
-        return {e.id: e for e in TriggerConditionId}[id_]
-
-    @classmethod
-    def contains(cls, id_: int) -> bool:
-        return id_ in {e.id: e for e in TriggerConditionId}

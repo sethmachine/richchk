@@ -3,7 +3,7 @@ import pytest
 
 from chkjson.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.model.chk.unis.unis_constants import NUM_SCX_WEAPONS
+from chkjson.model.chk.unis.unis_constants import NUM_SCX_WEAPONS, NUM_UNITS
 from chkjson.model.chk.unix.decoded_unix_section import DecodedUnixSection
 from chkjson.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -87,14 +87,14 @@ def rich_chk_empty_encode_context():
 @pytest.fixture
 def decoded_unis_section_with_custom_terran_marine():
     return DecodedUnixSection(
-        _unit_default_settings_flags=[0] + ([1] * (len(UnitId) - 1)),
-        _unit_hitpoints=[100 * 256] + ([0] * (len(UnitId) - 1)),
-        _unit_shieldpoints=[1337] + ([0] * (len(UnitId) - 1)),
-        _unit_armorpoints=[125] + ([0] * (len(UnitId) - 1)),
-        _unit_build_times=[60] + ([0] * (len(UnitId) - 1)),
-        _unit_mineral_costs=[25] + ([0] * (len(UnitId) - 1)),
-        _unit_gas_costs=[75] + ([0] * (len(UnitId) - 1)),
-        _unit_string_ids=[123] + ([0] * (len(UnitId) - 1)),
+        _unit_default_settings_flags=[0] + ([1] * (NUM_UNITS - 1)),
+        _unit_hitpoints=[100 * 256] + ([0] * (NUM_UNITS - 1)),
+        _unit_shieldpoints=[1337] + ([0] * (NUM_UNITS - 1)),
+        _unit_armorpoints=[125] + ([0] * (NUM_UNITS - 1)),
+        _unit_build_times=[60] + ([0] * (NUM_UNITS - 1)),
+        _unit_mineral_costs=[25] + ([0] * (NUM_UNITS - 1)),
+        _unit_gas_costs=[75] + ([0] * (NUM_UNITS - 1)),
+        _unit_string_ids=[123] + ([0] * (NUM_UNITS - 1)),
         # unit ID 0 (marine) also happens to use weapon ID 0 (gauss rifle)
         _unit_base_weapon_damages=[100] + ([0] * (NUM_SCX_WEAPONS - 1)),
         _unit_upgrade_weapon_damages=[10] + ([0] * (NUM_SCX_WEAPONS - 1)),
@@ -104,14 +104,14 @@ def decoded_unis_section_with_custom_terran_marine():
 @pytest.fixture
 def decoded_unis_section_with_custom_terran_marine_no_custom_name():
     return DecodedUnixSection(
-        _unit_default_settings_flags=[0] + ([1] * (len(UnitId) - 1)),
-        _unit_hitpoints=[100 * 256] + ([0] * (len(UnitId) - 1)),
-        _unit_shieldpoints=[1337] + ([0] * (len(UnitId) - 1)),
-        _unit_armorpoints=[125] + ([0] * (len(UnitId) - 1)),
-        _unit_build_times=[60] + ([0] * (len(UnitId) - 1)),
-        _unit_mineral_costs=[25] + ([0] * (len(UnitId) - 1)),
-        _unit_gas_costs=[75] + ([0] * (len(UnitId) - 1)),
-        _unit_string_ids=[0] * len(UnitId),
+        _unit_default_settings_flags=[0] + ([1] * (NUM_UNITS - 1)),
+        _unit_hitpoints=[100 * 256] + ([0] * (NUM_UNITS - 1)),
+        _unit_shieldpoints=[1337] + ([0] * (NUM_UNITS - 1)),
+        _unit_armorpoints=[125] + ([0] * (NUM_UNITS - 1)),
+        _unit_build_times=[60] + ([0] * (NUM_UNITS - 1)),
+        _unit_mineral_costs=[25] + ([0] * (NUM_UNITS - 1)),
+        _unit_gas_costs=[75] + ([0] * (NUM_UNITS - 1)),
+        _unit_string_ids=[0] * NUM_UNITS,
         # unit ID 0 (marine) also happens to use weapon ID 0 (gauss rifle)
         _unit_base_weapon_damages=[100] + ([0] * (NUM_SCX_WEAPONS - 1)),
         _unit_upgrade_weapon_damages=[10] + ([0] * (NUM_SCX_WEAPONS - 1)),
@@ -122,14 +122,14 @@ def decoded_unis_section_with_custom_terran_marine_no_custom_name():
 def decoded_unis_section_with_terran_science_vessel_no_weapon():
     return DecodedUnixSection(
         # terran science vessel is the first unit without a weapon
-        _unit_default_settings_flags=([1] * 9) + [0] + [1] * (len(UnitId) - 10),
-        _unit_hitpoints=[0] * len(UnitId),
-        _unit_shieldpoints=[0] * len(UnitId),
-        _unit_armorpoints=[0] * len(UnitId),
-        _unit_build_times=[0] * len(UnitId),
-        _unit_mineral_costs=[0] * len(UnitId),
-        _unit_gas_costs=[0] * len(UnitId),
-        _unit_string_ids=[0] * len(UnitId),
+        _unit_default_settings_flags=([1] * 9) + [0] + [1] * (NUM_UNITS - 10),
+        _unit_hitpoints=[0] * NUM_UNITS,
+        _unit_shieldpoints=[0] * NUM_UNITS,
+        _unit_armorpoints=[0] * NUM_UNITS,
+        _unit_build_times=[0] * NUM_UNITS,
+        _unit_mineral_costs=[0] * NUM_UNITS,
+        _unit_gas_costs=[0] * NUM_UNITS,
+        _unit_string_ids=[0] * NUM_UNITS,
         _unit_base_weapon_damages=[0] * NUM_SCX_WEAPONS,
         _unit_upgrade_weapon_damages=[0] * NUM_SCX_WEAPONS,
     )
@@ -138,14 +138,14 @@ def decoded_unis_section_with_terran_science_vessel_no_weapon():
 @pytest.fixture
 def decoded_unis_section_with_no_modified_units():
     return DecodedUnixSection(
-        _unit_default_settings_flags=[1] * len(UnitId),
-        _unit_hitpoints=[0] * len(UnitId),
-        _unit_shieldpoints=[0] * len(UnitId),
-        _unit_armorpoints=[0] * len(UnitId),
-        _unit_build_times=[0] * len(UnitId),
-        _unit_mineral_costs=[0] * len(UnitId),
-        _unit_gas_costs=[0] * len(UnitId),
-        _unit_string_ids=[0] * len(UnitId),
+        _unit_default_settings_flags=[1] * NUM_UNITS,
+        _unit_hitpoints=[0] * NUM_UNITS,
+        _unit_shieldpoints=[0] * NUM_UNITS,
+        _unit_armorpoints=[0] * NUM_UNITS,
+        _unit_build_times=[0] * NUM_UNITS,
+        _unit_mineral_costs=[0] * NUM_UNITS,
+        _unit_gas_costs=[0] * NUM_UNITS,
+        _unit_string_ids=[0] * NUM_UNITS,
         _unit_base_weapon_damages=[0] * NUM_SCX_WEAPONS,
         _unit_upgrade_weapon_damages=[0] * NUM_SCX_WEAPONS,
     )
