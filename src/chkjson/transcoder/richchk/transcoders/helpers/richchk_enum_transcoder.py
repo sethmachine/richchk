@@ -1,31 +1,54 @@
-from typing import Type, TypeVar
+from typing import Generic, Type, TypeVar
 
-from chkjson.model.richchk.richchk_enum import RichChkEnum
-from chkjson.util import logger
+from .....model.richchk.richchk_enum import RichChkEnum
+from .....util import logger
 
 _T = TypeVar("_T", bound=RichChkEnum, covariant=True)
 
 
-class RichChkEnumTranscoder:
+class RichChkEnumTranscoder(Generic[_T]):
     _LOG = logger.get_logger("RichChkEnumTranscoder")
+    _ENUM_ID_MAP: dict[Type[_T], dict[int, _T]] = {}
+
+    @classmethod
+    def _update_enum_id_map(cls, enum_type: Type[_T]) -> None:
+        if enum_type not in cls._ENUM_ID_MAP:
+            cls._ENUM_ID_MAP[enum_type] = {}
+            for enum_instance in enum_type:
+                cls._ENUM_ID_MAP[enum_type][enum_instance.id] = enum_instance
+
+    @classmethod
+    def _contains_enum_by_id(cls, maybe_enum_id: int, enum_type: Type[_T]) -> bool:
+        try:
+            return maybe_enum_id in cls._ENUM_ID_MAP[enum_type]
+        except KeyError:
+            return False
+
+    @classmethod
+    def _get_enum_by_id(cls, maybe_enum_id: int, enum_type: Type[_T]) -> _T:
+        try:
+            foo = cls._ENUM_ID_MAP[enum_type][maybe_enum_id]
+            assert isinstance(foo, enum_type)
+            return foo
+        except KeyError:
+            msg = (
+                f"Unexpected enum ID: {maybe_enum_id} for enum {enum_type}.  "
+                f"Expected one of {[x for x in enum_type]}"
+            )
+            cls._LOG.error(msg)
+            raise KeyError(msg)
 
     @classmethod
     def decode_enum(cls, maybe_enum_id: int, enum_type: Type[_T]) -> _T:
-        msg = (
-            f"Unexpected enum ID: {maybe_enum_id} for enum {enum_type}.  "
-            f"Expected one of {[x for x in enum_type]}"
-        )
-        if not enum_type.contains(maybe_enum_id):
+        cls._update_enum_id_map(enum_type)
+        if not cls._contains_enum_by_id(maybe_enum_id, enum_type):
+            msg = (
+                f"Unexpected enum ID: {maybe_enum_id} for enum {enum_type}.  "
+                f"Expected one of {[x for x in enum_type]}"
+            )
             cls._LOG.error(msg)
             raise ValueError(msg)
-        rich_enum = enum_type.get_by_id(maybe_enum_id)
-        # this next step is required to do the "type casting"
-        for val in enum_type:
-            if val == rich_enum:
-                return val
-        # this should be impossible to reach but left to silence warnings about no return statement
-        cls._LOG.critical("Impossible to reach error!: " + msg)
-        raise ValueError(msg)
+        return cls._get_enum_by_id(maybe_enum_id, enum_type)
 
     @classmethod
     def encode_enum(cls, rich_enum: RichChkEnum) -> int:

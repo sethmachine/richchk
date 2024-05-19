@@ -52,7 +52,7 @@ From: http://www.staredit.net/wiki/index.php/Scenario.chk#Trigger_Conditions_Lis
 """
 
 
-from chkjson.model.richchk.richchk_enum import RichChkEnum
+from ..richchk_enum import RichChkEnum
 
 
 class TriggerConditionId(RichChkEnum):
