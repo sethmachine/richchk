@@ -3,7 +3,7 @@
 See: http://www.staredit.net/wiki/index.php/Scenario.chk#List_of_Players.2FGroup_IDs
 """
 
-from chkjson.model.richchk.richchk_enum import RichChkEnum
+from ..richchk_enum import RichChkEnum
 
 
 class PlayerId(RichChkEnum):

@@ -1,6 +1,6 @@
 """Represent the action byte of each trigger."""
 
-from chkjson.model.richchk.richchk_enum import RichChkEnum
+from ..richchk_enum import RichChkEnum
 
 
 class TriggerActionId(RichChkEnum):

@@ -6,7 +6,7 @@ https://staredit-network.fandom.com/wiki/List_of_units.
 Use the "name" column from the table in the wiki.
 """
 
-from chkjson.model.richchk.richchk_enum import RichChkEnum
+from ..richchk_enum import RichChkEnum
 
 
 class UnitId(RichChkEnum):
