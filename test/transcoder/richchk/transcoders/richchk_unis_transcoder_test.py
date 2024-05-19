@@ -16,6 +16,9 @@ from chkjson.model.richchk.unis.weapon_id import WeaponId
 from chkjson.model.richchk.unis.weapon_setting import WeaponSetting
 from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from chkjson.transcoder.chk.transcoders.chk_unis_transcoder import ChkUnisTranscoder
+from chkjson.transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
+    RichChkEnumTranscoder,
+)
 from chkjson.transcoder.richchk.transcoders.richchk_unis_transcoder import (
     RichChkUnisTranscoder,
 )
@@ -167,7 +170,9 @@ def test_it_decodes_rich_unis_with_expected_unit_settings(
         rich_chk_decode_context=rich_chk_decode_context,
     )
     assert len(rich_unis.unit_settings) == 1
-    assert rich_unis.unit_settings[0].unit_id == UnitId.get_by_id(0)
+    assert rich_unis.unit_settings[0].unit_id == RichChkEnumTranscoder.decode_enum(
+        0, UnitId
+    )
     assert rich_unis.unit_settings[0].hitpoints == 100
     assert rich_unis.unit_settings[0].shieldpoints == 1337
     assert rich_unis.unit_settings[0].armorpoints == 125
@@ -179,7 +184,9 @@ def test_it_decodes_rich_unis_with_expected_unit_settings(
     ].custom_unit_name == rich_chk_decode_context.rich_str_lookup.get_string_by_id(123)
     assert rich_unis.unit_settings[0].weapons == [
         WeaponSetting(
-            _weapon_id=WeaponId.get_by_id(0), _base_damage=100, _upgrade_damage=10
+            _weapon_id=RichChkEnumTranscoder.decode_enum(0, WeaponId),
+            _base_damage=100,
+            _upgrade_damage=10,
         )
     ]
 
@@ -194,7 +201,9 @@ def test_it_decodes_rich_unis_with_null_string_for_unit(
         rich_chk_decode_context=rich_chk_decode_context,
     )
     assert len(rich_unis.unit_settings) == 1
-    assert rich_unis.unit_settings[0].unit_id == UnitId.get_by_id(0)
+    assert rich_unis.unit_settings[0].unit_id == RichChkEnumTranscoder.decode_enum(
+        0, UnitId
+    )
     assert rich_unis.unit_settings[0].hitpoints == 100
     assert rich_unis.unit_settings[0].shieldpoints == 1337
     assert rich_unis.unit_settings[0].armorpoints == 125
@@ -204,7 +213,9 @@ def test_it_decodes_rich_unis_with_null_string_for_unit(
     assert rich_unis.unit_settings[0].custom_unit_name == RichNullString()
     assert rich_unis.unit_settings[0].weapons == [
         WeaponSetting(
-            _weapon_id=WeaponId.get_by_id(0), _base_damage=100, _upgrade_damage=10
+            _weapon_id=RichChkEnumTranscoder.decode_enum(0, WeaponId),
+            _base_damage=100,
+            _upgrade_damage=10,
         )
     ]
 
@@ -264,7 +275,9 @@ def test_integration_it_decodes_rich_unis_with_expected_unit_settings(
     )
     for expected_unit_id in _MODIFIED_UNIT_IDS:
         assert (
-            _get_unit_setting_by_unit_id(rich_unis, UnitId.get_by_id(expected_unit_id))
+            _get_unit_setting_by_unit_id(
+                rich_unis, RichChkEnumTranscoder.decode_enum(expected_unit_id, UnitId)
+            )
             is not None
         )
     terran_marine = _get_unit_setting_by_unit_id(rich_unis, UnitId.TERRAN_MARINE)

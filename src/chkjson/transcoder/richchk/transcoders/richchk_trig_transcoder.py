@@ -73,7 +73,9 @@ class RichChkTrigTranscoder(
     ) -> list[Union[RichTriggerCondition, DecodedTriggerCondition]]:
         conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]] = []
         for condition in decoded_conditions:
-            if not TriggerConditionId.contains(condition.condition_id):
+            if not RichChkEnumTranscoder.contains_enum_by_id(
+                condition.condition_id, TriggerConditionId
+            ):
                 self.log.error(
                     f"Unknown trigger condition ID: {condition.condition_id}!  "
                     f"Make sure all condition bytes are accounted for in the enum."
@@ -114,7 +116,9 @@ class RichChkTrigTranscoder(
     ) -> list[Union[RichTriggerAction, DecodedTriggerAction]]:
         actions: list[Union[RichTriggerAction, DecodedTriggerAction]] = []
         for action in decoded_actions:
-            if not TriggerActionId.contains(action.action_id):
+            if not RichChkEnumTranscoder.contains_enum_by_id(
+                action.action_id, TriggerActionId
+            ):
                 self.log.error(
                     f"Unknown trigger action ID: {action.action_id}!  "
                     f"Make sure all action bytes are accounted for in the enum."
@@ -167,7 +171,7 @@ class RichChkTrigTranscoder(
             self.log.error(msg)
             raise ValueError(msg)
         for maybe_player_id, is_used in enumerate(player_execution.player_flags):
-            if not PlayerId.contains(maybe_player_id):
+            if not RichChkEnumTranscoder.contains_enum_by_id(maybe_player_id, PlayerId):
                 msg = f"Missing player ID value in PlayerId enum, got unexpected value: {maybe_player_id}."
                 self.log.error(msg)
                 raise ValueError(msg)

@@ -9,6 +9,7 @@ from ......model.richchk.trig.actions.create_unit_action import CreateUnitAction
 from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
+from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
 from ..rich_trigger_action_transcoder import RichTriggerActionTranscoder
 from ..rich_trigger_action_transcoder_factory import (
     _RichTriggerActionRegistrableTranscoder,
@@ -35,9 +36,13 @@ class RichTriggerVictoryActionTranscoder(
         )
         assert isinstance(maybe_location, RichLocation)
         return CreateUnitAction(
-            for_player=PlayerId.get_by_id(decoded_action.first_group),
+            for_player=RichChkEnumTranscoder.decode_enum(
+                decoded_action.first_group, PlayerId
+            ),
             amount=decoded_action.quantifier_or_switch_or_order,
-            unit_id=UnitId.get_by_id(decoded_action.action_argument_type),
+            unit_id=RichChkEnumTranscoder.decode_enum(
+                decoded_action.action_argument_type, UnitId
+            ),
             location=maybe_location,
         )
 
