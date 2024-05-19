@@ -27,9 +27,9 @@ class RichChkEnumTranscoder(Generic[_T]):
     @classmethod
     def _get_enum_by_id(cls, maybe_enum_id: int, enum_type: Type[_T]) -> _T:
         try:
-            foo = cls._ENUM_ID_MAP[enum_type][maybe_enum_id]
-            assert isinstance(foo, enum_type)
-            return foo
+            enum_instance = cls._ENUM_ID_MAP[enum_type][maybe_enum_id]
+            assert isinstance(enum_instance, enum_type)
+            return enum_instance
         except KeyError:
             msg = (
                 f"Unexpected enum ID: {maybe_enum_id} for enum {enum_type}.  "
