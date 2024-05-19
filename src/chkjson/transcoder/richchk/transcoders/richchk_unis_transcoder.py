@@ -33,6 +33,7 @@ u16[100]: Upgrade bonus weapon damage, in weapon ID order
 from decimal import Decimal
 
 from ....model.chk.unis.decoded_unis_section import DecodedUnisSection
+from ....model.chk.unis.unis_constants import NUM_UNITS
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
 from ....model.richchk.str.rich_string import RichNullString
@@ -47,6 +48,7 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
+from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
 
 
 class RichChkUnisTranscoder(
@@ -76,9 +78,10 @@ class RichChkUnisTranscoder(
             unit_name = rich_chk_decode_context.rich_str_lookup.get_string_by_id(
                 decoded_chk_section.unit_string_ids[unit_id]
             )
+            actual_unit_id = RichChkEnumTranscoder.decode_enum(unit_id, UnitId)
             unit_settings.append(
                 UnitSetting(
-                    _unit_id=UnitId.get_by_id(unit_id),
+                    _unit_id=actual_unit_id,
                     _hitpoints=Decimal(
                         decoded_chk_section.unit_hitpoints[unit_id] // 256
                     ),
@@ -89,7 +92,7 @@ class RichChkUnisTranscoder(
                     _gas_cost=decoded_chk_section.unit_gas_costs[unit_id],
                     _custom_unit_name=unit_name,
                     _weapons=self._decode_weapons_for_unit_id(
-                        UnitId.get_by_id(unit_id), decoded_chk_section
+                        actual_unit_id, decoded_chk_section
                     ),
                     _use_default_unit_settings=unit_uses_default_settings_flag,
                 )
@@ -149,14 +152,14 @@ class RichChkUnisTranscoder(
         rich_chk_section: RichUnisSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedUnisSection:
-        unit_default_settings_flags = [1] * len(UnitId)
-        hitpoints = [0] * len(UnitId)
-        shieldpoints = [0] * len(UnitId)
-        armorpoints = [0] * len(UnitId)
-        build_times = [0] * len(UnitId)
-        mineral_costs = [0] * len(UnitId)
-        gas_costs = [0] * len(UnitId)
-        string_ids = [0] * len(UnitId)
+        unit_default_settings_flags = [1] * NUM_UNITS
+        hitpoints = [0] * NUM_UNITS
+        shieldpoints = [0] * NUM_UNITS
+        armorpoints = [0] * NUM_UNITS
+        build_times = [0] * NUM_UNITS
+        mineral_costs = [0] * NUM_UNITS
+        gas_costs = [0] * NUM_UNITS
+        string_ids = [0] * NUM_UNITS
         base_weapon_damages = [0] * self._NUM_WEAPONS
         base_weapon_upgrades = [0] * self._NUM_WEAPONS
 

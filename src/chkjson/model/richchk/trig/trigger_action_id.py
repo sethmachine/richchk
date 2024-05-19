@@ -1,9 +1,9 @@
 """Represent the action byte of each trigger."""
 
-from enum import Enum
+from ..richchk_enum import RichChkEnum
 
 
-class TriggerActionId(Enum):
+class TriggerActionId(RichChkEnum):
     NO_ACTION = (0, "NO_ACTION")
     VICTORY = (1, "VICTORY")
     DEFEAT = (2, "DEFEAT")
@@ -64,27 +64,3 @@ class TriggerActionId(Enum):
     SET_ALLIANCE_STATUS = (57, "SET_ALLIANCE_STATUS")
     DISABLE_DEBUG_MODE = (58, "DISABLE_DEBUG_MODE")
     ENABLE_DEBUG_MODE = (59, "ENABLE_DEBUG_MODE")
-
-    def __init__(self, id_: int, name: str):
-        self._id = id_
-        self._name = name
-
-    @property
-    def id(self) -> int:
-        return self._id
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @classmethod
-    def get_by_id(cls, id_: int) -> "TriggerActionId":
-        return {e.id: e for e in TriggerActionId}[id_]
-
-    @classmethod
-    def get_by_name(cls, name: str) -> "TriggerActionId":
-        return {e.name: e for e in TriggerActionId}[name]
-
-    @classmethod
-    def contains(cls, id_: int) -> bool:
-        return id_ in {e.id: e for e in TriggerActionId}

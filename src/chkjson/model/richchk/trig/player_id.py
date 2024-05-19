@@ -3,10 +3,10 @@
 See: http://www.staredit.net/wiki/index.php/Scenario.chk#List_of_Players.2FGroup_IDs
 """
 
-from enum import Enum
+from ..richchk_enum import RichChkEnum
 
 
-class PlayerId(Enum):
+class PlayerId(RichChkEnum):
     PLAYER_1 = (0, "Player 1")
     PLAYER_2 = (1, "Player 2")
     PLAYER_3 = (2, "Player 3")
@@ -34,23 +34,3 @@ class PlayerId(Enum):
     UNUSED_3 = (24, "Unused 3")
     UNUSED_4 = (25, "Unused 4")
     NON_ALLIED_VICTORY_PLAYERS = (26, "Non Allied Victory Players")
-
-    def __init__(self, id_: int, name: str):
-        self._id = id_
-        self._name = name
-
-    @property
-    def id(self) -> int:
-        return self._id
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @classmethod
-    def get_by_id(cls, id_: int) -> "PlayerId":
-        return {e.id: e for e in PlayerId}[id_]
-
-    @classmethod
-    def contains(cls, id_: int) -> bool:
-        return id_ in {e.id: e for e in PlayerId}
