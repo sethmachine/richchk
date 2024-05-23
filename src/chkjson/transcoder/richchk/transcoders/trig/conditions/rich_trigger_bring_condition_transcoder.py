@@ -35,7 +35,7 @@ class RichTriggerBringConditionTranscoder(
             _comparator=RichChkEnumTranscoder.decode_enum(
                 decoded_condition.numeric_comparison_operation, NumericComparator
             ),
-            _quantity=decoded_condition.quantity,
+            _amount=decoded_condition.quantity,
             _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
             _location=rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id_or_throw(
                 decoded_condition.location_id
@@ -52,7 +52,7 @@ class RichTriggerBringConditionTranscoder(
                 rich_condition.location
             ),
             _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
-            _quantity=rich_condition.quantity,
+            _quantity=rich_condition.amount,
             _unit_id=RichChkEnumTranscoder.encode_enum(rich_condition.unit),
             _numeric_comparison_operation=RichChkEnumTranscoder.encode_enum(
                 rich_condition.comparator

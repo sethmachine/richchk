@@ -13,7 +13,7 @@ class BringCondition(RichTriggerCondition):
 
     _group: PlayerId
     _comparator: NumericComparator
-    _quantity: int
+    _amount: int
     _unit: UnitId
     _location: RichLocation
 
@@ -30,8 +30,8 @@ class BringCondition(RichTriggerCondition):
         return self._comparator
 
     @property
-    def quantity(self) -> int:
-        return self._quantity
+    def amount(self) -> int:
+        return self._amount
 
     @property
     def unit(self) -> UnitId:
