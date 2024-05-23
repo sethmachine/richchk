@@ -40,8 +40,50 @@ class RichMrgnLookup:
             )
         return self._location_by_id_lookup.get(location_id)
 
+    def get_location_by_id_or_throw(self, location_id: int) -> RichLocation:
+        if (
+            location_id not in self._location_by_id_lookup
+            and location_id != _UNUSED_LOCATION_ID
+        ):
+            self._log_and_throw_if_location_id_does_not_exist(location_id)
+        elif location_id == _UNUSED_LOCATION_ID:
+            msg = (
+                f"Location ID is {_UNUSED_LOCATION_ID}, meaning the location data is not used.  "
+                f"Do not pass in this value for location lookups!"
+            )
+            self._log.error(msg)
+            raise ValueError(msg)
+        maybe_location = self._location_by_id_lookup.get(location_id)
+        if not maybe_location:
+            self._log_and_throw_if_location_id_does_not_exist(location_id)
+        assert isinstance(maybe_location, RichLocation)
+        return maybe_location
+
     def get_id_by_location(self, location: RichLocation) -> Optional[int]:
         return self._id_by_location_lookup.get(location, None)
 
+    def get_id_by_location_or_throw(self, location: RichLocation) -> int:
+        maybe_location_id = self._id_by_location_lookup.get(location, None)
+        if maybe_location_id is None:
+            self._log_and_throw_if_location_does_not_exist(location)
+        assert isinstance(maybe_location_id, int)
+        return maybe_location_id
+
     def get_location_ids(self) -> list[int]:
         return list(self._location_by_id_lookup.keys())
+
+    def _log_and_throw_if_location_id_does_not_exist(self, location_id: int) -> None:
+        msg = (
+            f"No location found for location ID {location_id}."
+            + "Verify the location ID is valid."
+        )
+        self._log.error(msg)
+        raise ValueError(msg)
+
+    def _log_and_throw_if_location_does_not_exist(self, location: RichLocation) -> None:
+        msg = (
+            f"No location ID for RichLocation {location}."
+            + "Verify the location is valid."
+        )
+        self._log.error(msg)
+        raise ValueError(msg)
