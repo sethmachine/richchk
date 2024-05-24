@@ -6,7 +6,6 @@ still store the unused data.  The field `UnitSetting#use_default_unit_settings` 
 indicate whether this is the case.
 """
 
-import copy
 import dataclasses
 from decimal import Decimal
 
@@ -68,4 +67,4 @@ class UnitSetting:
 
     @property
     def weapons(self) -> list[WeaponSetting]:
-        return copy.deepcopy(self._weapons)
+        return self._weapons

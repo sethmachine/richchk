@@ -49,6 +49,7 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 from ....util import logger
 from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from .helpers.unit_hitpoints_transcoder import UnitHitpointsTranscoder
 
 
 class RichChkUnisTranscoder(
@@ -82,8 +83,8 @@ class RichChkUnisTranscoder(
             unit_settings.append(
                 UnitSetting(
                     _unit_id=actual_unit_id,
-                    _hitpoints=Decimal(
-                        decoded_chk_section.unit_hitpoints[unit_id] // 256
+                    _hitpoints=UnitHitpointsTranscoder.decode_hitpoints(
+                        actual_unit_id, decoded_chk_section.unit_hitpoints[unit_id]
                     ),
                     _shieldpoints=decoded_chk_section.unit_shieldpoints[unit_id],
                     _armorpoints=decoded_chk_section.unit_armorpoints[unit_id],
@@ -145,6 +146,14 @@ class RichChkUnisTranscoder(
             and (unit_setting.gas_cost == 0)
             and (unit_setting.build_time == 0)
             and (isinstance(unit_setting.custom_unit_name, RichNullString))
+            and (
+                all(
+                    [
+                        (weapon.base_damage == 0 and weapon.upgrade_damage == 0)
+                        for weapon in unit_setting.weapons
+                    ]
+                )
+            )
         )
 
     def encode(
@@ -167,7 +176,12 @@ class RichChkUnisTranscoder(
             unit_default_settings_flags[unit_setting.unit_id.id] = int(
                 unit_setting.use_default_unit_settings
             )
-            hitpoints[unit_setting.unit_id.id] = int(unit_setting.hitpoints * 256)
+            # this is a lossy conversion, should add logging to monitor this
+            hitpoints[
+                unit_setting.unit_id.id
+            ] = UnitHitpointsTranscoder.encode_hitpoints(
+                Decimal(unit_setting.hitpoints)
+            )
             shieldpoints[unit_setting.unit_id.id] = unit_setting.shieldpoints
             armorpoints[unit_setting.unit_id.id] = unit_setting.armorpoints
             build_times[unit_setting.unit_id.id] = unit_setting.build_time

@@ -20,7 +20,7 @@ class UnitId(RichChkEnum):
     TERRAN_SCV = (7, "Terran SCV")
     TERRAN_WRAITH = (8, "Terran Wraith")
     TERRAN_SCIENCE_VESSEL = (9, "Terran Science Vessel")
-    GUI_MONTANG_FIREBAT = (10, "GUI Montang Firebat")
+    GUI_MONTAG_FIREBAT = (10, "Gui Montag Firebat")
     TERRAN_DROPSHIP = (11, "Terran Dropship")
     TERRAN_BATTLECRUISER = (12, "Terran Battlecruiser")
     VULTURE_SPIDER_MINE = (13, "Vulture Spider Mine")

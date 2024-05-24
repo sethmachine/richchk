@@ -1,6 +1,6 @@
 import unittest
 import uuid
-from test.chk_resources import DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH
+from test.chk_resources import DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH, SCX_CHK_FILE
 from typing import TypeVar
 
 import pytest
@@ -73,6 +73,26 @@ def test_integration_rich_chk_io_decodes_and_encodes_back_unchanged():
     chkio = ChkIo()
     richhk_io = RichChkIo()
     chk: DecodedChk = chkio.decode_chk_file(DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH)
+    rich_chk: RichChk = richhk_io.decode_chk(chk)
+    actual_encoded_chk: DecodedChk = richhk_io.encode_chk(rich_chk)
+    assert_chks_are_equal(actual_encoded_chk, chk)
+
+
+def test_integration_rich_chk_io_decodes_decoded_chk_into_all_sections_for_scx_file():
+    chkio = ChkIo()
+    richhk_io = RichChkIo()
+    chk: DecodedChk = chkio.decode_chk_file(SCX_CHK_FILE)
+    rich_chk: RichChk = richhk_io.decode_chk(chk)
+    assert len(chk.decoded_chk_sections) == len(rich_chk.chk_sections)
+    assert_all_supported_rich_chk_sections_are_present(rich_chk)
+
+
+def test_integration_rich_chk_io_decodes_and_encodes_back_unchanged_for_scx_file():
+    # this test could break, probably better to verify
+    # you can get the same rich chk again
+    chkio = ChkIo()
+    richhk_io = RichChkIo()
+    chk: DecodedChk = chkio.decode_chk_file(SCX_CHK_FILE)
     rich_chk: RichChk = richhk_io.decode_chk(chk)
     actual_encoded_chk: DecodedChk = richhk_io.encode_chk(rich_chk)
     assert_chks_are_equal(actual_encoded_chk, chk)
