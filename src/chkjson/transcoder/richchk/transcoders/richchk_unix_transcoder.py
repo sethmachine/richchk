@@ -49,6 +49,7 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 from ....util import logger
 from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from .helpers.unit_hitpoints_transcoder import UnitHitpointsTranscoder
 
 
 class RichChkUnixTranscoder(
@@ -82,7 +83,7 @@ class RichChkUnixTranscoder(
             unit_settings.append(
                 UnitSetting(
                     _unit_id=actual_unit_id,
-                    _hitpoints=self._compute_decode_hitpoints(
+                    _hitpoints=UnitHitpointsTranscoder.decode_hitpoints(
                         actual_unit_id, decoded_chk_section.unit_hitpoints[unit_id]
                     ),
                     _shieldpoints=decoded_chk_section.unit_shieldpoints[unit_id],
@@ -104,20 +105,6 @@ class RichChkUnixTranscoder(
                 if not self._filter_unit_setting_if_all_values_unmodified(x)
             ]
         )
-
-    def _compute_decode_hitpoints(
-        self, unit_id: UnitId, hitpoints_before_decode: int
-    ) -> Decimal:
-        maybe_remainder = hitpoints_before_decode % 256
-        if maybe_remainder:
-            self.log.warning(
-                not f"Unit {unit_id} "
-                f"had fractional hitpoints of {maybe_remainder} / 256 "
-                f"due to decoded hitpoints {hitpoints_before_decode}"
-                f"not being an even multiple of 256"
-            )
-        actual_hitpoints = Decimal(hitpoints_before_decode) / Decimal(256)
-        return actual_hitpoints
 
     def _decode_weapons_for_unit_id(
         self, unit_id: UnitId, decoded_chk_section: DecodedUnixSection
@@ -159,6 +146,14 @@ class RichChkUnixTranscoder(
             and (unit_setting.gas_cost == 0)
             and (unit_setting.build_time == 0)
             and (isinstance(unit_setting.custom_unit_name, RichNullString))
+            and (
+                all(
+                    [
+                        (weapon.base_damage == 0 and weapon.upgrade_damage == 0)
+                        for weapon in unit_setting.weapons
+                    ]
+                )
+            )
         )
 
     def encode(
@@ -182,8 +177,10 @@ class RichChkUnixTranscoder(
                 unit_setting.use_default_unit_settings
             )
             # this is a lossy conversion, should add logging to monitor this
-            hitpoints[unit_setting.unit_id.id] = int(
-                Decimal(unit_setting.hitpoints) * Decimal(256)
+            hitpoints[
+                unit_setting.unit_id.id
+            ] = UnitHitpointsTranscoder.encode_hitpoints(
+                Decimal(unit_setting.hitpoints)
             )
             shieldpoints[unit_setting.unit_id.id] = unit_setting.shieldpoints
             armorpoints[unit_setting.unit_id.id] = unit_setting.armorpoints
