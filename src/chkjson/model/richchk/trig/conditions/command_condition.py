@@ -2,13 +2,16 @@ import dataclasses
 
 from ...unis.unit_id import UnitId
 from ..player_id import PlayerId
-from ..rich_trigger_condition import RichTriggerCondition
+from ..rich_trigger_condition import (
+    RichTriggerCondition,
+    _RichTriggerConditionDefaultsBase,
+)
 from ..trigger_condition_id import TriggerConditionId
 from .comparators.numeric_comparator import NumericComparator
 
 
 @dataclasses.dataclass(frozen=True)
-class CommandCondition(RichTriggerCondition):
+class _CommandConditionBase(RichTriggerCondition):
 
     _group: PlayerId
     _comparator: NumericComparator
@@ -34,3 +37,11 @@ class CommandCondition(RichTriggerCondition):
     @property
     def unit(self) -> UnitId:
         return self._unit
+
+
+@dataclasses.dataclass(frozen=True)
+class CommandCondition(
+    _RichTriggerConditionDefaultsBase,
+    _CommandConditionBase,
+):
+    pass

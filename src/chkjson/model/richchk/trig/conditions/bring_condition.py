@@ -3,13 +3,16 @@ import dataclasses
 from ...mrgn.rich_location import RichLocation
 from ...unis.unit_id import UnitId
 from ..player_id import PlayerId
-from ..rich_trigger_condition import RichTriggerCondition
+from ..rich_trigger_condition import (
+    RichTriggerCondition,
+    _RichTriggerConditionDefaultsBase,
+)
 from ..trigger_condition_id import TriggerConditionId
 from .comparators.numeric_comparator import NumericComparator
 
 
 @dataclasses.dataclass(frozen=True)
-class BringCondition(RichTriggerCondition):
+class _BringConditionBase(RichTriggerCondition):
 
     _group: PlayerId
     _comparator: NumericComparator
@@ -40,3 +43,11 @@ class BringCondition(RichTriggerCondition):
     @property
     def location(self) -> RichLocation:
         return self._location
+
+
+@dataclasses.dataclass(frozen=True)
+class BringCondition(
+    _RichTriggerConditionDefaultsBase,
+    _BringConditionBase,
+):
+    pass
