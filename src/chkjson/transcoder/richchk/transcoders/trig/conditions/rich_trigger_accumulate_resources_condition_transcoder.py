@@ -30,7 +30,7 @@ class RichTriggerAccumulateResourcesConditionTranscoder(
             RichTriggerAccumulateResourcesConditionTranscoder.__name__
         )
 
-    def decode(
+    def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -50,7 +50,7 @@ class RichTriggerAccumulateResourcesConditionTranscoder(
             ),
         )
 
-    def encode(
+    def _encode(
         self,
         rich_condition: AccumulateResourcesCondition,
         rich_chk_encode_context: RichChkEncodeContext,
