@@ -2,13 +2,15 @@ import dataclasses
 
 from ...unis.unit_id import UnitId
 from ..player_id import PlayerId
-from ..rich_trigger_condition import RichTriggerCondition
+from ..rich_trigger_condition import (
+    RichTriggerCondition,
+    _RichTriggerConditionDefaultsBase,
+)
 from ..trigger_condition_id import TriggerConditionId
 
 
 @dataclasses.dataclass(frozen=True)
-class MostKillsCondition(RichTriggerCondition):
-
+class _MostKillsConditionBase(RichTriggerCondition):
     _group: PlayerId
     _unit: UnitId
 
@@ -23,3 +25,11 @@ class MostKillsCondition(RichTriggerCondition):
     @property
     def unit(self) -> UnitId:
         return self._unit
+
+
+@dataclasses.dataclass(frozen=True)
+class MostKillsCondition(
+    _RichTriggerConditionDefaultsBase,
+    _MostKillsConditionBase,
+):
+    pass

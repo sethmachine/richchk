@@ -21,7 +21,7 @@ class RichTriggerMostKillsConditionTranscoder(
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerMostKillsConditionTranscoder.__name__)
 
-    def decode(
+    def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -32,7 +32,7 @@ class RichTriggerMostKillsConditionTranscoder(
             _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
         )
 
-    def encode(
+    def _encode(
         self,
         rich_condition: MostKillsCondition,
         rich_chk_encode_context: RichChkEncodeContext,
@@ -46,6 +46,6 @@ class RichTriggerMostKillsConditionTranscoder(
             _condition_id=rich_condition.condition_id().id,
             _numeric_comparand_type=0,
             # means a unit type/ID is used?
-            _flags=16,
+            _flags=0,
             _mask_flag=0,
         )

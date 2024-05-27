@@ -19,7 +19,7 @@ class RichTriggerAlwaysConditionTranscoder(
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerAlwaysConditionTranscoder.__name__)
 
-    def decode(
+    def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -27,7 +27,7 @@ class RichTriggerAlwaysConditionTranscoder(
         assert decoded_condition.condition_id == AlwaysCondition.condition_id().id
         return AlwaysCondition()
 
-    def encode(
+    def _encode(
         self,
         rich_condition: AlwaysCondition,
         rich_chk_encode_context: RichChkEncodeContext,
