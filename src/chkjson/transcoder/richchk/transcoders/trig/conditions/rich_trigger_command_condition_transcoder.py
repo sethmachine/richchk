@@ -24,7 +24,7 @@ class RichTriggerCommandConditionTranscoder(
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerCommandConditionTranscoder.__name__)
 
-    def decode(
+    def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -39,7 +39,7 @@ class RichTriggerCommandConditionTranscoder(
             _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
         )
 
-    def encode(
+    def _encode(
         self,
         rich_condition: CommandCondition,
         rich_chk_encode_context: RichChkEncodeContext,

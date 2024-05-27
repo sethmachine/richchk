@@ -26,7 +26,7 @@ class RichTriggerCountdownTimerConditionTranscoder(
             RichTriggerCountdownTimerConditionTranscoder.__name__
         )
 
-    def decode(
+    def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -41,7 +41,7 @@ class RichTriggerCountdownTimerConditionTranscoder(
             ),
         )
 
-    def encode(
+    def _encode(
         self,
         rich_condition: CountdownTimerCondition,
         rich_chk_encode_context: RichChkEncodeContext,
