@@ -63,6 +63,7 @@ class RichTriggerSwitchConditionTranscoder(
             )
             self.log.error(msg)
             raise ValueError(msg)
+        # needed to pass mypy type checking unfortunately
         assert rich_condition.switch.index is not None
         return DecodedTriggerCondition(
             _location_id=0,
