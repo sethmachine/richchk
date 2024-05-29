@@ -26,6 +26,7 @@ class ChkSectionName(Enum):
     TRIG = ("TRIG",)
     UPRP = ("UPRP",)
     UPUS = ("UPUS",)
+    SWNM = ("SWNM",)
     # special case for unhandled/unknown CHK section
     # this does not correspond to any real CHK section name
     UNKNOWN = ("UNKNOWN",)
