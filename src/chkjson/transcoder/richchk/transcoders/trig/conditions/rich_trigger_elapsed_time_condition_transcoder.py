@@ -5,9 +5,9 @@ from ......model.richchk.richchk_encode_context import RichChkEncodeContext
 from ......model.richchk.trig.conditions.comparators.numeric_comparator import (
     NumericComparator,
 )
-from ......model.richchk.trig.conditions.kill_condition import KillCondition
-from ......model.richchk.trig.player_id import PlayerId
-from ......model.richchk.unis.unit_id import UnitId
+from ......model.richchk.trig.conditions.elapsed_time_condition import (
+    ElapsedTimeCondition,
+)
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
 from ..rich_trigger_condition_transcoder import RichTriggerConditionTranscoder
@@ -16,50 +16,42 @@ from ..rich_trigger_condition_transcoder_factory import (
 )
 
 
-class RichTriggerKillConditionTranscoder(
-    RichTriggerConditionTranscoder[KillCondition, DecodedTriggerCondition],
+class RichTriggerElapsedTimeConditionTranscoder(
+    RichTriggerConditionTranscoder[ElapsedTimeCondition, DecodedTriggerCondition],
     _RichTriggerConditionRegistrableTranscoder,
-    trigger_condition_id=KillCondition.condition_id(),
+    trigger_condition_id=ElapsedTimeCondition.condition_id(),
 ):
     def __init__(self) -> None:
-        self.log = logger.get_logger(RichTriggerKillConditionTranscoder.__name__)
+        self.log = logger.get_logger(RichTriggerElapsedTimeConditionTranscoder.__name__)
 
     def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> KillCondition:
-        assert decoded_condition.condition_id == KillCondition.condition_id().id
-        if decoded_condition.flags:
-            self.log.info(
-                f"Found KillCondition with non-zero condition flags with value: {decoded_condition.flags}"
-            )
-        return KillCondition(
-            _group=RichChkEnumTranscoder.decode_enum(decoded_condition.group, PlayerId),
+    ) -> ElapsedTimeCondition:
+        assert decoded_condition.condition_id == ElapsedTimeCondition.condition_id().id
+        return ElapsedTimeCondition(
+            _seconds=decoded_condition.quantity,
             _comparator=RichChkEnumTranscoder.decode_enum(
                 decoded_condition.numeric_comparison_operation, NumericComparator
             ),
-            _amount=decoded_condition.quantity,
-            _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
         )
 
     def _encode(
         self,
-        rich_condition: KillCondition,
+        rich_condition: ElapsedTimeCondition,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerCondition:
         return DecodedTriggerCondition(
             _location_id=0,
-            _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
-            _quantity=rich_condition.amount,
-            _unit_id=RichChkEnumTranscoder.encode_enum(rich_condition.unit),
+            _group=0,
+            _quantity=rich_condition.seconds,
+            _unit_id=0,
             _numeric_comparison_operation=RichChkEnumTranscoder.encode_enum(
                 rich_condition.comparator
             ),
             _condition_id=rich_condition.condition_id().id,
             _numeric_comparand_type=0,
-            # it appears the kills condition may set the 4th bit flag for value 10000
-            # this means a unit type is used in condition?  unclear if it's necessary
             _flags=0,
             _mask_flag=0,
         )
