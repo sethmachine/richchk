@@ -5,13 +5,17 @@ from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
 from ...model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
+from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk_section_name import ChkSectionName
+from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
 from ...model.richchk.richchk_decode_context import RichChkDecodeContext
 from ...model.richchk.richchk_encode_context import RichChkEncodeContext
+from ...model.richchk.str.rich_str_lookup import RichStrLookup
+from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from ...transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
 from ...transcoder.richchk.richchk_section_transcoder_factory import (
     RichChkSectionTranscoderFactory,
@@ -24,6 +28,7 @@ from ..util.chk_query_util import ChkQueryUtil
 from .decoded_str_section_rebuilder import DecodedStrSectionRebuilder
 from .lookups.mrgn.rich_mrgn_lookup_builder import RichMrgnLookupBuilder
 from .lookups.mrgn.rich_mrgn_section_rebuilder import RichMrgnSectionRebuilder
+from .lookups.swnm.rich_swnm_lookup_builder import RichSwnmLookupBuilder
 from .rich_str_lookup_builder import RichStrLookupBuilder
 
 
@@ -112,13 +117,36 @@ class RichChkIo:
                 DecodedMrgnSection,
             ),
             rich_chk_decode_context=RichChkDecodeContext(
-                _rich_str_lookup=rich_str_lookup, _rich_mrgn_lookup=None
+                _rich_str_lookup=rich_str_lookup,
+                _rich_mrgn_lookup=RichMrgnLookup(
+                    _location_by_id_lookup={}, _id_by_location_lookup={}
+                ),
             ),
         )
         return RichChkDecodeContext(
             _rich_str_lookup=rich_str_lookup,
             _rich_mrgn_lookup=RichMrgnLookupBuilder().build_lookup(rich_mrgn=rich_mrgn),
+            _rich_swnm_lookup=self._build_rich_swnm_lookup_for_decode_context(
+                chk, rich_str_lookup
+            ),
         )
+
+    def _build_rich_swnm_lookup_for_decode_context(
+        self, chk: DecodedChk, rich_str_lookup: RichStrLookup
+    ) -> RichSwnmLookup:
+        try:
+            swnm = DecodedChkSection.cast(
+                ChkQueryUtil.find_only_decoded_section_in_chk(ChkSectionName.SWNM, chk),
+                DecodedSwnmSection,
+            )
+            return RichSwnmLookupBuilder().build_lookup(
+                decoded_swnm=swnm, rich_str_lookup=rich_str_lookup
+            )
+        except ValueError:
+            self.log.info(
+                "No SWNM section found in this CHK.  Returning an empty SWNM lookup."
+            )
+            return RichSwnmLookup(_switch_by_id_lookup={}, _id_by_switch_lookup={})
 
     def _build_encode_context(
         self,
