@@ -1,6 +1,6 @@
 import dataclasses
 
-from ...unis.unit_id import UnitId
+from ..enums.score_type import ScoreType
 from ..rich_trigger_condition import (
     RichTriggerCondition,
     _RichTriggerConditionDefaultsBase,
@@ -9,21 +9,22 @@ from ..trigger_condition_id import TriggerConditionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _MostKillsConditionBase(RichTriggerCondition):
-    _unit: UnitId
+class _LowestScoreConditionBase(RichTriggerCondition):
+
+    _score_type: ScoreType
 
     @classmethod
     def condition_id(cls) -> TriggerConditionId:
-        return TriggerConditionId.MOST_KILLS
+        return TriggerConditionId.LOWEST_SCORE
 
     @property
-    def unit(self) -> UnitId:
-        return self._unit
+    def score_type(self) -> ScoreType:
+        return self._score_type
 
 
 @dataclasses.dataclass(frozen=True)
-class MostKillsCondition(
+class LowestScoreCondition(
     _RichTriggerConditionDefaultsBase,
-    _MostKillsConditionBase,
+    _LowestScoreConditionBase,
 ):
     pass
