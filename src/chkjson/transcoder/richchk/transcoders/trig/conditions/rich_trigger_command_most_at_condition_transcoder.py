@@ -5,7 +5,6 @@ from ......model.richchk.richchk_encode_context import RichChkEncodeContext
 from ......model.richchk.trig.conditions.command_most_at_condition import (
     CommandMostAtCondition,
 )
-from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
@@ -34,7 +33,6 @@ class RichTriggerCommandMostAtConditionTranscoder(
             decoded_condition.condition_id == CommandMostAtCondition.condition_id().id
         )
         return CommandMostAtCondition(
-            _group=RichChkEnumTranscoder.decode_enum(decoded_condition.group, PlayerId),
             _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
             _location=rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id_or_throw(
                 decoded_condition.location_id
@@ -50,7 +48,7 @@ class RichTriggerCommandMostAtConditionTranscoder(
             _location_id=rich_chk_encode_context.rich_mrgn_lookup.get_id_by_location_or_throw(
                 rich_condition.location
             ),
-            _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
+            _group=0,
             _quantity=0,
             _unit_id=RichChkEnumTranscoder.encode_enum(rich_condition.unit),
             _numeric_comparison_operation=0,

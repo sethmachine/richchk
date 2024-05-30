@@ -9,12 +9,12 @@ from ..trigger_condition_id import TriggerConditionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _MostKillsConditionBase(RichTriggerCondition):
+class _LeastKillsConditionBase(RichTriggerCondition):
     _unit: UnitId
 
     @classmethod
     def condition_id(cls) -> TriggerConditionId:
-        return TriggerConditionId.MOST_KILLS
+        return TriggerConditionId.LEAST_KILLS
 
     @property
     def unit(self) -> UnitId:
@@ -22,8 +22,8 @@ class _MostKillsConditionBase(RichTriggerCondition):
 
 
 @dataclasses.dataclass(frozen=True)
-class MostKillsCondition(
+class LeastKillsCondition(
     _RichTriggerConditionDefaultsBase,
-    _MostKillsConditionBase,
+    _LeastKillsConditionBase,
 ):
     pass
