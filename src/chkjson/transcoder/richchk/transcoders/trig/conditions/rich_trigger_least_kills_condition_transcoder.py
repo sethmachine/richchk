@@ -1,8 +1,10 @@
-"""Decode Most Kills trigger condition."""
+"""Decode Least Kills trigger condition."""
 from ......model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
-from ......model.richchk.trig.conditions.most_kills_condition import MostKillsCondition
+from ......model.richchk.trig.conditions.least_kills_condition import (
+    LeastKillsCondition,
+)
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
@@ -12,27 +14,27 @@ from ..rich_trigger_condition_transcoder_factory import (
 )
 
 
-class RichTriggerMostKillsConditionTranscoder(
-    RichTriggerConditionTranscoder[MostKillsCondition, DecodedTriggerCondition],
+class RichTriggerLeastKillsConditionTranscoder(
+    RichTriggerConditionTranscoder[LeastKillsCondition, DecodedTriggerCondition],
     _RichTriggerConditionRegistrableTranscoder,
-    trigger_condition_id=MostKillsCondition.condition_id(),
+    trigger_condition_id=LeastKillsCondition.condition_id(),
 ):
     def __init__(self) -> None:
-        self.log = logger.get_logger(RichTriggerMostKillsConditionTranscoder.__name__)
+        self.log = logger.get_logger(RichTriggerLeastKillsConditionTranscoder.__name__)
 
     def _decode(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> MostKillsCondition:
-        assert decoded_condition.condition_id == MostKillsCondition.condition_id().id
-        return MostKillsCondition(
+    ) -> LeastKillsCondition:
+        assert decoded_condition.condition_id == LeastKillsCondition.condition_id().id
+        return LeastKillsCondition(
             _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
         )
 
     def _encode(
         self,
-        rich_condition: MostKillsCondition,
+        rich_condition: LeastKillsCondition,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerCondition:
         return DecodedTriggerCondition(
@@ -43,7 +45,6 @@ class RichTriggerMostKillsConditionTranscoder(
             _numeric_comparison_operation=0,
             _condition_id=rich_condition.condition_id().id,
             _numeric_comparand_type=0,
-            # means a unit type/ID is used?
             _flags=0,
             _mask_flag=0,
         )
