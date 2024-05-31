@@ -24,7 +24,7 @@ class RichTriggerVictoryActionTranscoder(
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerVictoryActionTranscoder.__name__)
 
-    def decode(
+    def _decode(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -36,17 +36,17 @@ class RichTriggerVictoryActionTranscoder(
         )
         assert isinstance(maybe_location, RichLocation)
         return CreateUnitAction(
-            for_player=RichChkEnumTranscoder.decode_enum(
+            _group=RichChkEnumTranscoder.decode_enum(
                 decoded_action.first_group, PlayerId
             ),
-            amount=decoded_action.quantifier_or_switch_or_order,
-            unit_id=RichChkEnumTranscoder.decode_enum(
+            _amount=decoded_action.quantifier_or_switch_or_order,
+            _unit=RichChkEnumTranscoder.decode_enum(
                 decoded_action.action_argument_type, UnitId
             ),
-            location=maybe_location,
+            _location=maybe_location,
         )
 
-    def encode(
+    def _encode(
         self,
         rich_action: CreateUnitAction,
         rich_chk_encode_context: RichChkEncodeContext,
@@ -61,10 +61,10 @@ class RichTriggerVictoryActionTranscoder(
             _text_string_id=0,
             _wav_string_id=0,
             _time=0,
-            _first_group=rich_action.for_player.id,
+            _first_group=RichChkEnumTranscoder.encode_enum(rich_action.group),
             _second_group=0,
-            _action_argument_type=rich_action.unit_id.id,
-            _action_id=CreateUnitAction.action_id().id,
+            _action_argument_type=RichChkEnumTranscoder.encode_enum(rich_action.unit),
+            _action_id=rich_action.action_id().id,
             _quantifier_or_switch_or_order=rich_action.amount,
             _flags=0,
             _padding=0,

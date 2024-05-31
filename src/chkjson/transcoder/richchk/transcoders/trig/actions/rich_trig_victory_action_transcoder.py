@@ -20,7 +20,7 @@ class RichTriggerVictoryActionTranscoder(
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerVictoryActionTranscoder.__name__)
 
-    def decode(
+    def _decode(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
@@ -28,7 +28,7 @@ class RichTriggerVictoryActionTranscoder(
         assert decoded_action.action_id == VictoryAction.action_id().id
         return VictoryAction()
 
-    def encode(
+    def _encode(
         self,
         rich_action: VictoryAction,
         rich_chk_encode_context: RichChkEncodeContext,
