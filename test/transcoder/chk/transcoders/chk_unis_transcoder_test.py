@@ -1,5 +1,5 @@
-from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
-from chkjson.transcoder.chk.transcoders.chk_unis_transcoder import ChkUnisTranscoder
+from richchk.model.chk.unis.decoded_unis_section import DecodedUnisSection
+from richchk.transcoder.chk.transcoders.chk_unis_transcoder import ChkUnisTranscoder
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 

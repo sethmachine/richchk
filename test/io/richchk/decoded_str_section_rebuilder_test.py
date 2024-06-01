@@ -7,14 +7,14 @@ to mock objects in pytest framework
 """
 import pytest
 
-from chkjson.io.richchk.decoded_str_section_rebuilder import DecodedStrSectionRebuilder
-from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.model.richchk.rich_chk import RichChk
-from chkjson.model.richchk.str.rich_string import RichString
-from chkjson.model.richchk.unis.rich_unis_section import RichUnisSection
-from chkjson.model.richchk.unis.unit_id import UnitId
-from chkjson.model.richchk.unis.unit_setting import UnitSetting
-from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
+from richchk.io.richchk.decoded_str_section_rebuilder import DecodedStrSectionRebuilder
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.model.richchk.rich_chk import RichChk
+from richchk.model.richchk.str.rich_string import RichString
+from richchk.model.richchk.unis.rich_unis_section import RichUnisSection
+from richchk.model.richchk.unis.unit_id import UnitId
+from richchk.model.richchk.unis.unit_setting import UnitSetting
+from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
 

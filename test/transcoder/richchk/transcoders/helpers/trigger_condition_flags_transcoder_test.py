@@ -16,10 +16,10 @@ necessary otherwise? B
 Bit 5-7 - Unknown/unused
 """
 
-from chkjson.model.richchk.trig.conditions.flags.trigger_condition_flags import (
+from richchk.model.richchk.trig.conditions.flags.trigger_condition_flags import (
     TriggerConditionFlags,
 )
-from chkjson.transcoder.richchk.transcoders.helpers.trigger_condition_flags_transcoder import (
+from richchk.transcoder.richchk.transcoders.helpers.trigger_condition_flags_transcoder import (
     TriggerConditionFlagsTranscoder,
 )
 

@@ -5,20 +5,20 @@ from typing import TypeVar
 
 import pytest
 
-from chkjson.io.chk.chk_io import ChkIo
-from chkjson.io.richchk.richchk_io import RichChkIo
-from chkjson.model.chk.decoded_chk import DecodedChk
-from chkjson.model.chk.decoded_chk_section import DecodedChkSection
-from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
-from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
-from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
-from chkjson.model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
-from chkjson.model.chk_section_name import ChkSectionName
-from chkjson.model.richchk.rich_chk import RichChk
-from chkjson.model.richchk.rich_chk_section import RichChkSection
-from chkjson.model.richchk.unis.rich_unis_section import RichUnisSection
-from chkjson.transcoder.richchk.richchk_section_transcoder_factory import (
+from richchk.io.chk.chk_io import ChkIo
+from richchk.io.richchk.richchk_io import RichChkIo
+from richchk.model.chk.decoded_chk import DecodedChk
+from richchk.model.chk.decoded_chk_section import DecodedChkSection
+from richchk.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.model.chk.trig.decoded_trig_section import DecodedTrigSection
+from richchk.model.chk.unis.decoded_unis_section import DecodedUnisSection
+from richchk.model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
+from richchk.model.chk_section_name import ChkSectionName
+from richchk.model.richchk.rich_chk import RichChk
+from richchk.model.richchk.rich_chk_section import RichChkSection
+from richchk.model.richchk.unis.rich_unis_section import RichUnisSection
+from richchk.transcoder.richchk.richchk_section_transcoder_factory import (
     RichChkSectionTranscoderFactory,
 )
 

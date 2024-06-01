@@ -1,7 +1,7 @@
-from chkjson.model.chk.unix.decoded_unix_section import DecodedUnixSection
-from chkjson.model.richchk.unis.unit_id import UnitId
-from chkjson.model.richchk.unis.weapon_id import WeaponId
-from chkjson.transcoder.chk.transcoders.chk_unix_transcoder import ChkUnixTranscoder
+from richchk.model.chk.unix.decoded_unix_section import DecodedUnixSection
+from richchk.model.richchk.unis.unit_id import UnitId
+from richchk.model.richchk.unis.weapon_id import WeaponId
+from richchk.transcoder.chk.transcoders.chk_unix_transcoder import ChkUnixTranscoder
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 

@@ -2,10 +2,10 @@
 import uuid
 from typing import Optional
 
-from chkjson.model.chk.mrgn.decoded_location import DecodedLocation
-from chkjson.model.richchk.mrgn.rich_location import RichLocation
-from chkjson.model.richchk.str.rich_string import RichString
-from chkjson.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
+from richchk.model.chk.mrgn.decoded_location import DecodedLocation
+from richchk.model.richchk.mrgn.rich_location import RichLocation
+from richchk.model.richchk.str.rich_string import RichString
+from richchk.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
 )
 

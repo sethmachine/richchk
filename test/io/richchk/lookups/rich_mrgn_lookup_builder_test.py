@@ -1,11 +1,11 @@
 import pytest
 
-from chkjson.io.richchk.lookups.mrgn.rich_mrgn_lookup_builder import (
+from richchk.io.richchk.lookups.mrgn.rich_mrgn_lookup_builder import (
     RichMrgnLookupBuilder,
 )
-from chkjson.model.richchk.mrgn.rich_location import RichLocation
-from chkjson.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
-from chkjson.model.richchk.str.rich_string import RichString
+from richchk.model.richchk.mrgn.rich_location import RichLocation
+from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
+from richchk.model.richchk.str.rich_string import RichString
 
 
 @pytest.fixture(scope="function")
