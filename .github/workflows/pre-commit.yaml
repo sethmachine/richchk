@@ -32,4 +32,4 @@ jobs:
           pip install src/ --upgrade
           pip install pytest
       - name: Run tests
-        run: pytest /test
+        run: pytest test/
