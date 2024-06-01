@@ -3,10 +3,10 @@
 
 import pytest
 
-from chkjson.editor.richchk.rich_mrgn_editor import RichMrgnEditor
-from chkjson.model.chk.mrgn.mrgn_constants import ANYWHERE_LOCATION_ID, MAX_LOCATIONS
-from chkjson.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
-from chkjson.util.dataclasses_util import build_dataclass_with_fields
+from richchk.editor.richchk.rich_mrgn_editor import RichMrgnEditor
+from richchk.model.chk.mrgn.mrgn_constants import ANYWHERE_LOCATION_ID, MAX_LOCATIONS
+from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
+from richchk.util.dataclasses_util import build_dataclass_with_fields
 
 from ...fixtures.location_fixtures import generate_rich_location
 

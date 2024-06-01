@@ -1,25 +1,25 @@
 """This is really an integration test as it relies on the UNIS transcoder."""
 import pytest
 
-from chkjson.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
-from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.model.chk.unis.decoded_unis_section import DecodedUnisSection
-from chkjson.model.chk.unis.unis_constants import NUM_UNITS
-from chkjson.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
-from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
-from chkjson.model.richchk.richchk_encode_context import RichChkEncodeContext
-from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
-from chkjson.model.richchk.str.rich_string import RichNullString, RichString
-from chkjson.model.richchk.unis.rich_unis_section import RichUnisSection
-from chkjson.model.richchk.unis.unit_id import UnitId
-from chkjson.model.richchk.unis.weapon_id import WeaponId
-from chkjson.model.richchk.unis.weapon_setting import WeaponSetting
-from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
-from chkjson.transcoder.chk.transcoders.chk_unis_transcoder import ChkUnisTranscoder
-from chkjson.transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
+from richchk.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.model.chk.unis.decoded_unis_section import DecodedUnisSection
+from richchk.model.chk.unis.unis_constants import NUM_UNITS
+from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
+from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
+from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
+from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.unis.rich_unis_section import RichUnisSection
+from richchk.model.richchk.unis.unit_id import UnitId
+from richchk.model.richchk.unis.weapon_id import WeaponId
+from richchk.model.richchk.unis.weapon_setting import WeaponSetting
+from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
+from richchk.transcoder.chk.transcoders.chk_unis_transcoder import ChkUnisTranscoder
+from richchk.transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
     RichChkEnumTranscoder,
 )
-from chkjson.transcoder.richchk.transcoders.richchk_unis_transcoder import (
+from richchk.transcoder.richchk.transcoders.richchk_unis_transcoder import (
     RichChkUnisTranscoder,
 )
 

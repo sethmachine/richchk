@@ -5,17 +5,17 @@ from typing import TypeVar
 
 import pytest
 
-from chkjson.editor.richchk.rich_chk_editor import RichChkEditor
-from chkjson.editor.richchk.rich_mrgn_editor import RichMrgnEditor
-from chkjson.io.chk.chk_io import ChkIo
-from chkjson.io.richchk.richchk_io import RichChkIo
-from chkjson.io.util.chk_query_util import ChkQueryUtil
-from chkjson.model.chk.decoded_chk_section import DecodedChkSection
-from chkjson.model.chk_section_name import ChkSectionName
-from chkjson.model.richchk.mrgn.rich_location import RichLocation
-from chkjson.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
-from chkjson.model.richchk.rich_chk import RichChk
-from chkjson.model.richchk.str.rich_string import RichString
+from richchk.editor.richchk.rich_chk_editor import RichChkEditor
+from richchk.editor.richchk.rich_mrgn_editor import RichMrgnEditor
+from richchk.io.chk.chk_io import ChkIo
+from richchk.io.richchk.richchk_io import RichChkIo
+from richchk.io.util.chk_query_util import ChkQueryUtil
+from richchk.model.chk.decoded_chk_section import DecodedChkSection
+from richchk.model.chk_section_name import ChkSectionName
+from richchk.model.richchk.mrgn.rich_location import RichLocation
+from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
+from richchk.model.richchk.rich_chk import RichChk
+from richchk.model.richchk.str.rich_string import RichString
 
 from ..chk_resources import SCX_CHK_FILE
 from ..helpers.dataclasses_helper import compare_dataclasses_ignoring_fields

@@ -1,7 +1,7 @@
 import pytest
 
-from chkjson.model.richchk.trig.player_id import PlayerId
-from chkjson.transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
+from richchk.model.richchk.trig.player_id import PlayerId
+from richchk.transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
     RichChkEnumTranscoder,
 )
 

@@ -1,9 +1,9 @@
 """"""
 
-from chkjson.editor.richchk.rich_chk_editor import RichChkEditor
-from chkjson.model.richchk.rich_chk import RichChk
-from chkjson.model.richchk.unis.unit_id import UnitId
-from chkjson.model.richchk.unix.rich_unix_section import RichUnixSection
+from richchk.editor.richchk.rich_chk_editor import RichChkEditor
+from richchk.model.richchk.rich_chk import RichChk
+from richchk.model.richchk.unis.unit_id import UnitId
+from richchk.model.richchk.unix.rich_unix_section import RichUnixSection
 
 from ...fixtures.unit_settings_fixtures import (
     generate_rich_unix_with_terran_marine_setting,
