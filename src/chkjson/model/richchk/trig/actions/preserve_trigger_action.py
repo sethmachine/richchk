@@ -6,12 +6,12 @@ from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _VictoryActionBase(RichTriggerAction, ABC):
+class _PreserveTriggerActionBase(RichTriggerAction, ABC):
     @classmethod
     def action_id(cls) -> TriggerActionId:
-        return TriggerActionId.VICTORY
+        return TriggerActionId.PRESERVE_TRIGGER
 
 
 @dataclasses.dataclass(frozen=True)
-class VictoryAction(_RichTriggerActionDefaultsBase, _VictoryActionBase):
+class PreserveTrigger(_RichTriggerActionDefaultsBase, _PreserveTriggerActionBase):
     pass
