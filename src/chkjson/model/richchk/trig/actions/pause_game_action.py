@@ -6,12 +6,12 @@ from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _VictoryActionBase(RichTriggerAction, ABC):
+class _PauseGameActionBase(RichTriggerAction, ABC):
     @classmethod
     def action_id(cls) -> TriggerActionId:
-        return TriggerActionId.VICTORY
+        return TriggerActionId.PAUSE_GAME
 
 
 @dataclasses.dataclass(frozen=True)
-class VictoryAction(_RichTriggerActionDefaultsBase, _VictoryActionBase):
+class PauseGameAction(_RichTriggerActionDefaultsBase, _PauseGameActionBase):
     pass
