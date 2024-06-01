@@ -8,7 +8,7 @@ setup(
     author="sethmachine",
     author_email="sethmachine01@gmail.com",
     license="MIT",
-    install_requires=[],
+    install_requires=["dataclass-wizard==0.22.3"],
     package_data={package: ["py.typed"] for package in find_packages()},
     packages=find_packages(),
     zip_safe=False,
