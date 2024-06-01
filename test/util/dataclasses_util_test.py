@@ -2,7 +2,7 @@
 
 import dataclasses
 
-from chkjson.util.dataclasses_util import build_dataclass_with_fields
+from richchk.util.dataclasses_util import build_dataclass_with_fields
 
 
 @dataclasses.dataclass

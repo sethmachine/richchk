@@ -1,9 +1,9 @@
-from chkjson.model.chk.trig.decoded_player_execution import DecodedPlayerExecution
-from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
-from chkjson.model.chk.trig.decoded_trigger import DecodedTrigger
-from chkjson.model.chk.trig.decoded_trigger_action import DecodedTriggerAction
-from chkjson.model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
-from chkjson.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
+from richchk.model.chk.trig.decoded_player_execution import DecodedPlayerExecution
+from richchk.model.chk.trig.decoded_trig_section import DecodedTrigSection
+from richchk.model.chk.trig.decoded_trigger import DecodedTrigger
+from richchk.model.chk.trig.decoded_trigger_action import DecodedTriggerAction
+from richchk.model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
+from richchk.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 

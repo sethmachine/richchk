@@ -3,9 +3,9 @@ ChkStrTranscoder to read the CHK binary data into a DecodedStrSection."""
 
 import uuid
 
-from chkjson.editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
-from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
+from richchk.editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
 

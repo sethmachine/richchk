@@ -2,13 +2,13 @@
 
 from decimal import Decimal
 
-from chkjson.model.richchk.str.rich_string import RichString
-from chkjson.model.richchk.unis.rich_unis_section import RichUnisSection
-from chkjson.model.richchk.unis.unit_id import UnitId
-from chkjson.model.richchk.unis.unit_setting import UnitSetting
-from chkjson.model.richchk.unis.weapon_id import WeaponId
-from chkjson.model.richchk.unis.weapon_setting import WeaponSetting
-from chkjson.model.richchk.unix.rich_unix_section import RichUnixSection
+from richchk.model.richchk.str.rich_string import RichString
+from richchk.model.richchk.unis.rich_unis_section import RichUnisSection
+from richchk.model.richchk.unis.unit_id import UnitId
+from richchk.model.richchk.unis.unit_setting import UnitSetting
+from richchk.model.richchk.unis.weapon_id import WeaponId
+from richchk.model.richchk.unis.weapon_setting import WeaponSetting
+from richchk.model.richchk.unix.rich_unix_section import RichUnixSection
 
 
 def generate_unit_setting(unit_id: UnitId) -> UnitSetting:

@@ -1,16 +1,16 @@
 import pytest
 
-from chkjson.model.chk.mrgn.decoded_location import DecodedLocation
-from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
-from chkjson.model.richchk.mrgn.rich_location import RichLocation
-from chkjson.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
-from chkjson.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
-from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
-from chkjson.model.richchk.richchk_encode_context import RichChkEncodeContext
-from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
-from chkjson.model.richchk.str.rich_string import RichNullString, RichString
-from chkjson.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
-from chkjson.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
+from richchk.model.chk.mrgn.decoded_location import DecodedLocation
+from richchk.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
+from richchk.model.richchk.mrgn.rich_location import RichLocation
+from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
+from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
+from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
+from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
+from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
+from richchk.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
 )
 
