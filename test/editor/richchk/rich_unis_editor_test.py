@@ -2,12 +2,12 @@
 
 from decimal import Decimal
 
-from chkjson.editor.richchk.rich_unis_editor import RichUnisEditor
-from chkjson.model.richchk.str.rich_string import RichString
-from chkjson.model.richchk.unis.unit_id import UnitId
-from chkjson.model.richchk.unis.unit_setting import UnitSetting
-from chkjson.model.richchk.unis.weapon_id import WeaponId
-from chkjson.model.richchk.unis.weapon_setting import WeaponSetting
+from richchk.editor.richchk.rich_unis_editor import RichUnisEditor
+from richchk.model.richchk.str.rich_string import RichString
+from richchk.model.richchk.unis.unit_id import UnitId
+from richchk.model.richchk.unis.unit_setting import UnitSetting
+from richchk.model.richchk.unis.weapon_id import WeaponId
+from richchk.model.richchk.unis.weapon_setting import WeaponSetting
 
 from ...fixtures.unit_settings_fixtures import (
     generate_empty_rich_unis,

@@ -1,8 +1,8 @@
-from chkjson.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
-from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
-from chkjson.model.richchk.str.rich_string import RichString
-from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
+from richchk.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.str.rich_string import RichString
+from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
 

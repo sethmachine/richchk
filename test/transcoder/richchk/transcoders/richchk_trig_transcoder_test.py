@@ -1,23 +1,23 @@
 import pytest
 
-from chkjson.io.richchk.lookups.mrgn.rich_mrgn_lookup_builder import (
+from richchk.io.richchk.lookups.mrgn.rich_mrgn_lookup_builder import (
     RichMrgnLookupBuilder,
 )
-from chkjson.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
-from chkjson.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
-from chkjson.model.chk.str.decoded_str_section import DecodedStrSection
-from chkjson.model.chk.trig.decoded_trig_section import DecodedTrigSection
-from chkjson.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
-from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
-from chkjson.model.richchk.richchk_encode_context import RichChkEncodeContext
-from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
-from chkjson.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
-from chkjson.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
-from chkjson.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
-from chkjson.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
+from richchk.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
+from richchk.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.model.chk.trig.decoded_trig_section import DecodedTrigSection
+from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
+from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
+from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
+from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
+from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
+from richchk.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
+from richchk.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
 )
-from chkjson.transcoder.richchk.transcoders.richchk_trig_transcoder import (
+from richchk.transcoder.richchk.transcoders.richchk_trig_transcoder import (
     RichChkTrigTranscoder,
 )
 

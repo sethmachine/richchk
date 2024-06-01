@@ -1,5 +1,5 @@
-from chkjson.model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
-from chkjson.transcoder.chk.transcoders.chk_swnm_transcoder import ChkSwnmTranscoder
+from richchk.model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
+from richchk.transcoder.chk.transcoders.chk_swnm_transcoder import ChkSwnmTranscoder
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 

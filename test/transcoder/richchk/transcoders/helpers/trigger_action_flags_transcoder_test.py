@@ -15,10 +15,10 @@ Bit 4 - Unit type is used. Cleared in "Offset + Mask" EUD actions.
 
 Bit 5-7 - Unknown/unused
 """
-from chkjson.model.richchk.trig.actions.flags.trigger_action_flags import (
+from richchk.model.richchk.trig.actions.flags.trigger_action_flags import (
     TriggerActionFlags,
 )
-from chkjson.transcoder.richchk.transcoders.helpers.trigger_action_flags_transcoder import (
+from richchk.transcoder.richchk.transcoders.helpers.trigger_action_flags_transcoder import (
     TriggerActionFlagsTranscoder,
 )
 

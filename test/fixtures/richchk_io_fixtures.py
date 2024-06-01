@@ -1,7 +1,7 @@
 """"""
-from chkjson.model.richchk.richchk_decode_context import RichChkDecodeContext
-from chkjson.model.richchk.str.rich_str_lookup import RichStrLookup
-from chkjson.model.richchk.str.rich_string import RichString
+from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
+from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.str.rich_string import RichString
 
 
 def generate_rich_chk_decode_context():

@@ -1,8 +1,8 @@
 """Verify equality works as expected given we have custom overrides for __eq__ and
 __hash__"""
 
-from chkjson.model.richchk.mrgn.rich_location import RichLocation
-from chkjson.model.richchk.str.rich_string import RichString
+from richchk.model.richchk.mrgn.rich_location import RichLocation
+from richchk.model.richchk.str.rich_string import RichString
 
 
 def test_locations_are_not_equal_if_all_fields_match_but_no_index_defined():

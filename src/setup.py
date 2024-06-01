@@ -1,10 +1,10 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="chkjson",
+    name="richchk",
     version="0.1",
-    description="Decode Starcraft's .chk (CHK) format to and from JSON.",
-    url="https://github.com/sethmachine/chkjson",
+    description="Parse Starcraft CHK format to a rich, readable, and editable format.",
+    url="https://github.com/sethmachine/richchk",
     author="sethmachine",
     author_email="sethmachine01@gmail.com",
     license="MIT",
