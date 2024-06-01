@@ -1,4 +1,5 @@
 import dataclasses
+from abc import ABC
 
 from ...mrgn.rich_location import RichLocation
 from ...unis.unit_id import UnitId
@@ -8,7 +9,7 @@ from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _CreateUnitActionBase(RichTriggerAction):
+class _CreateUnitActionBase(RichTriggerAction, ABC):
     _group: PlayerId
     _amount: int
     _unit: UnitId

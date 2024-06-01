@@ -6,12 +6,18 @@ from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _VictoryActionBase(RichTriggerAction, ABC):
+class _WaitActionBase(RichTriggerAction, ABC):
+    _milliseconds: int
+
     @classmethod
     def action_id(cls) -> TriggerActionId:
-        return TriggerActionId.VICTORY
+        return TriggerActionId.WAIT
+
+    @property
+    def milliseconds(self) -> int:
+        return self._milliseconds
 
 
 @dataclasses.dataclass(frozen=True)
-class VictoryAction(_RichTriggerActionDefaultsBase, _VictoryActionBase):
+class WaitAction(_RichTriggerActionDefaultsBase, _WaitActionBase):
     pass
