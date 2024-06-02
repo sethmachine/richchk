@@ -21,7 +21,10 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --all-files
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
     needs: pre-commit
     steps:
       - uses: actions/checkout@v2
