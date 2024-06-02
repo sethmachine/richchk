@@ -62,3 +62,7 @@ DEMON_LORE_CHK_SECTION_FILE_PATHS = {
     .as_posix()
     for file_path in os.listdir(_DEMON_LORE_CHK_SECTIONS_DIR)
 }
+
+MACOS_STORMLIB_M1 = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/macos/libstorm.9.22.0.dylib")
+).absolute()
