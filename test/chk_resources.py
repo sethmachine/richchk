@@ -66,3 +66,7 @@ DEMON_LORE_CHK_SECTION_FILE_PATHS = {
 MACOS_STORMLIB_M1 = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/macos/libstorm.9.22.0.dylib")
 ).absolute()
+
+EXAMPLE_STARCRAFT_SCX_MAP = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/example-stacraft-map.scx")
+).absolute()
