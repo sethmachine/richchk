@@ -70,3 +70,7 @@ MACOS_STORMLIB_M1 = Path(
 EXAMPLE_STARCRAFT_SCX_MAP = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/example-stacraft-map.scx")
 ).absolute()
+
+EXAMPLE_STARCRAFT_SCM_MAP = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/example-starcraft-map.scm")
+).absolute()
