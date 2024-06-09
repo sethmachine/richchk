@@ -21,3 +21,6 @@ class RichSwnmLookup:
             self._log.warning(msg)
             return None
         return self._switch_by_id_lookup.get(switch_id)
+
+    def get_id_by_switch(self, switch: RichSwitch) -> int:
+        return self._id_by_switch_lookup[switch]

@@ -10,6 +10,7 @@ from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
 from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from richchk.model.richchk.unis.rich_unis_section import RichUnisSection
 from richchk.model.richchk.unis.unit_id import UnitId
 from richchk.model.richchk.unis.weapon_id import WeaponId
@@ -83,6 +84,9 @@ def rich_chk_empty_encode_context():
         ),
         _rich_mrgn_lookup=RichMrgnLookup(
             _location_by_id_lookup={}, _id_by_location_lookup={}
+        ),
+        _rich_swnm_lookup=RichSwnmLookup(
+            _switch_by_id_lookup={}, _id_by_switch_lookup={}
         ),
     )
 
@@ -312,7 +316,11 @@ def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
     actual_decoded_unis = rich_transcoder.encode(
         rich_chk_section=rich_unis,
         rich_chk_encode_context=RichChkEncodeContext(
-            _rich_str_lookup=rich_str_lookup, _rich_mrgn_lookup=rich_mrgn_lookup
+            _rich_str_lookup=rich_str_lookup,
+            _rich_mrgn_lookup=rich_mrgn_lookup,
+            _rich_swnm_lookup=RichSwnmLookup(
+                _switch_by_id_lookup={}, _id_by_switch_lookup={}
+            ),
         ),
     )
     assert actual_decoded_unis == real_decoded_unis
