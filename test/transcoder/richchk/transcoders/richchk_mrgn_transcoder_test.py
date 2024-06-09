@@ -9,6 +9,7 @@ from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
 from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from richchk.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
 from richchk.transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
@@ -173,6 +174,9 @@ def test_integration_it_encodes_back_to_expected_decoded_location():
             _rich_mrgn_lookup=RichMrgnLookup(
                 _location_by_id_lookup={}, _id_by_location_lookup={}
             ),
+            _rich_swnm_lookup=RichSwnmLookup(
+                _switch_by_id_lookup={}, _id_by_switch_lookup={}
+            ),
         ),
     )
 
@@ -231,6 +235,9 @@ def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
         ),
         _rich_mrgn_lookup=RichMrgnLookup(
             _location_by_id_lookup={}, _id_by_location_lookup={}
+        ),
+        _rich_swnm_lookup=RichSwnmLookup(
+            _switch_by_id_lookup={}, _id_by_switch_lookup={}
         ),
     )
     rich_transcoder = RichChkMrgnTranscoder()

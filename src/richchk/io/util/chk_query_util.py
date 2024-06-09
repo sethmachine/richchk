@@ -34,7 +34,7 @@ class ChkQueryUtil:
         if not named_sections:
             msg = (
                 f"The CHK has no {chk_section_name.value} sections present! "
-                "The CHK is not valid.  Only pass in valid CHK data."
+                "The CHK may not be valid.  Only pass in valid CHK data."
             )
             raise ValueError(msg)
         if len(named_sections) > 1:
@@ -86,3 +86,19 @@ class ChkQueryUtil:
                 f"for section named {chk_section_name.value}"
             )
         return only_section
+
+    @staticmethod
+    def determine_if_rich_chk_contains_section(
+        chk_section_name: ChkSectionName, rich_chk: RichChk
+    ) -> bool:
+        named_sections = rich_chk.get_sections_by_name(
+            chk_section_name=chk_section_name
+        )
+        return len(named_sections) > 0
+
+    @staticmethod
+    def determine_if_chk_contains_section(
+        chk_section_name: ChkSectionName, chk: DecodedChk
+    ) -> bool:
+        named_sections = chk.get_sections_by_name(chk_section_name=chk_section_name)
+        return len(named_sections) > 0

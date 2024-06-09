@@ -16,10 +16,12 @@ from ...model.richchk.richchk_decode_context import RichChkDecodeContext
 from ...model.richchk.richchk_encode_context import RichChkEncodeContext
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
+from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from ...transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
 from ...transcoder.richchk.richchk_section_transcoder_factory import (
     RichChkSectionTranscoderFactory,
 )
+from ...transcoder.richchk.transcoders.rich_swnm_transcoder import RichChkSwnmTranscoder
 from ...transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
 )
@@ -29,6 +31,7 @@ from .decoded_str_section_rebuilder import DecodedStrSectionRebuilder
 from .lookups.mrgn.rich_mrgn_lookup_builder import RichMrgnLookupBuilder
 from .lookups.mrgn.rich_mrgn_section_rebuilder import RichMrgnSectionRebuilder
 from .lookups.swnm.rich_swnm_lookup_builder import RichSwnmLookupBuilder
+from .lookups.swnm.rich_swnm_rebuilder import RichSwnmRebuilder
 from .rich_str_lookup_builder import RichStrLookupBuilder
 
 
@@ -65,9 +68,11 @@ class RichChkIo:
         new_mrgn_section: RichMrgnSection = (
             RichMrgnSectionRebuilder.rebuild_rich_mrgn_section_from_rich_chk(rich_chk)
         )
+        new_swnm_section = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk)
         encode_context = self._build_encode_context(
-            rich_chk, new_str_section, new_mrgn_section
+            rich_chk, new_str_section, new_mrgn_section, new_swnm_section
         )
+        was_swnm_added = False
         decoded_sections: list[DecodedChkSection] = []
         for chk_section in rich_chk.chk_sections:
             if isinstance(chk_section, DecodedUnknownSection):
@@ -92,6 +97,11 @@ class RichChkIo:
                     decoded_sections.append(
                         transcoder.encode(new_mrgn_section, encode_context)
                     )
+                elif isinstance(chk_section, RichSwnmSection):
+                    decoded_sections.append(
+                        transcoder.encode(new_swnm_section, encode_context)
+                    )
+                    was_swnm_added = True
                 else:
                     decoded_sections.append(
                         transcoder.encode(chk_section, encode_context)
@@ -102,6 +112,14 @@ class RichChkIo:
                     f"is not supported for encoding.  "
                     f"How did we decode it in the first place?"
                 )
+        if not was_swnm_added:
+            self.log.info(
+                "SWNM section added to CHK when it was not present before.  "
+                "This likely means switch string data was edited."
+            )
+            decoded_sections.append(
+                RichChkSwnmTranscoder().encode(new_swnm_section, encode_context)
+            )
         return DecodedChk(_decoded_chk_sections=decoded_sections)
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
@@ -153,8 +171,12 @@ class RichChkIo:
         chk: RichChk,
         new_str_section: DecodedStrSection,
         new_mrgn_section: RichMrgnSection,
+        new_swnm_section: RichSwnmSection,
     ) -> RichChkEncodeContext:
         return RichChkEncodeContext(
             _rich_str_lookup=RichStrLookupBuilder().build_lookup(new_str_section),
             _rich_mrgn_lookup=RichMrgnLookupBuilder().build_lookup(new_mrgn_section),
+            _rich_swnm_lookup=RichSwnmLookupBuilder().build_lookup_from_rich_swnm(
+                new_swnm_section
+            ),
         )
