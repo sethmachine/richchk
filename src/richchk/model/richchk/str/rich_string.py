@@ -24,3 +24,9 @@ class RichNullString(RichString):
                 "RichNullString can only have empty string values.  "
                 "Do not use this class to store custom string data."
             )
+
+
+def is_rich_string_null_or_empty(rs: RichString) -> bool:
+    if isinstance(rs, RichNullString):
+        return True
+    return not rs.value

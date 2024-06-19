@@ -7,6 +7,7 @@ import pytest
 
 from richchk.io.chk.chk_io import ChkIo
 from richchk.io.richchk.richchk_io import RichChkIo
+from richchk.io.util.chk_query_util import ChkQueryUtil
 from richchk.model.chk.decoded_chk import DecodedChk
 from richchk.model.chk.decoded_chk_section import DecodedChkSection
 from richchk.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
@@ -96,6 +97,32 @@ def test_integration_rich_chk_io_decodes_and_encodes_back_unchanged_for_scx_file
     rich_chk: RichChk = richhk_io.decode_chk(chk)
     actual_encoded_chk: DecodedChk = richhk_io.encode_chk(rich_chk)
     assert_chks_are_equal(actual_encoded_chk, chk)
+
+
+def test_integration_it_adds_swnm_to_chk_after_encoding_if_it_did_not_exist():
+    chkio = ChkIo()
+    richhk_io = RichChkIo()
+    chk: DecodedChk = chkio.decode_chk_file(SCX_CHK_FILE)
+    # remove the SWNM section if it exists
+    assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.SWNM, chk)
+    chk_without_swnm = DecodedChk(
+        _decoded_chk_sections=[
+            x
+            for x in chk.decoded_chk_sections
+            if x.section_name() != ChkSectionName.SWNM
+        ]
+    )
+    assert not ChkQueryUtil.determine_if_chk_contains_section(
+        ChkSectionName.SWNM, chk_without_swnm
+    )
+    rich_chk_without_swnm: RichChk = richhk_io.decode_chk(chk_without_swnm)
+    assert not ChkQueryUtil.determine_if_rich_chk_contains_section(
+        ChkSectionName.SWNM, rich_chk_without_swnm
+    )
+    chk_with_swnm_added = RichChkIo().encode_chk(rich_chk_without_swnm)
+    assert ChkQueryUtil.determine_if_chk_contains_section(
+        ChkSectionName.SWNM, chk_with_swnm_added
+    )
 
 
 def assert_all_supported_rich_chk_sections_are_present(rich_chk: RichChk):
