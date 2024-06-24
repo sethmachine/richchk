@@ -8,7 +8,6 @@ import dataclasses
 from typing import Tuple
 
 from .....model.chk.swnm.swnm_constants import MAX_SWITCHES
-from .....model.chk_section_name import ChkSectionName
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
 from .....model.richchk.str.rich_string import RichNullString
@@ -124,12 +123,7 @@ class RichSwnmRebuilder:
     @classmethod
     def _find_or_create_rich_swnm(cls, rich_chk: RichChk) -> RichSwnmSection:
         try:
-            swnm: RichSwnmSection = RichChkSection.cast(
-                ChkQueryUtil.find_only_rich_section_in_chk(
-                    ChkSectionName.SWNM, rich_chk
-                ),
-                RichSwnmSection,
-            )
+            swnm = ChkQueryUtil.find_only_rich_section_in_chk(RichSwnmSection, rich_chk)
             return swnm
         except ValueError:
             cls._LOG.info("No RichSwnm found; creating a new SWNM section")
