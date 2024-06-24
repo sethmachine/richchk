@@ -140,7 +140,6 @@ def test_integration_it_adds_new_switches_when_some_switches_already_exist(
         ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.SWNM, rich_chk_again),
         RichSwnmSection,
     )
-    # there's some issue with casting here
     trig = RichChkSection.cast(
         ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.TRIG, rich_chk_again),
         RichTrigSection,
