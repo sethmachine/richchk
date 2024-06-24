@@ -136,14 +136,8 @@ def test_integration_it_adds_new_switches_when_some_switches_already_exist(
     ChkQueryUtil.determine_if_rich_chk_contains_section(
         ChkSectionName.SWNM, rich_chk_again
     )
-    swnm = RichChkSection.cast(
-        ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.SWNM, rich_chk_again),
-        RichSwnmSection,
-    )
-    trig = RichChkSection.cast(
-        ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.TRIG, rich_chk_again),
-        RichTrigSection,
-    )
+    swnm = ChkQueryUtil.find_only_rich_section_in_chk(RichSwnmSection, rich_chk_again)
+    trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_switches(trig.triggers)
     assert_switch_exists_with_rich_string(
         swnm.switches, new_switch_with_name.custom_name
