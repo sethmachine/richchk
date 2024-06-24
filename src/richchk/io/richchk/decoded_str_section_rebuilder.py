@@ -3,9 +3,7 @@
 import dataclasses
 
 from ...editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
-from ...model.chk.decoded_chk_section import DecodedChkSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
-from ...model.chk_section_name import ChkSectionName
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
 from ...model.richchk.str.rich_string import RichNullString, RichString
@@ -15,9 +13,8 @@ from ..util.chk_query_util import ChkQueryUtil
 class DecodedStrSectionRebuilder:
     @staticmethod
     def rebuild_str_section_from_rich_chk(rich_chk: RichChk) -> DecodedStrSection:
-        decoded_str: DecodedStrSection = DecodedChkSection.cast(
-            ChkQueryUtil.find_only_decoded_section_in_chk(ChkSectionName.STR, rich_chk),
-            DecodedStrSection,
+        decoded_str = ChkQueryUtil.find_only_decoded_section_in_chk(
+            DecodedStrSection, rich_chk
         )
         rich_strings: set[
             RichString

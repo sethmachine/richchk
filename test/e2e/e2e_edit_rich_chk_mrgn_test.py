@@ -11,7 +11,6 @@ from richchk.io.chk.chk_io import ChkIo
 from richchk.io.richchk.richchk_io import RichChkIo
 from richchk.io.util.chk_query_util import ChkQueryUtil
 from richchk.model.chk.decoded_chk_section import DecodedChkSection
-from richchk.model.chk_section_name import ChkSectionName
 from richchk.model.richchk.mrgn.rich_location import RichLocation
 from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from richchk.model.richchk.rich_chk import RichChk
@@ -41,7 +40,7 @@ def test_integration_it_edits_mrgn_in_rich_chk(
     rich_chk_for_scx_file, chk_output_file_path
 ):
     mrgn = ChkQueryUtil.find_only_rich_section_in_chk(
-        ChkSectionName.MRGN, rich_chk_for_scx_file
+        RichMrgnSection, rich_chk_for_scx_file
     )
     assert isinstance(mrgn, RichMrgnSection)
     new_location = RichLocation(
@@ -67,9 +66,8 @@ def test_integration_it_edits_mrgn_in_rich_chk(
     )
     _assert_rich_chk_has_expected_mrgn_section(new_mrgn, rich_chk_again)
     rich_mrgn_again = ChkQueryUtil.find_only_rich_section_in_chk(
-        ChkSectionName.MRGN, rich_chk_again
+        RichMrgnSection, rich_chk_again
     )
-    assert isinstance(rich_mrgn_again, RichMrgnSection)
     _assert_mrgn_has_expected_locations_ignoring_index(
         expected_locations, rich_mrgn_again
     )
@@ -83,9 +81,7 @@ def _assert_all_locations_have_index(locations: list[RichLocation]):
 def _assert_rich_chk_has_expected_mrgn_section(
     expected_mrgn: RichMrgnSection, rich_chk
 ):
-    actual_mrgn = ChkQueryUtil.find_only_rich_section_in_chk(
-        ChkSectionName.MRGN, rich_chk
-    )
+    actual_mrgn = ChkQueryUtil.find_only_rich_section_in_chk(RichMrgnSection, rich_chk)
     assert isinstance(actual_mrgn, RichMrgnSection)
     assert set(actual_mrgn.locations) == set(expected_mrgn.locations)
 

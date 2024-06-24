@@ -6,7 +6,6 @@ from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.model.chk_section_name import ChkSectionName
 from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from richchk.model.richchk.rich_chk import RichChk
-from richchk.model.richchk.rich_chk_section import RichChkSection
 from richchk.model.richchk.str.rich_string import RichString
 from richchk.model.richchk.swnm.rich_switch import RichSwitch
 from richchk.model.richchk.swnm.rich_swnm_section import RichSwnmSection
@@ -88,14 +87,8 @@ def test_integration_it_adds_new_switches_when_they_are_used(rich_chk_with_no_sw
     ChkQueryUtil.determine_if_rich_chk_contains_section(
         ChkSectionName.SWNM, rich_chk_again
     )
-    swnm = RichChkSection.cast(
-        ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.SWNM, rich_chk_again),
-        RichSwnmSection,
-    )
-    trig = RichChkSection.cast(
-        ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.TRIG, rich_chk_again),
-        RichTrigSection,
-    )
+    swnm = ChkQueryUtil.find_only_rich_section_in_chk(RichSwnmSection, rich_chk_again)
+    trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_switches(trig.triggers)
     assert_switch_exists_with_rich_string(
         swnm.switches, new_switch_with_name.custom_name
@@ -136,14 +129,8 @@ def test_integration_it_adds_new_switches_when_some_switches_already_exist(
     ChkQueryUtil.determine_if_rich_chk_contains_section(
         ChkSectionName.SWNM, rich_chk_again
     )
-    swnm = RichChkSection.cast(
-        ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.SWNM, rich_chk_again),
-        RichSwnmSection,
-    )
-    trig = RichChkSection.cast(
-        ChkQueryUtil.find_only_rich_section_in_chk(ChkSectionName.TRIG, rich_chk_again),
-        RichTrigSection,
-    )
+    swnm = ChkQueryUtil.find_only_rich_section_in_chk(RichSwnmSection, rich_chk_again)
+    trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_switches(trig.triggers)
     assert_switch_exists_with_rich_string(
         swnm.switches, new_switch_with_name.custom_name

@@ -7,7 +7,6 @@ from ...model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
-from ...model.chk_section_name import ChkSectionName
 from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
@@ -127,15 +126,11 @@ class RichChkIo:
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
         rich_str_lookup = RichStrLookupBuilder().build_lookup(
-            DecodedChkSection.cast(
-                ChkQueryUtil.find_only_decoded_section_in_chk(ChkSectionName.STR, chk),
-                DecodedStrSection,
-            )
+            ChkQueryUtil.find_only_decoded_section_in_chk(DecodedStrSection, chk)
         )
         rich_mrgn = RichChkMrgnTranscoder().decode(
-            decoded_chk_section=DecodedChkSection.cast(
-                ChkQueryUtil.find_only_decoded_section_in_chk(ChkSectionName.MRGN, chk),
-                DecodedMrgnSection,
+            decoded_chk_section=ChkQueryUtil.find_only_decoded_section_in_chk(
+                DecodedMrgnSection, chk
             ),
             rich_chk_decode_context=RichChkDecodeContext(
                 _rich_str_lookup=rich_str_lookup,
@@ -156,9 +151,8 @@ class RichChkIo:
         self, chk: DecodedChk, rich_str_lookup: RichStrLookup
     ) -> RichSwnmLookup:
         try:
-            swnm = DecodedChkSection.cast(
-                ChkQueryUtil.find_only_decoded_section_in_chk(ChkSectionName.SWNM, chk),
-                DecodedSwnmSection,
+            swnm = ChkQueryUtil.find_only_decoded_section_in_chk(
+                DecodedSwnmSection, chk
             )
             return RichSwnmLookupBuilder().build_lookup(
                 decoded_swnm=swnm, rich_str_lookup=rich_str_lookup
