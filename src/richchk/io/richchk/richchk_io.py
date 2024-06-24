@@ -68,9 +68,12 @@ class RichChkIo:
         new_mrgn_section: RichMrgnSection = (
             RichMrgnSectionRebuilder.rebuild_rich_mrgn_section_from_rich_chk(rich_chk)
         )
-        new_swnm_section = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk)
+        (
+            new_swnm_section,
+            swnm_lookup,
+        ) = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk)
         encode_context = self._build_encode_context(
-            rich_chk, new_str_section, new_mrgn_section, new_swnm_section
+            rich_chk, new_str_section, new_mrgn_section, swnm_lookup
         )
         was_swnm_added = False
         decoded_sections: list[DecodedChkSection] = []
@@ -114,7 +117,7 @@ class RichChkIo:
                 )
         if not was_swnm_added:
             self.log.info(
-                "SWNM section added to CHK when it was not present before.  "
+                "SWNM section is being added to CHK when it was not present before.  "
                 "This likely means switch string data was edited."
             )
             decoded_sections.append(
@@ -171,12 +174,10 @@ class RichChkIo:
         chk: RichChk,
         new_str_section: DecodedStrSection,
         new_mrgn_section: RichMrgnSection,
-        new_swnm_section: RichSwnmSection,
+        swnm_lookup: RichSwnmLookup,
     ) -> RichChkEncodeContext:
         return RichChkEncodeContext(
             _rich_str_lookup=RichStrLookupBuilder().build_lookup(new_str_section),
             _rich_mrgn_lookup=RichMrgnLookupBuilder().build_lookup(new_mrgn_section),
-            _rich_swnm_lookup=RichSwnmLookupBuilder().build_lookup_from_rich_swnm(
-                new_swnm_section
-            ),
+            _rich_swnm_lookup=swnm_lookup,
         )

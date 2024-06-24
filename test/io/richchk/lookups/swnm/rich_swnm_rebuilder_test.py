@@ -144,7 +144,9 @@ def rich_chk_with_more_than_max_switches_but_not_all_unique() -> RichChk:
 
 
 def test_it_rebuilds_rich_swnm(rich_chk_with_switches):
-    new_swnm = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk_with_switches)
+    new_swnm, _ = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(
+        rich_chk_with_switches
+    )
     assert all([s.index is not None for s in new_swnm.switches])
     assert new_swnm.switches[0] == RichSwitch(
         _custom_name=RichString(_value="hello world"),
@@ -170,7 +172,7 @@ def test_it_throws_if_more_than_max_unique_switches_allocated(
 def test_it_allocates_more_than_max_switches_if_not_all_unique(
     rich_chk_with_more_than_max_switches_but_not_all_unique,
 ):
-    new_swnm = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(
+    new_swnm, _ = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(
         rich_chk_with_more_than_max_switches_but_not_all_unique
     )
     assert all([s.index is not None for s in new_swnm.switches])

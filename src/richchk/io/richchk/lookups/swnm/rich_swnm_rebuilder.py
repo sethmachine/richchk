@@ -5,6 +5,7 @@ There is a maximum of 256 switches.
 """
 
 import dataclasses
+from typing import Tuple
 
 from .....model.chk.swnm.swnm_constants import MAX_SWITCHES
 from .....model.chk_section_name import ChkSectionName
@@ -12,6 +13,7 @@ from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
 from .....model.richchk.str.rich_string import RichNullString
 from .....model.richchk.swnm.rich_switch import RichSwitch
+from .....model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from .....model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from .....util import logger
 from ....util.chk_query_util import ChkQueryUtil
@@ -21,7 +23,9 @@ class RichSwnmRebuilder:
     _LOG = logger.get_logger("RichSwnmRebuilder")
 
     @classmethod
-    def rebuild_rich_swnm_from_rich_chk(cls, rich_chk: RichChk) -> RichSwnmSection:
+    def rebuild_rich_swnm_from_rich_chk(
+        cls, rich_chk: RichChk
+    ) -> Tuple[RichSwnmSection, RichSwnmLookup]:
         swnm = cls._find_or_create_rich_swnm(rich_chk)
         used_switches = cls._find_all_switches_in_rich_chk(rich_chk)
         switches_in_swnm_with_names = {
@@ -36,9 +40,11 @@ class RichSwnmRebuilder:
             RichSwitch(_custom_name=RichNullString(), _index=switch_index)
             for switch_index in range(0, MAX_SWITCHES)
         ]
+        id_by_switch = {}
         for used_switch in all_used_switches:
             if used_switch.index is not None:
                 new_switches[used_switch.index] = used_switch
+                id_by_switch[used_switch] = used_switch.index
             else:
                 if allocable_id_pointer > len(allocable_ids) - 1:
                     msg = f"No more allocable switch IDs left.  Cannot use more than {MAX_SWITCHES} switches."
@@ -49,8 +55,11 @@ class RichSwnmRebuilder:
                     new_switches[id_] = RichSwitch(
                         _custom_name=used_switch.custom_name, _index=id_
                     )
+                    id_by_switch[used_switch] = id_
                     allocable_id_pointer += 1
-        return RichSwnmSection(_switches=new_switches)
+        return RichSwnmSection(_switches=new_switches), RichSwnmLookup(
+            _switch_by_id_lookup={}, _id_by_switch_lookup=id_by_switch
+        )
 
     @classmethod
     def _find_all_switches_in_rich_chk(cls, rich_chk: RichChk) -> set[RichSwitch]:
