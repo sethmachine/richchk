@@ -55,16 +55,9 @@ class RichTriggerSwitchConditionTranscoder(
         rich_condition: SwitchCondition,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerCondition:
-        if rich_condition.switch_state is None:
-            msg = (
-                f"RichSwitch does not have an index allocated.  "
-                f"All switch usages must be allocated an index [0,255].  "
-                f"Condition with switch usage: {rich_condition}."
-            )
-            self.log.error(msg)
-            raise ValueError(msg)
-        # needed to pass mypy type checking unfortunately
-        assert rich_condition.switch.index is not None
+        switch_index = rich_chk_encode_context.rich_swnm_lookup.get_id_by_switch(
+            rich_condition.switch
+        )
         return DecodedTriggerCondition(
             _location_id=0,
             _group=0,
@@ -74,7 +67,7 @@ class RichTriggerSwitchConditionTranscoder(
                 rich_condition.switch_state
             ),
             _condition_id=rich_condition.condition_id().id,
-            _numeric_comparand_type=rich_condition.switch.index,
+            _numeric_comparand_type=switch_index,
             _flags=0,
             _mask_flag=0,
         )

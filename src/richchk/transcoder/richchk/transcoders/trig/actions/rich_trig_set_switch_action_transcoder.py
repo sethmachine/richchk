@@ -54,8 +54,6 @@ class RichTriggerSetSwitchActionTranscoder(
         rich_action: SetSwitchAction,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerAction:
-        # needed to pass mypy type checking unfortunately
-        assert rich_action.switch.index is not None
         return DecodedTriggerAction(
             _location_id=0,
             _text_string_id=0,
