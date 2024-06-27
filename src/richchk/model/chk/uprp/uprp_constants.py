@@ -1,0 +1,1 @@
+MAX_CUWP_SLOTS = 64
