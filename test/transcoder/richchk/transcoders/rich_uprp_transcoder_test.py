@@ -6,6 +6,7 @@ from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
 from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
+from richchk.model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from richchk.model.richchk.uprp.rich_cuwp_slot import (
     RichCuwpSlot,
     _RichCuwpSlotFlagsData,
@@ -18,6 +19,7 @@ from richchk.transcoder.richchk.transcoders.richchk_uprp_transcoder import (
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 # these are the expected CUWP based on triggers made in the map file
+# CUWP are referenced via 1-based index, not 0-based
 FIRST_EXPECTED_CUWP = RichCuwpSlot(
     _hitpoints_percentage=33,
     _shieldpoints_percentage=35,
@@ -30,7 +32,7 @@ FIRST_EXPECTED_CUWP = RichCuwpSlot(
     _hallucinated=True,
     _invincible=False,
     _flags_data=_RichCuwpSlotFlagsData(),
-    _index=0,
+    _index=1,
 )
 SECOND_EXPECTED_CUWP = RichCuwpSlot(
     _hitpoints_percentage=25,
@@ -44,7 +46,7 @@ SECOND_EXPECTED_CUWP = RichCuwpSlot(
     _hallucinated=True,
     _invincible=True,
     _flags_data=_RichCuwpSlotFlagsData(),
-    _index=1,
+    _index=2,
 )
 
 
@@ -79,6 +81,7 @@ def rich_encode_context():
         _rich_swnm_lookup=RichSwnmLookup(
             _switch_by_id_lookup={}, _id_by_switch_lookup={}
         ),
+        _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
     )
 
 
