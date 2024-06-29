@@ -70,7 +70,7 @@ u32: Unknown/unused. Padding?
 """
 
 import dataclasses
-from typing import Optional
+from typing import Any, Optional
 
 from .flags.valid_special_property_flags import ValidSpecialPropertyFlags
 from .flags.valid_unit_property_flags import ValidUnitPropertyFlags
@@ -116,6 +116,26 @@ class RichCuwpSlot:
     _invincible: bool = False
     _flags_data: _RichCuwpSlotFlagsData = _RichCuwpSlotFlagsData()
     _index: Optional[int] = None
+
+    def __eq__(self, other: object) -> bool:
+        # 2 CUWPs are equal if all the fields are the same excluding the index
+        # there's never a reason to duplicate a CUWP, so don't allow this
+        if isinstance(other, RichCuwpSlot):
+            return self._get_fields_for_equality() == other._get_fields_for_equality()
+        return False
+
+    def __hash__(self) -> int:
+        # CUWP hashes ignores the index
+        return hash(self._get_fields_for_equality())
+
+    def _get_fields_for_equality(self) -> tuple[Any]:
+        return tuple(
+            (
+                getattr(self, field.name)
+                for field in dataclasses.fields(self)
+                if field.name != "_index"
+            )
+        )
 
     @property
     def hitpoints_percentage(self) -> int:

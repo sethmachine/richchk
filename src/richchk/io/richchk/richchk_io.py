@@ -7,6 +7,7 @@ from ...model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
+from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
@@ -16,6 +17,8 @@ from ...model.richchk.richchk_encode_context import RichChkEncodeContext
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
+from ...model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
+from ...model.richchk.uprp.rich_uprp_section import RichUprpSection
 from ...transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
 from ...transcoder.richchk.richchk_section_transcoder_factory import (
     RichChkSectionTranscoderFactory,
@@ -24,6 +27,9 @@ from ...transcoder.richchk.transcoders.rich_swnm_transcoder import RichChkSwnmTr
 from ...transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
 )
+from ...transcoder.richchk.transcoders.richchk_uprp_transcoder import (
+    RichChkUprpTranscoder,
+)
 from ...util import logger
 from ..util.chk_query_util import ChkQueryUtil
 from .decoded_str_section_rebuilder import DecodedStrSectionRebuilder
@@ -31,6 +37,8 @@ from .lookups.mrgn.rich_mrgn_lookup_builder import RichMrgnLookupBuilder
 from .lookups.mrgn.rich_mrgn_section_rebuilder import RichMrgnSectionRebuilder
 from .lookups.swnm.rich_swnm_lookup_builder import RichSwnmLookupBuilder
 from .lookups.swnm.rich_swnm_rebuilder import RichSwnmRebuilder
+from .lookups.uprp.rich_cuwp_lookup_builder import RichCuwpLookupBuilder
+from .lookups.uprp.rich_uprp_rebuilder import RichUprpRebuilder
 from .rich_str_lookup_builder import RichStrLookupBuilder
 
 
@@ -71,10 +79,12 @@ class RichChkIo:
             new_swnm_section,
             swnm_lookup,
         ) = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk)
+        new_uprp = RichUprpRebuilder.rebuild_rich_uprp_section_from_rich_chk(rich_chk)
         encode_context = self._build_encode_context(
-            rich_chk, new_str_section, new_mrgn_section, swnm_lookup
+            rich_chk, new_str_section, new_mrgn_section, swnm_lookup, new_uprp
         )
         was_swnm_added = False
+        was_uprp_added = False
         decoded_sections: list[DecodedChkSection] = []
         for chk_section in rich_chk.chk_sections:
             if isinstance(chk_section, DecodedUnknownSection):
@@ -104,6 +114,9 @@ class RichChkIo:
                         transcoder.encode(new_swnm_section, encode_context)
                     )
                     was_swnm_added = True
+                elif isinstance(chk_section, RichUprpSection):
+                    decoded_sections.append(transcoder.encode(new_uprp, encode_context))
+                    was_uprp_added = True
                 else:
                     decoded_sections.append(
                         transcoder.encode(chk_section, encode_context)
@@ -122,28 +135,40 @@ class RichChkIo:
             decoded_sections.append(
                 RichChkSwnmTranscoder().encode(new_swnm_section, encode_context)
             )
+        if not was_uprp_added:
+            self.log.info(
+                "UPRP section is being added to CHK when it was not present before.  "
+                "This likely means create unit with properties is being used for 1st time."
+            )
+            decoded_sections.append(
+                RichChkUprpTranscoder().encode(new_uprp, encode_context)
+            )
         return DecodedChk(_decoded_chk_sections=decoded_sections)
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
         rich_str_lookup = RichStrLookupBuilder().build_lookup(
             ChkQueryUtil.find_only_decoded_section_in_chk(DecodedStrSection, chk)
         )
+        partial_decode_context = RichChkDecodeContext(
+            _rich_str_lookup=rich_str_lookup,
+            _rich_mrgn_lookup=RichMrgnLookup(
+                _location_by_id_lookup={}, _id_by_location_lookup={}
+            ),
+        )
         rich_mrgn = RichChkMrgnTranscoder().decode(
             decoded_chk_section=ChkQueryUtil.find_only_decoded_section_in_chk(
                 DecodedMrgnSection, chk
             ),
-            rich_chk_decode_context=RichChkDecodeContext(
-                _rich_str_lookup=rich_str_lookup,
-                _rich_mrgn_lookup=RichMrgnLookup(
-                    _location_by_id_lookup={}, _id_by_location_lookup={}
-                ),
-            ),
+            rich_chk_decode_context=partial_decode_context,
         )
         return RichChkDecodeContext(
             _rich_str_lookup=rich_str_lookup,
             _rich_mrgn_lookup=RichMrgnLookupBuilder().build_lookup(rich_mrgn=rich_mrgn),
             _rich_swnm_lookup=self._build_rich_swnm_lookup_for_decode_context(
                 chk, rich_str_lookup
+            ),
+            _rich_cuwp_lookup=self._build_rich_cuwp_lookup_for_decode_context(
+                chk, partial_decode_context
             ),
         )
 
@@ -163,15 +188,33 @@ class RichChkIo:
             )
             return RichSwnmLookup(_switch_by_id_lookup={}, _id_by_switch_lookup={})
 
+    def _build_rich_cuwp_lookup_for_decode_context(
+        self, chk: DecodedChk, partial_decode_context: RichChkDecodeContext
+    ) -> RichCuwpLookup:
+        try:
+            return RichCuwpLookupBuilder().build_lookup(
+                ChkQueryUtil.find_only_decoded_section_in_chk(DecodedUprpSection, chk),
+                partial_decode_context,
+            )
+        except ValueError:
+            self.log.info(
+                "No UPRP section found in this CHK.  Returning an empty CUWP lookup."
+            )
+            return RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={})
+
     def _build_encode_context(
         self,
         chk: RichChk,
         new_str_section: DecodedStrSection,
         new_mrgn_section: RichMrgnSection,
         swnm_lookup: RichSwnmLookup,
+        new_uprp_section: RichUprpSection,
     ) -> RichChkEncodeContext:
         return RichChkEncodeContext(
             _rich_str_lookup=RichStrLookupBuilder().build_lookup(new_str_section),
             _rich_mrgn_lookup=RichMrgnLookupBuilder().build_lookup(new_mrgn_section),
             _rich_swnm_lookup=swnm_lookup,
+            _rich_cuwp_lookup=RichCuwpLookupBuilder().build_lookup_from_rich_uprp(
+                new_uprp_section
+            ),
         )

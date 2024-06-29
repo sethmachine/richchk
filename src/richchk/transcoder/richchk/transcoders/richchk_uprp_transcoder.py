@@ -140,7 +140,8 @@ class RichChkUprpTranscoder(
                 _unknown_flag=unit_property_flags.unknown_flag,
                 _padding=decoded_cuwp_slot.padding,
             ),
-            _index=index,
+            # CUWP are referenced 1-based not 0-based index
+            _index=index + 1,
         )
 
     @classmethod
@@ -170,7 +171,11 @@ class RichChkUprpTranscoder(
     ) -> DecodedUprpSection:
         decoded_cuwp_slots: list[DecodedCuwpSlot] = []
         assert all((cuwp.index is not None for cuwp in rich_chk_section.cuwp_slots))
-        cuwp_by_index = {cuwp.index: cuwp for cuwp in rich_chk_section.cuwp_slots}
+        cuwp_by_index = {
+            cuwp.index - 1: cuwp
+            for cuwp in rich_chk_section.cuwp_slots
+            if cuwp.index is not None
+        }
         for index in range(0, MAX_CUWP_SLOTS):
             maybe_cuwp = cuwp_by_index.get(index, None)
             if not maybe_cuwp:
