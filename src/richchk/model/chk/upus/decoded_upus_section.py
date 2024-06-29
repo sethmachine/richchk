@@ -34,4 +34,4 @@ class DecodedUpusSection(DecodedChkSection):
 
     @property
     def cuwp_slots_used(self) -> list[int]:
-        return self._cuwp_slots_used.copy()
+        return self._cuwp_slots_used
