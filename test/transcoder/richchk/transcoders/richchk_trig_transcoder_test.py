@@ -16,6 +16,7 @@ from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
 from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
+from richchk.model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from richchk.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
 from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from richchk.transcoder.chk.transcoders.chk_swnm_transcoder import ChkSwnmTranscoder
@@ -113,6 +114,7 @@ def real_rich_chk_encode_context(
         _rich_str_lookup=real_str_lookup,
         _rich_mrgn_lookup=real_mrgn_lookup,
         _rich_swnm_lookup=real_swnm_lookup_for_encode,
+        _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
     )
 
 

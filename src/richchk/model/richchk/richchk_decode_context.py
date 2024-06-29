@@ -5,6 +5,7 @@ import dataclasses
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from .mrgn.rich_mrgn_lookup import RichMrgnLookup
 from .swnm.rich_swnm_lookup import RichSwnmLookup
+from .uprp.rich_cuwp_lookup import RichCuwpLookup
 
 
 @dataclasses.dataclass(frozen=True)
@@ -15,6 +16,9 @@ class RichChkDecodeContext:
     )
     _rich_swnm_lookup: RichSwnmLookup = RichSwnmLookup(
         _switch_by_id_lookup={}, _id_by_switch_lookup={}
+    )
+    _rich_cuwp_lookup: RichCuwpLookup = RichCuwpLookup(
+        _cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}
     )
 
     @property
@@ -28,3 +32,7 @@ class RichChkDecodeContext:
     @property
     def rich_swnm_lookup(self) -> RichSwnmLookup:
         return self._rich_swnm_lookup
+
+    @property
+    def rich_cuwp_lookup(self) -> RichCuwpLookup:
+        return self._rich_cuwp_lookup

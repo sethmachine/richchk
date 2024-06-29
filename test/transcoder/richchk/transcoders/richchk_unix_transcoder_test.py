@@ -15,6 +15,7 @@ from richchk.model.richchk.unis.unit_id import UnitId
 from richchk.model.richchk.unis.weapon_id import WeaponId
 from richchk.model.richchk.unis.weapon_setting import WeaponSetting
 from richchk.model.richchk.unix.rich_unix_section import RichUnixSection
+from richchk.model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from richchk.transcoder.chk.transcoders.chk_unix_transcoder import ChkUnixTranscoder
 from richchk.transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
@@ -88,6 +89,7 @@ def rich_chk_empty_encode_context():
         _rich_swnm_lookup=RichSwnmLookup(
             _switch_by_id_lookup={}, _id_by_switch_lookup={}
         ),
+        _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
     )
 
 
@@ -318,6 +320,9 @@ def test_integration_it_decodes_and_encodes_back_to_richchk_without_changing_dat
             _rich_mrgn_lookup=rich_mrgn_lookup,
             _rich_swnm_lookup=RichSwnmLookup(
                 _switch_by_id_lookup={}, _id_by_switch_lookup={}
+            ),
+            _rich_cuwp_lookup=RichCuwpLookup(
+                _cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}
             ),
         ),
     )

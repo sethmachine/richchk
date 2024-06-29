@@ -9,6 +9,7 @@ from richchk.model.richchk.str.rich_string import RichString
 from richchk.model.richchk.swnm.rich_switch import RichSwitch
 from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from richchk.model.richchk.swnm.rich_swnm_section import RichSwnmSection
+from richchk.model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from richchk.transcoder.chk.transcoders.chk_swnm_transcoder import ChkSwnmTranscoder
 from richchk.transcoder.richchk.transcoders.rich_swnm_transcoder import (
     RichChkSwnmTranscoder,
@@ -71,6 +72,7 @@ def real_rich_chk_encode_context(real_decoded_swnm) -> RichChkEncodeContext:
         _rich_swnm_lookup=RichSwnmLookup(
             _switch_by_id_lookup={}, _id_by_switch_lookup={}
         ),
+        _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
     )
 
 
@@ -111,6 +113,9 @@ def test_it_encodes_all_switch_names():
             ),
             _rich_swnm_lookup=RichSwnmLookup(
                 _switch_by_id_lookup={}, _id_by_switch_lookup={}
+            ),
+            _rich_cuwp_lookup=RichCuwpLookup(
+                _cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}
             ),
         ),
     )
