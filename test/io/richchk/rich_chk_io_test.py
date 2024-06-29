@@ -73,7 +73,7 @@ def test_integration_rich_chk_io_decodes_and_encodes_back_unchanged():
     # you can get the same rich chk again
     chkio = ChkIo()
     richhk_io = RichChkIo()
-    chk: DecodedChk = chkio.decode_chk_file(DEMON_LORE_YATAPI_TEST_CHK_FILE_PATH)
+    chk: DecodedChk = chkio.decode_chk_file(SCX_CHK_FILE)
     rich_chk: RichChk = richhk_io.decode_chk(chk)
     actual_encoded_chk: DecodedChk = richhk_io.encode_chk(rich_chk)
     assert_chks_are_equal(actual_encoded_chk, chk)
