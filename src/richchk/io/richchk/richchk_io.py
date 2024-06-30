@@ -8,6 +8,7 @@ from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
+from ...model.chk.upus.decoded_upus_section import DecodedUpusSection
 from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
@@ -39,6 +40,7 @@ from .lookups.swnm.rich_swnm_lookup_builder import RichSwnmLookupBuilder
 from .lookups.swnm.rich_swnm_rebuilder import RichSwnmRebuilder
 from .lookups.uprp.rich_cuwp_lookup_builder import RichCuwpLookupBuilder
 from .lookups.uprp.rich_uprp_rebuilder import RichUprpRebuilder
+from .lookups.upus.decoded_upus_rebuilder import DecodedUpusRebuilder
 from .rich_str_lookup_builder import RichStrLookupBuilder
 
 
@@ -80,11 +82,13 @@ class RichChkIo:
             swnm_lookup,
         ) = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk)
         new_uprp = RichUprpRebuilder.rebuild_rich_uprp_section_from_rich_chk(rich_chk)
+        new_upus = DecodedUpusRebuilder.rebuild_upus_from_rich_uprp(new_uprp)
         encode_context = self._build_encode_context(
             rich_chk, new_str_section, new_mrgn_section, swnm_lookup, new_uprp
         )
         was_swnm_added = False
         was_uprp_added = False
+        was_upus_added = False
         decoded_sections: list[DecodedChkSection] = []
         for chk_section in rich_chk.chk_sections:
             if isinstance(chk_section, DecodedUnknownSection):
@@ -93,6 +97,9 @@ class RichChkIo:
                 # replace the old STR section
                 # TODO: make an editor to replace sections by index or ID
                 decoded_sections.append(new_str_section)
+            elif isinstance(chk_section, DecodedUpusSection):
+                decoded_sections.append(new_upus)
+                was_upus_added = True
             elif isinstance(chk_section, DecodedChkSection):
                 decoded_sections.append(chk_section)
             elif isinstance(
@@ -143,6 +150,12 @@ class RichChkIo:
             decoded_sections.append(
                 RichChkUprpTranscoder().encode(new_uprp, encode_context)
             )
+        if not was_upus_added:
+            self.log.info(
+                "UPUS section is being added to CHK when it was not present before.  "
+                "This likely means create unit with properties is being used for 1st time."
+            )
+            decoded_sections.append(new_upus)
         return DecodedChk(_decoded_chk_sections=decoded_sections)
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
