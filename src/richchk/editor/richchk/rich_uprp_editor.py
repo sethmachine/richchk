@@ -26,11 +26,12 @@ class RichUprpEditor:
         new_cuwp_slots = [cuwp for cuwp in uprp.cuwp_slots]
         for i, cuwp_to_add in enumerate(unique_cuwps):
             if not allocable_ids:
-                self.log.error(
+                msg = (
                     f"No more allocable IDs left.  Have we run out of CUWP slots?  "
                     f"{i + 1} remaining CUWP slots that cannot be allocated."
                 )
-                break
+                self.log.error(msg)
+                raise ValueError(msg)
             if cuwp_to_add.index is not None:
                 if not lookup.get_cuwp_by_id(cuwp_to_add.index):
                     new_cuwp_slots.append(
