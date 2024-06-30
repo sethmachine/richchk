@@ -6,11 +6,15 @@ from richchk.io.richchk.lookups.mrgn.rich_mrgn_lookup_builder import (
 from richchk.io.richchk.lookups.swnm.rich_swnm_lookup_builder import (
     RichSwnmLookupBuilder,
 )
+from richchk.io.richchk.lookups.uprp.rich_cuwp_lookup_builder import (
+    RichCuwpLookupBuilder,
+)
 from richchk.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from richchk.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from richchk.model.chk.trig.decoded_trig_section import DecodedTrigSection
+from richchk.model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -21,6 +25,7 @@ from richchk.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTransc
 from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from richchk.transcoder.chk.transcoders.chk_swnm_transcoder import ChkSwnmTranscoder
 from richchk.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
+from richchk.transcoder.chk.transcoders.chk_uprp_transcoder import ChkUprpTranscoder
 from richchk.transcoder.richchk.transcoders.rich_swnm_transcoder import (
     RichChkSwnmTranscoder,
 )
@@ -32,6 +37,7 @@ from richchk.transcoder.richchk.transcoders.richchk_trig_transcoder import (
 )
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
+from ....fixtures.richchk_io_fixtures import generate_empty_rich_chk_decode_context
 
 
 @pytest.fixture(scope="function")
@@ -71,6 +77,18 @@ def real_mrgn_lookup(real_str_lookup) -> RichMrgnLookup:
 
 
 @pytest.fixture(scope="function")
+def real_cuwp_lookup() -> RichCuwpLookup:
+    with open(
+        CHK_SECTION_FILE_PATHS[DecodedUprpSection.section_name().value], "rb"
+    ) as f:
+        chk_binary_data = f.read()
+    return RichCuwpLookupBuilder().build_lookup(
+        ChkUprpTranscoder().decode(chk_binary_data),
+        rich_chk_decode_context=generate_empty_rich_chk_decode_context(),
+    )
+
+
+@pytest.fixture(scope="function")
 def real_swnm_lookup_for_decode(real_str_lookup) -> RichSwnmLookup:
     with open(
         CHK_SECTION_FILE_PATHS[DecodedSwnmSection.section_name().value], "rb"
@@ -83,12 +101,13 @@ def real_swnm_lookup_for_decode(real_str_lookup) -> RichSwnmLookup:
 
 @pytest.fixture(scope="function")
 def real_rich_chk_decode_context(
-    real_str_lookup, real_mrgn_lookup, real_swnm_lookup_for_decode
+    real_str_lookup, real_mrgn_lookup, real_swnm_lookup_for_decode, real_cuwp_lookup
 ):
     return RichChkDecodeContext(
         _rich_str_lookup=real_str_lookup,
         _rich_mrgn_lookup=real_mrgn_lookup,
         _rich_swnm_lookup=real_swnm_lookup_for_decode,
+        _rich_cuwp_lookup=real_cuwp_lookup,
     )
 
 
@@ -108,13 +127,13 @@ def real_swnm_lookup_for_encode(real_rich_chk_decode_context) -> RichSwnmLookup:
 
 @pytest.fixture(scope="function")
 def real_rich_chk_encode_context(
-    real_str_lookup, real_mrgn_lookup, real_swnm_lookup_for_encode
+    real_str_lookup, real_mrgn_lookup, real_swnm_lookup_for_encode, real_cuwp_lookup
 ):
     return RichChkEncodeContext(
         _rich_str_lookup=real_str_lookup,
         _rich_mrgn_lookup=real_mrgn_lookup,
         _rich_swnm_lookup=real_swnm_lookup_for_encode,
-        _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
+        _rich_cuwp_lookup=real_cuwp_lookup,
     )
 
 
