@@ -81,11 +81,11 @@ def test_integration_it_allocates_all_possible_ids(rich_uprp):
     assert len(new_uprp.cuwp_slots) == MAX_CUWP_SLOTS
 
 
-def test_integration_it_does_not_allocate_more_than_max_ids(rich_uprp):
+def test_integration_it_throws_if_it_needs_to_allocate_more_than_max_ids(rich_uprp):
     editor = RichUprpEditor()
     cuwps_to_add = [
         build_dataclass_with_fields(generate_cuwp_slot(), _hitpoints_percentage=x)
         for x in range(2, MAX_CUWP_SLOTS + 100)
     ]
-    new_uprp = editor.add_cuwp_slots(cuwps_to_add, rich_uprp)
-    assert len(new_uprp.cuwp_slots) == MAX_CUWP_SLOTS
+    with pytest.raises(ValueError):
+        editor.add_cuwp_slots(cuwps_to_add, rich_uprp)
