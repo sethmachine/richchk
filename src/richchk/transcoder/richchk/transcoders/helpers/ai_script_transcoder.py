@@ -10,7 +10,7 @@ from .....util import logger
 
 
 class AiScriptTranscoder:
-    _LOG = logger.get_logger("RichChkAiScriptTranscoder")
+    _LOG = logger.get_logger("AiScriptTranscoder")
     _AI_SCRIPT_LOOKUP: dict[str, AiScript] = {
         script.value.name: script.value for script in KnownAiScript
     }
