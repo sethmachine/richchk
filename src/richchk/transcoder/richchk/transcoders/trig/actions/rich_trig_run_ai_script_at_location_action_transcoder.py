@@ -1,0 +1,66 @@
+"""Decode Victory trigger action."""
+from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
+from ......model.richchk.mrgn.rich_location import RichLocation
+from ......model.richchk.richchk_decode_context import RichChkDecodeContext
+from ......model.richchk.richchk_encode_context import RichChkEncodeContext
+from ......model.richchk.trig.actions.run_ai_script_at_location_action import (
+    RunAiScriptAtLocationAction,
+)
+from ......util import logger
+from ...helpers.ai_script_transcoder import AiScriptTranscoder
+from ..rich_trigger_action_transcoder import RichTriggerActionTranscoder
+from ..rich_trigger_action_transcoder_factory import (
+    _RichTriggerActionRegistrableTranscoder,
+)
+
+
+class RichTriggerRunAiScriptAtLocationActionTranscoder(
+    RichTriggerActionTranscoder[RunAiScriptAtLocationAction, DecodedTriggerAction],
+    _RichTriggerActionRegistrableTranscoder,
+    trigger_action_id=RunAiScriptAtLocationAction.action_id(),
+):
+    def __init__(self) -> None:
+        self.log = logger.get_logger(
+            RichTriggerRunAiScriptAtLocationActionTranscoder.__name__
+        )
+
+    def _decode(
+        self,
+        decoded_action: DecodedTriggerAction,
+        rich_chk_decode_context: RichChkDecodeContext,
+    ) -> RunAiScriptAtLocationAction:
+        assert decoded_action.action_id == RunAiScriptAtLocationAction.action_id().id
+        assert rich_chk_decode_context.rich_mrgn_lookup is not None
+        maybe_location = rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
+            decoded_action.location_id
+        )
+        assert isinstance(maybe_location, RichLocation)
+        return RunAiScriptAtLocationAction(
+            _ai_script=AiScriptTranscoder.decode(decoded_action.second_group),
+            _location=maybe_location,
+        )
+
+    def _encode(
+        self,
+        rich_action: RunAiScriptAtLocationAction,
+        rich_chk_encode_context: RichChkEncodeContext,
+    ) -> DecodedTriggerAction:
+        assert rich_chk_encode_context.rich_mrgn_lookup is not None
+        maybe_location_id = rich_chk_encode_context.rich_mrgn_lookup.get_id_by_location(
+            rich_action.location
+        )
+        assert maybe_location_id is not None
+        return DecodedTriggerAction(
+            _location_id=maybe_location_id,
+            _text_string_id=0,
+            _wav_string_id=0,
+            _time=0,
+            _first_group=0,
+            _second_group=AiScriptTranscoder.encode(rich_action.ai_script),
+            _action_argument_type=0,
+            _action_id=rich_action.action_id().id,
+            _quantifier_or_switch_or_order=0,
+            _flags=0,
+            _padding=0,
+            _mask_flag=0,
+        )
