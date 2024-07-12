@@ -3,10 +3,10 @@
 from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
-from ......model.richchk.trig.actions.leaderboard_show_resources_action import (
-    LeaderboardShowResourcesAction,
+from ......model.richchk.trig.actions.leaderboard_goal_score_action import (
+    LeaderboardGoalScoreAction,
 )
-from ......model.richchk.trig.enums.resource_type import ResourceType
+from ......model.richchk.trig.enums.score_type import ScoreType
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
 from ..rich_trigger_action_transcoder import RichTriggerActionTranscoder
@@ -15,34 +15,33 @@ from ..rich_trigger_action_transcoder_factory import (
 )
 
 
-class RichTriggerLeaderboardShowResourcesTranscoder(
-    RichTriggerActionTranscoder[LeaderboardShowResourcesAction, DecodedTriggerAction],
+class RichTriggerLeaderboardGoalScoreTranscoder(
+    RichTriggerActionTranscoder[LeaderboardGoalScoreAction, DecodedTriggerAction],
     _RichTriggerActionRegistrableTranscoder,
-    trigger_action_id=LeaderboardShowResourcesAction.action_id(),
+    trigger_action_id=LeaderboardGoalScoreAction.action_id(),
 ):
     def __init__(self) -> None:
-        self.log = logger.get_logger(
-            RichTriggerLeaderboardShowResourcesTranscoder.__name__
-        )
+        self.log = logger.get_logger(RichTriggerLeaderboardGoalScoreTranscoder.__name__)
 
     def _decode(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> LeaderboardShowResourcesAction:
-        assert decoded_action.action_id == LeaderboardShowResourcesAction.action_id().id
-        return LeaderboardShowResourcesAction(
+    ) -> LeaderboardGoalScoreAction:
+        assert decoded_action.action_id == LeaderboardGoalScoreAction.action_id().id
+        return LeaderboardGoalScoreAction(
             _text=rich_chk_decode_context.rich_str_lookup.get_string_by_id(
                 decoded_action.text_string_id
             ),
-            _resource=RichChkEnumTranscoder.decode_enum(
-                decoded_action.action_argument_type, ResourceType
+            _score_type=RichChkEnumTranscoder.decode_enum(
+                decoded_action.action_argument_type, ScoreType
             ),
+            _goal=decoded_action.second_group,
         )
 
     def _encode(
         self,
-        rich_action: LeaderboardShowResourcesAction,
+        rich_action: LeaderboardGoalScoreAction,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerAction:
         return DecodedTriggerAction(
@@ -53,10 +52,8 @@ class RichTriggerLeaderboardShowResourcesTranscoder(
             _wav_string_id=0,
             _time=0,
             _first_group=0,
-            _second_group=0,
-            _action_argument_type=RichChkEnumTranscoder.encode_enum(
-                rich_action.resource
-            ),
+            _second_group=rich_action.goal,
+            _action_argument_type=RichChkEnumTranscoder.encode_enum(rich_action.score),
             _quantifier_or_switch_or_order=0,
             _action_id=rich_action.action_id().id,
             _flags=0,
