@@ -15,7 +15,7 @@ class _LeaderboardGoalScoreActionBase(RichTriggerAction, ABC):
 
     @classmethod
     def action_id(cls) -> TriggerActionId:
-        return TriggerActionId.LEADER_BOARD_POINTS
+        return TriggerActionId.LEADERBOARD_GOAL_POINTS
 
     @property
     def text(self) -> RichString:
