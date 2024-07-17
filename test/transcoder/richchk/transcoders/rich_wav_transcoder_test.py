@@ -40,8 +40,14 @@ def real_rich_chk_decode_context(real_decoded_wav) -> RichChkDecodeContext:
         _rich_str_lookup=RichStrLookup(
             _string_by_id_lookup={
                 28: RichString(_value="staredit\\wav\\monitor humming.1.wav"),
+                43: RichString(_value="staredit\\wav\\monitor humming.2.wav"),
+                44: RichString(_value="staredit\\wav\\monitor humming.3.wav"),
             },
-            _id_by_string_lookup={"staredit\\wav\\monitor humming.1.wav": 28},
+            _id_by_string_lookup={
+                "staredit\\wav\\monitor humming.1.wav": 28,
+                "staredit\\wav\\monitor humming.2.wav": 43,
+                "staredit\\wav\\monitor humming.3.wav": 44,
+            },
         ),
         _rich_mrgn_lookup=RichMrgnLookup(
             _location_by_id_lookup={}, _id_by_location_lookup={}
@@ -59,8 +65,14 @@ def real_rich_chk_encode_context(real_decoded_wav) -> RichChkEncodeContext:
         _rich_str_lookup=RichStrLookup(
             _string_by_id_lookup={
                 28: RichString(_value="staredit\\wav\\monitor humming.1.wav"),
+                43: RichString(_value="staredit\\wav\\monitor humming.2.wav"),
+                44: RichString(_value="staredit\\wav\\monitor humming.3.wav"),
             },
-            _id_by_string_lookup={"staredit\\wav\\monitor humming.1.wav": 28},
+            _id_by_string_lookup={
+                "staredit\\wav\\monitor humming.1.wav": 28,
+                "staredit\\wav\\monitor humming.2.wav": 43,
+                "staredit\\wav\\monitor humming.3.wav": 44,
+            },
         ),
         _rich_mrgn_lookup=RichMrgnLookup(
             _location_by_id_lookup={}, _id_by_location_lookup={}
@@ -79,7 +91,7 @@ def test_integration_it_decodes_all_wavs(
     rich_wav = rich_transcoder.decode(
         real_decoded_wav, rich_chk_decode_context=real_rich_chk_decode_context
     )
-    assert len(rich_wav.wavs) == 1
+    assert len(rich_wav.wavs) == 3
     assert _EXPECTED_RICH_WAV in rich_wav.wavs
 
 
