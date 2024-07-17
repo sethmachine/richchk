@@ -27,6 +27,7 @@ class ChkSectionName(Enum):
     UPRP = ("UPRP",)
     UPUS = ("UPUS",)
     SWNM = ("SWNM",)
+    WAV = ("WAV ",)
     # special case for unhandled/unknown CHK section
     # this does not correspond to any real CHK section name
     UNKNOWN = ("UNKNOWN",)
