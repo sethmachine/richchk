@@ -17,9 +17,11 @@ def test_it_decodes_expected_wav_string_ids():
     chk_binary_data = _read_chk_section()
     wav = transcoder.decode(chk_binary_data)
     assert len(wav.wav_string_ids) == ChkWavTranscoder.NUM_WAVS
-    # theres a single WAV file used in the CHK right now
+    # theres 3 WAV file used in the CHK right now
     assert wav.wav_string_ids[0] != 0
-    assert all(x == 0 for x in wav.wav_string_ids[1:])
+    assert wav.wav_string_ids[1] != 0
+    assert wav.wav_string_ids[2] != 0
+    assert all(x == 0 for x in wav.wav_string_ids[3:])
 
 
 def test_it_decodes_and_encodes_without_changing_data():
