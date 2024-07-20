@@ -121,6 +121,7 @@ class StormLibFileSearcher:
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_FIND_NEXT_FILE.value
         )
         func.argtypes = [StormLibFileSearchHandle, POINTER(StormLibFileSearchResult)]
+        func.restype = ctypes.c_bool
         result = func(
             stormlib_file_search_wrapper.search_handle,
             ctypes.byref(search_result),
@@ -153,6 +154,7 @@ class StormLibFileSearcher:
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_FIND_CLOSE.value
         )
         func.argtypes = [StormLibFileSearchHandle]
+        func.restype = ctypes.c_bool
         result = func(
             stormlib_file_search_wrapper.search_handle,
         )

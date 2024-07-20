@@ -1,4 +1,3 @@
-import ctypes
 import os
 import shutil
 import tempfile
@@ -8,6 +7,7 @@ import pytest
 
 from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath
+from richchk.model.mpq.stormlib.stormlib_mpq_handle import StormLibMpqHandle
 from richchk.model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
 from richchk.mpq.stormlib.stormlib_loader import StormLibLoader
 from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
@@ -86,7 +86,7 @@ def test_it_throws_if_closing_an_archive_never_opened(stormlib_wrapper):
     if stormlib_wrapper:
         with pytest.raises(ValueError):
             stormlib_wrapper.close_archive(
-                StormLibOperationResult(ctypes.c_void_p(), _result=1)
+                StormLibOperationResult(StormLibMpqHandle(), _result=1)
             )
 
 
