@@ -74,3 +74,7 @@ EXAMPLE_STARCRAFT_SCX_MAP = Path(
 EXAMPLE_STARCRAFT_SCM_MAP = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/example-starcraft-map.scm")
 ).absolute()
+
+COMPLEX_STARCRAFT_SCX_MAP = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/test-chkjson-transcoder.scx")
+).absolute()

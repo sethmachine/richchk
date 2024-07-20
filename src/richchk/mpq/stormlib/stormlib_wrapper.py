@@ -7,9 +7,11 @@ StormLib library compiled for their operating system and CPU architecture.
 """
 import ctypes
 import os
+from ctypes import POINTER
 
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.mpq.stormlib.stormlib_flag import StormLibFlag
+from ...model.mpq.stormlib.stormlib_mpq_handle import StormLibMpqHandle
 from ...model.mpq.stormlib.stormlib_operation import StormLibOperation
 from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
 from ...model.mpq.stormlib.stormlib_reference import StormLibReference
@@ -20,6 +22,10 @@ class StormLibWrapper:
     def __init__(self, stormlib_reference: StormLibReference):
         self._log = logger.get_logger(StormLibWrapper.__name__)
         self._stormlib = stormlib_reference
+
+    @property
+    def stormlib(self) -> StormLibReference:
+        return self._stormlib
 
     def open_archive(
         self, mpq_file_path: str, archive_mode: StormLibArchiveMode
@@ -33,10 +39,17 @@ class StormLibWrapper:
         properly closed once done.
         """
         assert os.path.exists(mpq_file_path)
-        handle = ctypes.c_void_p()
+        handle = StormLibMpqHandle()
         func = getattr(
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_OPEN_ARCHIVE.value
         )
+        func.restype = ctypes.c_bool
+        func.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_uint,
+            ctypes.c_uint,
+            POINTER(StormLibMpqHandle),
+        ]
         result: int = func(
             mpq_file_path.encode("ascii"), 0, archive_mode.value, ctypes.byref(handle)
         )
@@ -57,7 +70,8 @@ class StormLibWrapper:
         func = getattr(
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_CLOSE_ARCHIVE.value
         )
-        result: int = func(stormlib_operation_result.handle)
+        func.argtypes = [StormLibMpqHandle]
+        result = func(stormlib_operation_result.handle)
         self._throw_if_operation_fails(
             StormLibOperation.S_FILE_CLOSE_ARCHIVE.value, result
         )

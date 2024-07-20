@@ -3,11 +3,11 @@ import os
 import shutil
 import tempfile
 
-from richchk.io.chk.chk_io import ChkIo
-from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
-from richchk.model.richchk.rich_chk import RichChk
-from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ...io.chk.chk_io import ChkIo
+from ...io.richchk.richchk_io import RichChkIo
+from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
+from ...model.richchk.rich_chk import RichChk
+from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
 
 
 class StarcraftMpqIo:
