@@ -10,6 +10,7 @@ import os
 
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.mpq.stormlib.stormlib_flag import StormLibFlag
+from ...model.mpq.stormlib.stormlib_mpq_handle import StormLibMpqHandle
 from ...model.mpq.stormlib.stormlib_operation import StormLibOperation
 from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
 from ...model.mpq.stormlib.stormlib_reference import StormLibReference
@@ -20,6 +21,10 @@ class StormLibWrapper:
     def __init__(self, stormlib_reference: StormLibReference):
         self._log = logger.get_logger(StormLibWrapper.__name__)
         self._stormlib = stormlib_reference
+
+    @property
+    def stormlib(self) -> StormLibReference:
+        return self._stormlib
 
     def open_archive(
         self, mpq_file_path: str, archive_mode: StormLibArchiveMode
@@ -33,7 +38,7 @@ class StormLibWrapper:
         properly closed once done.
         """
         assert os.path.exists(mpq_file_path)
-        handle = ctypes.c_void_p()
+        handle = StormLibMpqHandle()
         func = getattr(
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_OPEN_ARCHIVE.value
         )

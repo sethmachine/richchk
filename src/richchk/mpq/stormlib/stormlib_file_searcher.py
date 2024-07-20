@@ -3,6 +3,7 @@
 See: http://www.zezula.net/en/mpq/stormlib/sfilefindfirstfile.html
 """
 import ctypes
+from ctypes import POINTER
 
 from ...model.mpq.stormlib.search.stormlib_file_search_errors import (
     FailedToCloseSearchHandleException,
@@ -18,6 +19,7 @@ from ...model.mpq.stormlib.search.stormlib_file_search_operation_result import (
 from ...model.mpq.stormlib.search.stormlib_file_search_result import (
     StormLibFileSearchResult,
 )
+from ...model.mpq.stormlib.stormlib_mpq_handle import StormLibMpqHandle
 from ...model.mpq.stormlib.stormlib_operation import StormLibOperation
 from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
 from ...model.mpq.stormlib.stormlib_reference import StormLibReference
@@ -76,6 +78,12 @@ class StormLibFileSearcher:
         self._stormlib.stormlib_dll.SFileFindFirstFile.restype = (
             StormLibFileSearchHandle
         )
+        self._stormlib.stormlib_dll.SFileFindFirstFile.argtypes = [
+            StormLibMpqHandle,
+            ctypes.c_char_p,
+            POINTER(StormLibFileSearchResult),
+            ctypes.c_char_p,
+        ]
         search_handle = self._stormlib.stormlib_dll.SFileFindFirstFile(
             self._open_mpq_handle.handle,
             search_pattern.encode("ascii"),
@@ -112,6 +120,7 @@ class StormLibFileSearcher:
         func = getattr(
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_FIND_NEXT_FILE.value
         )
+        func.argtypes = [StormLibFileSearchHandle, POINTER(StormLibFileSearchResult)]
         result = func(
             stormlib_file_search_wrapper.search_handle,
             ctypes.byref(search_result),
@@ -143,6 +152,7 @@ class StormLibFileSearcher:
         func = getattr(
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_FIND_CLOSE.value
         )
+        func.argtypes = [StormLibFileSearchHandle]
         result = func(
             stormlib_file_search_wrapper.search_handle,
         )
