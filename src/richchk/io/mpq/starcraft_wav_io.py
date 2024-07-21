@@ -3,11 +3,11 @@ import os
 import tempfile
 import wave
 
-from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
-from richchk.model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
-from richchk.model.mpq.stormlib.wav.stormlib_wav import StormLibWav
-from richchk.mpq.stormlib.stormlib_file_searcher import StormLibFileSearcher
-from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
+from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
+from ...model.mpq.stormlib.wav.stormlib_wav import StormLibWav
+from ...mpq.stormlib.stormlib_file_searcher import StormLibFileSearcher
+from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
 
 
 class StarcraftWavIo:
