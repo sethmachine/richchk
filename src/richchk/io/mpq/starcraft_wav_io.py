@@ -3,15 +3,20 @@ import os
 import shutil
 import tempfile
 
+from ...editor.richchk.rich_chk_editor import RichChkEditor
+from ...editor.richchk.rich_wav_editor import RichWavEditor
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
+from ...model.richchk.rich_chk import RichChk
+from ...model.richchk.wav.rich_wav_section import RichWavSection
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ..util.chk_query_util import ChkQueryUtil
 from .starcraft_mpq_io import StarcraftMpqIo
 
 
 class StarcraftWavIo:
 
     # canonical location where WAV files are stored in a StarCraft MPQ
-    _WAV_DIRECTORY = "\\staredit\\wav"
+    _WAV_DIRECTORY = "staredit\\wav"
 
     def __init__(self, stormlib_wrapper: StormLibWrapper):
         self._stormlib_wrapper = stormlib_wrapper
@@ -44,16 +49,18 @@ class StarcraftWavIo:
                 f"The output MPQ file {path_to_new_mpq_file} already exists."
             )
         with (tempfile.NamedTemporaryFile() as temp_mpq_file):
-            # ChkIo().encode_chk_to_file(
-            #     RichChkIo().encode_chk(chk), temp_chk_file.name, force_create=True
-            # )
             shutil.copyfile(path_to_base_mpq_file, temp_mpq_file.name)
-            self._add_wavfiles_to_mpq(
+            new_wav_files = self._add_wavfiles_to_mpq(
                 path_to_mpq_file=temp_mpq_file.name,
                 path_to_wavs_on_disk=path_to_wavs_on_disk,
             )
-            # now update the WAV and STR sections so the WAV files are available in trigger actions
-            shutil.copyfile(temp_mpq_file.name, path_to_new_mpq_file)
+            new_chk = self._update_chk_wav_section(temp_mpq_file.name, new_wav_files)
+            self._starcraft_mpq_io.save_chk_to_mpq(
+                new_chk,
+                path_to_base_mpq_file=temp_mpq_file.name,
+                path_to_new_mpq_file=path_to_new_mpq_file,
+                overwrite_existing=True,
+            )
 
     def _add_wavfiles_to_mpq(
         self,
@@ -79,12 +86,26 @@ class StarcraftWavIo:
                 path_to_file_in_archive=wavfile_in_mpq,
                 overwrite_existing=True,
             )
-        self._stormlib_wrapper.close_archive(
-            self._stormlib_wrapper.compact_archive(open_archive_result)
-        )
+        self._stormlib_wrapper.compact_archive(open_archive_result)
+        self._stormlib_wrapper.close_archive(open_archive_result)
         return path_to_wavs_in_mpq
 
     @classmethod
     def _create_wav_filepath_in_mpq(cls, path_to_wav_on_disk: str) -> str:
         bn = os.path.basename(path_to_wav_on_disk)
         return cls._WAV_DIRECTORY + "\\" + bn
+
+    def _update_chk_wav_section(
+        self, path_to_mpq_file: str, new_wav_files: list[str]
+    ) -> RichChk:
+        chk = self._starcraft_mpq_io.read_chk_from_mpq(path_to_mpq_file)
+        new_wav = self._update_wav_with_new_wav_files(new_wav_files, chk)
+        new_chk = RichChkEditor().replace_chk_section(new_wav, chk)
+        return new_chk
+
+    def _update_wav_with_new_wav_files(
+        self, new_wav_files: list[str], chk: RichChk
+    ) -> RichWavSection:
+        rich_wav = ChkQueryUtil.find_only_rich_section_in_chk(RichWavSection, chk)
+        new_wav = RichWavEditor().add_wav_files(new_wav_files, rich_wav)
+        return new_wav

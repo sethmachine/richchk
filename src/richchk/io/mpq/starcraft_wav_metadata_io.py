@@ -48,34 +48,6 @@ class StarcraftWavMetadataIo:
         self._stormlib_wrapper.close_archive(open_archive_result)
         return metadata
 
-    def add_wav_files_to_mpq(
-        self,
-        path_to_wavs_on_disk: list[str],
-        path_to_base_mpq_file: str,
-        path_to_new_mpq_file: str,
-        overwrite_existing: bool = False,
-    ) -> None:
-        """Adds WAV files to the Starcraft MPQ, also updating the WAV and STR sections
-        in the CHK.
-
-        :param path_to_wavs_on_disk:
-        :param path_to_base_mpq_file:
-        :param path_to_new_mpq_file:
-        :param overwrite_existing:
-        :return:
-        """
-        if not all((os.path.exists(wav) for wav in path_to_wavs_on_disk)):
-            raise FileNotFoundError(
-                f"At least one WAV file does not exist: {path_to_wavs_on_disk}"
-            )
-        if not os.path.exists(path_to_base_mpq_file):
-            raise FileNotFoundError(path_to_base_mpq_file)
-        if os.path.exists(path_to_new_mpq_file) and not overwrite_existing:
-            raise FileExistsError(
-                f"The output MPQ file {path_to_new_mpq_file} already exists."
-            )
-        pass
-
     def _calculate_wav_file_duration_in_mpq(
         self, wav_filepath_in_mpq: str, open_archive_result: StormLibOperationResult
     ) -> int:
