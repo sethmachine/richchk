@@ -78,3 +78,6 @@ EXAMPLE_STARCRAFT_SCM_MAP = Path(
 COMPLEX_STARCRAFT_SCX_MAP = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/test-chkjson-transcoder.scx")
 ).absolute()
+EXAMPLE_WAV_FILE = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/wavs/monitorhumming5.wav")
+).absolute()

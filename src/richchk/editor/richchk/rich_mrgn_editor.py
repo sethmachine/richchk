@@ -68,6 +68,7 @@ class RichMrgnEditor:
                 f"There are {num_duplicates} duplicate locations.  "
                 f"Only one of each unique location is allocated to the MRGN."
             )
+        # TODO: fix this, as tests can cause this to fail since order is not deterministic!
         return set(locations)
 
     @classmethod

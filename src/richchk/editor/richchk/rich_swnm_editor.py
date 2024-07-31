@@ -55,6 +55,7 @@ class RichSwnmEditor:
                 f"There are {num_duplicates} duplicate switches.  "
                 f"Only one of each unique location is allocated to the SWNM."
             )
+        # TODO: fix this, as tests can cause this to fail since order is not deterministic!
         return set(switches)
 
     @classmethod

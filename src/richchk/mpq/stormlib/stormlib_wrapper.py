@@ -130,6 +130,12 @@ class StormLibWrapper:
         list file must be updated with the new file in order to allow compaction of the
         archive to succeed.
 
+        Some protected files cannot be modified this way:
+
+        https://github.com/ladislav-zezula/StormLib/blob/539a04e06578ce9b0cf005446eff66e18753076d/doc/History.txt#L44-L48
+
+        ("(listfile)", "(attributes)" and "(signature)")
+
         :param stormlib_operation_result:
         :param infile:
         :param path_to_file_in_archive:
@@ -137,12 +143,13 @@ class StormLibWrapper:
         :return:
         """
         assert os.path.exists(infile)
+        self._log.info(f"adding files: {infile} to {path_to_file_in_archive}")
         flags = StormLibFlag.MPQ_FILE_COMPRESS.value
         if overwrite_existing:
             flags += StormLibFlag.MPQ_FILE_REPLACEEXISTING.value
         compression = StormLibFlag.MPQ_COMPRESSION_ZLIB.value
         func = getattr(
-            self._stormlib.stormlib_dll, StormLibOperation.S_FILE_ADD_FILE.value
+            self._stormlib.stormlib_dll, StormLibOperation.S_FILE_ADD_FILE_EX.value
         )
         result: int = func(
             stormlib_operation_result.handle,
@@ -152,7 +159,9 @@ class StormLibWrapper:
             compression,
             compression,
         )
-        self._throw_if_operation_fails(StormLibOperation.S_FILE_ADD_FILE.value, result)
+        self._throw_if_operation_fails(
+            StormLibOperation.S_FILE_ADD_FILE_EX.value, result
+        )
         return StormLibOperationResult(
             _handle=stormlib_operation_result.handle, _result=result
         )
@@ -178,8 +187,12 @@ class StormLibWrapper:
 
     def _throw_if_operation_fails(self, operation_name: str, result: int) -> None:
         if result == 0:
+            func = getattr(self._stormlib.stormlib_dll, "GetLastError")
+            func.restype = ctypes.c_uint
+            getLastErrorCode = func()
             msg = (
                 f"StormLib archive operation: <{operation_name}> failed due to a {result} result value.  "
+                f"Error code: {getLastErrorCode}"
                 f"StormLib reference: {self._stormlib}"
             )
             self._log.error(msg)
