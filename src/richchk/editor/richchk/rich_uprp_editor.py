@@ -67,6 +67,7 @@ class RichUprpEditor:
                 f"There are {num_duplicates} duplicate CUWP slots.  "
                 f"Only one of each unique CUWP slot is allocated to the UPRP."
             )
+        # TODO: fix this, as tests can cause this to fail since order is not deterministic!
         return unique_cuwps
 
     @classmethod
