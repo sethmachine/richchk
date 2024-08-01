@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
@@ -20,6 +20,7 @@ from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from ...model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from ...model.richchk.uprp.rich_uprp_section import RichUprpSection
+from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
 from ...transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
 from ...transcoder.richchk.richchk_section_transcoder_factory import (
     RichChkSectionTranscoderFactory,
@@ -67,7 +68,11 @@ class RichChkIo:
                 sections.append(transcoder.decode(decoded_chk_section, decode_context))
         return RichChk(_chk_sections=sections)
 
-    def encode_chk(self, rich_chk: RichChk) -> DecodedChk:
+    def encode_chk(
+        self,
+        rich_chk: RichChk,
+        wav_metadata_lookup: Optional[RichWavMetadataLookup] = None,
+    ) -> DecodedChk:
         # first need to iterate all relevant RichChk sections
         # and determine all new strings to add
         # then construct the new DecodedStrChk, plus
@@ -84,7 +89,12 @@ class RichChkIo:
         new_uprp = RichUprpRebuilder.rebuild_rich_uprp_section_from_rich_chk(rich_chk)
         new_upus = DecodedUpusRebuilder.rebuild_upus_from_rich_uprp(new_uprp)
         encode_context = self._build_encode_context(
-            rich_chk, new_str_section, new_mrgn_section, swnm_lookup, new_uprp
+            rich_chk,
+            new_str_section,
+            new_mrgn_section,
+            swnm_lookup,
+            new_uprp,
+            wav_metadata_lookup,
         )
         was_swnm_added = False
         was_uprp_added = False
@@ -222,6 +232,7 @@ class RichChkIo:
         new_mrgn_section: RichMrgnSection,
         swnm_lookup: RichSwnmLookup,
         new_uprp_section: RichUprpSection,
+        wav_metadata_lookup: Optional[RichWavMetadataLookup] = None,
     ) -> RichChkEncodeContext:
         return RichChkEncodeContext(
             _rich_str_lookup=RichStrLookupBuilder().build_lookup(new_str_section),
@@ -230,4 +241,5 @@ class RichChkIo:
             _rich_cuwp_lookup=RichCuwpLookupBuilder().build_lookup_from_rich_uprp(
                 new_uprp_section
             ),
+            _wav_metadata_lookup=wav_metadata_lookup,
         )
