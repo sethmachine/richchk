@@ -73,6 +73,7 @@ def real_rich_chk_encode_context(real_decoded_swnm) -> RichChkEncodeContext:
             _switch_by_id_lookup={}, _id_by_switch_lookup={}
         ),
         _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
+        _wav_metadata_lookup=None,
     )
 
 
@@ -117,6 +118,7 @@ def test_it_encodes_all_switch_names():
             _rich_cuwp_lookup=RichCuwpLookup(
                 _cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}
             ),
+            _wav_metadata_lookup=None,
         ),
     )
     assert decoded_swnm.switch_string_ids[0] == 5
