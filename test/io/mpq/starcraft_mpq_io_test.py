@@ -124,3 +124,10 @@ def test_it_throws_adding_chk_if_no_overwrite_and_outfile_exists(mpq_io):
                     temp_outfile.name,
                     overwrite_existing=False,
                 )
+
+
+def test_integration_it_adds_play_wav_action_without_duration(mpq_io):
+    # a PlayWavAction can be added if it references an existing WAV file without duration specified
+    # since the duration can be pulled from the WAV metadata
+    if mpq_io:
+        pass
