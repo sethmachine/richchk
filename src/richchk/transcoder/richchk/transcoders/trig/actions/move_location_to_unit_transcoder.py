@@ -4,9 +4,7 @@ from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.mrgn.rich_location import RichLocation
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
-from ......model.richchk.trig.actions.move_location_action import (
-    MoveLocationToUnitAction,
-)
+from ......model.richchk.trig.actions.move_location_action import MoveLocationAction
 from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
@@ -18,9 +16,9 @@ from ..rich_trigger_action_transcoder_factory import (
 
 
 class RichTriggerMoveLocationToUnitActionTranscoder(
-    RichTriggerActionTranscoder[MoveLocationToUnitAction, DecodedTriggerAction],
+    RichTriggerActionTranscoder[MoveLocationAction, DecodedTriggerAction],
     _RichTriggerActionRegistrableTranscoder,
-    trigger_action_id=MoveLocationToUnitAction.action_id(),
+    trigger_action_id=MoveLocationAction.action_id(),
 ):
     def __init__(self) -> None:
         self.log = logger.get_logger(
@@ -31,8 +29,8 @@ class RichTriggerMoveLocationToUnitActionTranscoder(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> MoveLocationToUnitAction:
-        assert decoded_action.action_id == MoveLocationToUnitAction.action_id().id
+    ) -> MoveLocationAction:
+        assert decoded_action.action_id == MoveLocationAction.action_id().id
         assert rich_chk_decode_context.rich_mrgn_lookup is not None
         # Location - source location in "Order" and "Move Unit", dest location in "Move Location"
         maybe_destination_location = (
@@ -47,7 +45,7 @@ class RichTriggerMoveLocationToUnitActionTranscoder(
         )
         assert isinstance(maybe_destination_location, RichLocation)
         assert isinstance(maybe_source_location, RichLocation)
-        return MoveLocationToUnitAction(
+        return MoveLocationAction(
             _source_location=maybe_source_location,
             _unit=RichChkEnumTranscoder.decode_enum(
                 decoded_action.action_argument_type, UnitId
@@ -60,7 +58,7 @@ class RichTriggerMoveLocationToUnitActionTranscoder(
 
     def _encode(
         self,
-        rich_action: MoveLocationToUnitAction,
+        rich_action: MoveLocationAction,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerAction:
         assert rich_chk_encode_context.rich_mrgn_lookup is not None

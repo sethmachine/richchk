@@ -18,7 +18,7 @@ from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _MoveLocationToUnitActionBase(RichTriggerAction, ABC):
+class _MoveLocationActionBase(RichTriggerAction, ABC):
     _source_location: RichLocation
     _unit: UnitId
     _group: PlayerId
@@ -46,7 +46,5 @@ class _MoveLocationToUnitActionBase(RichTriggerAction, ABC):
 
 
 @dataclasses.dataclass(frozen=True)
-class MoveLocationToUnitAction(
-    _RichTriggerActionDefaultsBase, _MoveLocationToUnitActionBase
-):
+class MoveLocationAction(_RichTriggerActionDefaultsBase, _MoveLocationActionBase):
     pass
