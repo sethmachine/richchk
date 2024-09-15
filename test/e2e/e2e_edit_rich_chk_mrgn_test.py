@@ -51,7 +51,7 @@ def test_integration_it_edits_mrgn_in_rich_chk(
         _custom_location_name=RichString(_value="new location"),
     )
     expected_locations = mrgn.locations + [new_location]
-    new_mrgn = RichMrgnEditor().add_locations([new_location], mrgn)
+    new_mrgn, _ = RichMrgnEditor().add_locations([new_location], mrgn)
     _assert_all_locations_have_index(new_mrgn.locations)
     _assert_mrgn_has_expected_locations_ignoring_index(expected_locations, new_mrgn)
     new_rich_chk = RichChkEditor().replace_chk_section(new_mrgn, rich_chk_for_scx_file)
