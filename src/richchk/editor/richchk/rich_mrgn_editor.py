@@ -25,7 +25,7 @@ class RichMrgnEditor:
         location_lookup = RichMrgnLookupBuilder().build_lookup(rich_mrgn=mrgn)
         allocable_indices = self._generate_allocable_location_indices(location_lookup)
         new_locations = [loc for loc in mrgn.locations]
-        # TODO: unit test the creation of the MRGN lookup here too
+        # TODO: unit test the creation MRGN lookup here too https://github.com/sethmachine/richchk/issues/80
         loc_by_id = {loc.index: loc for loc in new_locations if loc.index is not None}
         id_by_loc = {loc: loc.index for loc in new_locations if loc.index is not None}
         for i, loc in enumerate(unique_locations_to_add):
