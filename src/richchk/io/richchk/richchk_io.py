@@ -79,9 +79,11 @@ class RichChkIo:
         new_str_section: DecodedStrSection = (
             DecodedStrSectionRebuilder.rebuild_str_section_from_rich_chk(rich_chk)
         )
-        new_mrgn_section: RichMrgnSection = (
-            RichMrgnSectionRebuilder.rebuild_rich_mrgn_section_from_rich_chk(rich_chk)
-        )
+        (
+            new_mrgn_section,
+            new_mrgn_lookup,
+        ) = RichMrgnSectionRebuilder.rebuild_rich_mrgn_section_from_rich_chk(rich_chk)
+        assert isinstance(new_mrgn_section, RichMrgnSection)
         (
             new_swnm_section,
             swnm_lookup,
@@ -94,6 +96,7 @@ class RichChkIo:
             new_mrgn_section,
             swnm_lookup,
             new_uprp,
+            new_mrgn_lookup,
             wav_metadata_lookup,
         )
         was_swnm_added = False
@@ -232,11 +235,12 @@ class RichChkIo:
         new_mrgn_section: RichMrgnSection,
         swnm_lookup: RichSwnmLookup,
         new_uprp_section: RichUprpSection,
+        new_mrgn_lookup: RichMrgnLookup,
         wav_metadata_lookup: Optional[RichWavMetadataLookup] = None,
     ) -> RichChkEncodeContext:
         return RichChkEncodeContext(
             _rich_str_lookup=RichStrLookupBuilder().build_lookup(new_str_section),
-            _rich_mrgn_lookup=RichMrgnLookupBuilder().build_lookup(new_mrgn_section),
+            _rich_mrgn_lookup=new_mrgn_lookup,
             _rich_swnm_lookup=swnm_lookup,
             _rich_cuwp_lookup=RichCuwpLookupBuilder().build_lookup_from_rich_uprp(
                 new_uprp_section

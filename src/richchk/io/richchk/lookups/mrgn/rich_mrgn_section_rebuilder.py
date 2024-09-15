@@ -12,6 +12,7 @@ import dataclasses
 
 from .....editor.richchk.rich_mrgn_editor import RichMrgnEditor
 from .....model.richchk.mrgn.rich_location import RichLocation
+from .....model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from .....model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
@@ -20,7 +21,9 @@ from ....util.chk_query_util import ChkQueryUtil
 
 class RichMrgnSectionRebuilder:
     @staticmethod
-    def rebuild_rich_mrgn_section_from_rich_chk(rich_chk: RichChk) -> RichMrgnSection:
+    def rebuild_rich_mrgn_section_from_rich_chk(
+        rich_chk: RichChk,
+    ) -> tuple[RichMrgnSection, RichMrgnLookup]:
         rich_mrgn = ChkQueryUtil.find_only_rich_section_in_chk(
             RichMrgnSection, rich_chk
         )
