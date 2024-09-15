@@ -18,13 +18,16 @@ class RichMrgnEditor:
 
     def add_locations(
         self, locations: Collection[RichLocation], mrgn: RichMrgnSection
-    ) -> RichMrgnSection:
+    ) -> tuple[RichMrgnSection, RichMrgnLookup]:
         """Add the locations to the MRGN, allocating location indices where
         appropriate."""
         unique_locations_to_add = self._build_location_set(locations)
         location_lookup = RichMrgnLookupBuilder().build_lookup(rich_mrgn=mrgn)
         allocable_indices = self._generate_allocable_location_indices(location_lookup)
         new_locations = [loc for loc in mrgn.locations]
+        # TODO: unit test the creation of the MRGN lookup here too
+        loc_by_id = {loc.index: loc for loc in new_locations if loc.index is not None}
+        id_by_loc = {loc: loc.index for loc in new_locations if loc.index is not None}
         for i, loc in enumerate(unique_locations_to_add):
             if not allocable_indices:
                 self.log.error(
@@ -34,9 +37,11 @@ class RichMrgnEditor:
                 break
             if loc.index is not None:
                 if not location_lookup.get_location_by_id(loc.index):
-                    new_locations.append(
-                        self._build_new_location_with_index(loc, loc.index)
-                    )
+                    new_loc = self._build_new_location_with_index(loc, loc.index)
+                    new_locations.append(new_loc)
+                    assert loc.index is not None
+                    loc_by_id[loc.index] = new_loc
+                    id_by_loc[new_loc] = loc.index
                     if loc.index in allocable_indices:
                         allocable_indices.remove(loc.index)
                 else:
@@ -48,11 +53,19 @@ class RichMrgnEditor:
                         f"Attempted replacement: {loc}"
                     )
             else:
-                new_locations.append(
-                    self._build_new_location_with_index(loc, allocable_indices.pop())
+                new_loc = self._build_new_location_with_index(
+                    loc, allocable_indices.pop()
                 )
+                new_locations.append(new_loc)
+                assert new_loc.index is not None
+                loc_by_id[new_loc.index] = new_loc
+                id_by_loc[new_loc] = new_loc.index
+                # also store the old loc with a None index
+                id_by_loc[loc] = new_loc.index
         new_mrgn = RichMrgnSection(_locations=new_locations)
-        return new_mrgn
+        return new_mrgn, RichMrgnLookup(
+            _location_by_id_lookup=loc_by_id, _id_by_location_lookup=id_by_loc
+        )
 
     def _build_location_set(
         self, locations: Collection[RichLocation]

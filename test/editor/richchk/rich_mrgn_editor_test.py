@@ -26,7 +26,7 @@ def test_integration_it_adds_locations_to_mrgn_and_allocates_index_to_each(rich_
         build_dataclass_with_fields(locations_to_add_without_index[0], _index=2),
         build_dataclass_with_fields(locations_to_add_without_index[1], _index=3),
     ]
-    new_mrgn = editor.add_locations(locations_to_add_without_index, rich_mrgn)
+    new_mrgn, _ = editor.add_locations(locations_to_add_without_index, rich_mrgn)
     assert len(new_mrgn.locations) == 3
     for expected in expected_locations:
         assert expected in new_mrgn.locations
@@ -46,7 +46,7 @@ def test_integration_it_does_not_add_duplicate_locations(rich_mrgn):
         build_dataclass_with_fields(loc1_to_add, _index=2),
         build_dataclass_with_fields(loc2_to_add_with_index, _index=100),
     ]
-    new_mrgn = editor.add_locations(locations_to_add, rich_mrgn)
+    new_mrgn, _ = editor.add_locations(locations_to_add, rich_mrgn)
     assert len(new_mrgn.locations) == 3
     for expected in expected_locations:
         assert expected in new_mrgn.locations
@@ -62,7 +62,7 @@ def test_integration_it_does_not_replace_locations_already_in_mrgn():
         ]
     )
     locations_to_add = [dup_loc_to_add_with_index]
-    new_mrgn = editor.add_locations(locations_to_add, mrgn)
+    new_mrgn, _ = editor.add_locations(locations_to_add, mrgn)
     assert len(new_mrgn.locations) == len(mrgn.locations)
 
 
@@ -71,7 +71,7 @@ def test_integration_it_does_not_allocate_anywhere_location_id(rich_mrgn):
     locations_to_add_without_index = [
         generate_rich_location() for x in range(1, ANYWHERE_LOCATION_ID + 2)
     ]
-    new_mrgn = editor.add_locations(locations_to_add_without_index, rich_mrgn)
+    new_mrgn, _ = editor.add_locations(locations_to_add_without_index, rich_mrgn)
     assert len(new_mrgn.locations) == (ANYWHERE_LOCATION_ID + 1) + len(
         rich_mrgn.locations
     )
@@ -85,7 +85,7 @@ def test_integration_it_allocates_all_possible_location_ids(rich_mrgn):
     locations_to_add_without_index = [
         generate_rich_location() for x in range(1, MAX_LOCATIONS - 1)
     ]
-    new_mrgn = editor.add_locations(locations_to_add_without_index, rich_mrgn)
+    new_mrgn, _ = editor.add_locations(locations_to_add_without_index, rich_mrgn)
     # ANYWHERE is not included in this example
     assert len(new_mrgn.locations) == MAX_LOCATIONS - 1
 
@@ -95,6 +95,6 @@ def test_integration_it_does_not_allocate_more_locations_than_max(rich_mrgn):
     locations_to_add_without_index = [
         generate_rich_location() for x in range(1, MAX_LOCATIONS + 100)
     ]
-    new_mrgn = editor.add_locations(locations_to_add_without_index, rich_mrgn)
+    new_mrgn, _ = editor.add_locations(locations_to_add_without_index, rich_mrgn)
     # ANYWHERE is not included in this example
     assert len(new_mrgn.locations) == MAX_LOCATIONS - 1
