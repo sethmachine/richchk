@@ -59,8 +59,24 @@ def test_it_finds_precompiled_macos_intel_dll_if_no_path_provided():
         assert path_to_stormlib.path_to_stormlib_dll.endswith("libStorm.dylib")
 
 
-def test_it_throws_if_unrecognized_operating_system():
-    with patch("platform.system") as mock_platform_system:
+def test_it_finds_precompiled_linux_dll_if_no_path_provided():
+    with (
+        patch("platform.system") as mock_platform_system,
+        patch("platform.machine") as mock_cpu,
+    ):
         mock_platform_system.return_value = "Linux"
+        mock_cpu.return_value = "x86_64"
+        path_to_stormlib = StormLibFinder.find_stormlib()
+        assert os.path.join(path_to_stormlib.path_to_stormlib_dll)
+        assert path_to_stormlib.path_to_stormlib_dll.endswith("libstorm.so.9.22.0")
+
+
+def test_it_throws_if_unrecognized_operating_system():
+    with (
+        patch("platform.system") as mock_platform_system,
+        patch("platform.machine") as mock_cpu,
+    ):
+        mock_platform_system.return_value = "Linux"
+        mock_cpu.return_value = "i386"
         with pytest.raises(OSError):
             StormLibFinder.find_stormlib()
