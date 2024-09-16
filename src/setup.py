@@ -4,6 +4,7 @@ _PACKAGE_DATA = {package: ["py.typed"] for package in find_packages()}
 _PACKAGE_DATA["richchk"] = [
     "mpq/stormlib/dlls/macos/*.*",
     "mpq/stormlib/dlls/windows/*.*",
+    "mpq/stormlib/dlls/linux/*.*",
 ]
 
 setup(
