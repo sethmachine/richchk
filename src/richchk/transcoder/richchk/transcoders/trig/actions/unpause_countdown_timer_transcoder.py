@@ -1,4 +1,4 @@
-"""Decode pause countdown timer action."""
+"""Decode unpause countdown timer action."""
 
 from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
