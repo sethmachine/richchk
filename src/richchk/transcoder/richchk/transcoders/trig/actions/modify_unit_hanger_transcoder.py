@@ -1,4 +1,4 @@
-"""Decode modify unit energy action."""
+"""Decode modify unit hanger count action."""
 
 from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.mrgn.rich_location import RichLocation
