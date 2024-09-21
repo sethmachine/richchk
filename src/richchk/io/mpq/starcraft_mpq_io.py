@@ -18,6 +18,24 @@ class StarcraftMpqIo:
     def __init__(self, stormlib_wrapper: StormLibWrapper):
         self._stormlib_wrapper = stormlib_wrapper
 
+    def extract_chk_from_mpq(
+        self,
+        path_to_starcraft_mpq_file: str,
+        outfile: str,
+        overwrite_existing: bool = True,
+    ) -> None:
+        if not os.path.exists(path_to_starcraft_mpq_file):
+            raise FileNotFoundError(path_to_starcraft_mpq_file)
+        open_result = self._stormlib_wrapper.open_archive(
+            path_to_starcraft_mpq_file, StormLibArchiveMode.STORMLIB_READ_ONLY
+        )
+        self._stormlib_wrapper.extract_file(
+            open_result,
+            self._CHK_MPQ_PATH,
+            outfile,
+            overwrite_existing=overwrite_existing,
+        )
+
     def read_chk_from_mpq(self, path_to_starcraft_mpq_file: str) -> RichChk:
         if not os.path.exists(path_to_starcraft_mpq_file):
             raise FileNotFoundError(path_to_starcraft_mpq_file)
