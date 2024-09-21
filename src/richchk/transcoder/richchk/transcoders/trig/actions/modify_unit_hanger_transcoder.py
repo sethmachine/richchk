@@ -4,7 +4,7 @@ from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.mrgn.rich_location import RichLocation
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
-from ......model.richchk.trig.actions.modify_unit_energy import ModifyUnitEnergyAction
+from ......model.richchk.trig.actions.modify_unit_hanger import ModifyUnitHangerAction
 from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
@@ -15,28 +15,28 @@ from ..rich_trigger_action_transcoder_factory import (
 )
 
 
-class RichTriggerModifyUnitEnergyActionTranscoder(
-    RichTriggerActionTranscoder[ModifyUnitEnergyAction, DecodedTriggerAction],
+class RichTriggerModifyUnitHangerActionTranscoder(
+    RichTriggerActionTranscoder[ModifyUnitHangerAction, DecodedTriggerAction],
     _RichTriggerActionRegistrableTranscoder,
-    trigger_action_id=ModifyUnitEnergyAction.action_id(),
+    trigger_action_id=ModifyUnitHangerAction.action_id(),
 ):
     def __init__(self) -> None:
         self.log = logger.get_logger(
-            RichTriggerModifyUnitEnergyActionTranscoder.__name__
+            RichTriggerModifyUnitHangerActionTranscoder.__name__
         )
 
     def _decode(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> ModifyUnitEnergyAction:
-        assert decoded_action.action_id == ModifyUnitEnergyAction.action_id().id
+    ) -> ModifyUnitHangerAction:
+        assert decoded_action.action_id == ModifyUnitHangerAction.action_id().id
         assert rich_chk_decode_context.rich_mrgn_lookup is not None
         maybe_location = rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
             decoded_action.location_id
         )
         assert isinstance(maybe_location, RichLocation)
-        return ModifyUnitEnergyAction(
+        return ModifyUnitHangerAction(
             _group=RichChkEnumTranscoder.decode_enum(
                 decoded_action.first_group, PlayerId
             ),
@@ -44,13 +44,13 @@ class RichTriggerModifyUnitEnergyActionTranscoder(
                 decoded_action.action_argument_type, UnitId
             ),
             _amount=decoded_action.quantifier_or_switch_or_order,
-            _percent=decoded_action.second_group,
+            _hanger_amount=decoded_action.second_group,
             _location=maybe_location,
         )
 
     def _encode(
         self,
-        rich_action: ModifyUnitEnergyAction,
+        rich_action: ModifyUnitHangerAction,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerAction:
         assert rich_chk_encode_context.rich_mrgn_lookup is not None
@@ -64,7 +64,7 @@ class RichTriggerModifyUnitEnergyActionTranscoder(
             _wav_string_id=0,
             _time=0,
             _first_group=RichChkEnumTranscoder.encode_enum(rich_action.group),
-            _second_group=rich_action.percent,
+            _second_group=rich_action.hanger_amount,
             _action_argument_type=RichChkEnumTranscoder.encode_enum(rich_action.unit),
             _action_id=rich_action.action_id().id,
             _quantifier_or_switch_or_order=rich_action.amount,
