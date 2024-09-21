@@ -18,7 +18,7 @@ class _ModifyUnitHangerActionBase(RichTriggerAction, ABC):
 
     @classmethod
     def action_id(cls) -> TriggerActionId:
-        return TriggerActionId.MODIFY_UNIT_RESOURCE_AMOUNT
+        return TriggerActionId.MODIFY_UNIT_HANGER_COUNT
 
     @property
     def group(self) -> PlayerId:
