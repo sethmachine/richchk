@@ -10,13 +10,14 @@ allocated to "Anywhere".
 
 import dataclasses
 
+from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+
 from .....editor.richchk.rich_mrgn_editor import RichMrgnEditor
 from .....model.richchk.mrgn.rich_location import RichLocation
 from .....model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from .....model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
-from ....util.chk_query_util import ChkQueryUtil
 
 
 class RichMrgnSectionRebuilder:

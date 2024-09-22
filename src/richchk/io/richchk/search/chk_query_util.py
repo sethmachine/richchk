@@ -2,11 +2,11 @@
 
 from typing import Type, TypeVar, Union
 
-from ...model.chk.decoded_chk import DecodedChk
-from ...model.chk.decoded_chk_section import DecodedChkSection
-from ...model.chk_section_name import ChkSectionName
-from ...model.richchk.rich_chk import RichChk
-from ...model.richchk.rich_chk_section import RichChkSection
+from richchk.model.chk.decoded_chk import DecodedChk
+from richchk.model.chk.decoded_chk_section import DecodedChkSection
+from richchk.model.chk_section_name import ChkSectionName
+from richchk.model.richchk.rich_chk import RichChk
+from richchk.model.richchk.rich_chk_section import RichChkSection
 
 _T = TypeVar("_T", bound=RichChkSection, covariant=True)
 _U = TypeVar("_U", bound=DecodedChkSection, covariant=True)
