@@ -3,7 +3,7 @@ import os
 import shutil
 import tempfile
 
-from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 
 from ...editor.richchk.rich_chk_editor import RichChkEditor
 from ...editor.richchk.rich_wav_editor import RichWavEditor

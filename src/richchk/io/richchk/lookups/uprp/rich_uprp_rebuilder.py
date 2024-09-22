@@ -2,7 +2,7 @@
 
 import dataclasses
 
-from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 
 from .....editor.richchk.rich_uprp_editor import RichUprpEditor
 from .....model.richchk.rich_chk import RichChk
