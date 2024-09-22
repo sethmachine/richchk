@@ -4,7 +4,7 @@ from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.mrgn.rich_location import RichLocation
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
-from ......model.richchk.trig.actions.give_units_action import GiveUnitsAction
+from ......model.richchk.trig.actions.give_unit_action import GiveUnitAction
 from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
@@ -16,9 +16,9 @@ from ..rich_trigger_action_transcoder_factory import (
 
 
 class RichTriggerGiveUnitsActionTranscoder(
-    RichTriggerActionTranscoder[GiveUnitsAction, DecodedTriggerAction],
+    RichTriggerActionTranscoder[GiveUnitAction, DecodedTriggerAction],
     _RichTriggerActionRegistrableTranscoder,
-    trigger_action_id=GiveUnitsAction.action_id(),
+    trigger_action_id=GiveUnitAction.action_id(),
 ):
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerGiveUnitsActionTranscoder.__name__)
@@ -27,14 +27,14 @@ class RichTriggerGiveUnitsActionTranscoder(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> GiveUnitsAction:
-        assert decoded_action.action_id == GiveUnitsAction.action_id().id
+    ) -> GiveUnitAction:
+        assert decoded_action.action_id == GiveUnitAction.action_id().id
         assert rich_chk_decode_context.rich_mrgn_lookup is not None
         maybe_location = rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
             decoded_action.location_id
         )
         assert isinstance(maybe_location, RichLocation)
-        return GiveUnitsAction(
+        return GiveUnitAction(
             _from_group=RichChkEnumTranscoder.decode_enum(
                 decoded_action.first_group, PlayerId
             ),
@@ -50,7 +50,7 @@ class RichTriggerGiveUnitsActionTranscoder(
 
     def _encode(
         self,
-        rich_action: GiveUnitsAction,
+        rich_action: GiveUnitAction,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerAction:
         assert rich_chk_encode_context.rich_mrgn_lookup is not None
