@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Optional, Union
 
-from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection

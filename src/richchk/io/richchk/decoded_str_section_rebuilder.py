@@ -2,7 +2,7 @@
 
 import dataclasses
 
-from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 
 from ...editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
 from ...model.chk.str.decoded_str_section import DecodedStrSection

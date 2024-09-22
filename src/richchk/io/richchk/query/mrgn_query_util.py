@@ -12,7 +12,7 @@ _T = TypeVar("_T", bound=RichChkSection, covariant=True)
 _U = TypeVar("_U", bound=DecodedChkSection, covariant=True)
 
 
-class MrgnSearchUtil:
+class MrgnQueryUtil:
     @staticmethod
     def find_location_by_name(
         location_name: str, mrgn: RichMrgnSection, ignorecase: bool = True
@@ -23,7 +23,7 @@ class MrgnSearchUtil:
         """
         exact_matches = []
         for loc in mrgn.locations:
-            name1, name2 = MrgnSearchUtil._get_location_names_for_comparison(
+            name1, name2 = MrgnQueryUtil._get_location_names_for_comparison(
                 location_name, loc.custom_location_name.value, ignorecase=ignorecase
             )
             if name1 == name2:
@@ -52,7 +52,7 @@ class MrgnSearchUtil:
         """
         locs_by_similarity = []
         for loc in mrgn.locations:
-            name1, name2 = MrgnSearchUtil._get_location_names_for_comparison(
+            name1, name2 = MrgnQueryUtil._get_location_names_for_comparison(
                 location_name, loc.custom_location_name.value, ignorecase=ignorecase
             )
             matcher = difflib.SequenceMatcher(None, name1, name2)

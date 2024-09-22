@@ -10,7 +10,7 @@ allocated to "Anywhere".
 
 import dataclasses
 
-from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 
 from .....editor.richchk.rich_mrgn_editor import RichMrgnEditor
 from .....model.richchk.mrgn.rich_location import RichLocation

@@ -1,7 +1,7 @@
 import pytest
 
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
 from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.model.chk_section_name import ChkSectionName
 from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
