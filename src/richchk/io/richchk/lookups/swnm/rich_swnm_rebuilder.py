@@ -7,8 +7,6 @@ There is a maximum of 256 switches.
 import dataclasses
 from typing import Tuple
 
-from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
-
 from .....model.chk.swnm.swnm_constants import MAX_SWITCHES
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
@@ -17,6 +15,7 @@ from .....model.richchk.swnm.rich_switch import RichSwitch
 from .....model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from .....model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from .....util import logger
+from ....richchk.query.chk_query_util import ChkQueryUtil
 
 
 class RichSwnmRebuilder:
