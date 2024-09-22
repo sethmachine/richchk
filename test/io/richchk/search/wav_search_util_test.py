@@ -4,7 +4,7 @@ import pytest
 
 from richchk.io.chk.chk_io import ChkIo
 from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.io.util.wav_search_util import WavSearchUtil
+from richchk.io.richchk.search.wav_search_util import WavSearchUtil
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.str.rich_string import RichString
 from richchk.model.richchk.wav.rich_wav import RichWav

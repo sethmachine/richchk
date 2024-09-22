@@ -2,12 +2,13 @@
 
 import dataclasses
 
+from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+
 from .....editor.richchk.rich_uprp_editor import RichUprpEditor
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
 from .....model.richchk.uprp.rich_cuwp_slot import RichCuwpSlot
 from .....model.richchk.uprp.rich_uprp_section import RichUprpSection
-from ....util.chk_query_util import ChkQueryUtil
 
 
 class RichUprpRebuilder:

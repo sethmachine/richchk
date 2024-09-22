@@ -2,10 +2,10 @@
 
 import os
 
-from ...model.richchk.rich_chk import RichChk
-from ...model.richchk.wav.rich_wav import RichWav
-from ...model.richchk.wav.rich_wav_section import RichWavSection
-from .chk_query_util import ChkQueryUtil
+from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
+from richchk.model.richchk.rich_chk import RichChk
+from richchk.model.richchk.wav.rich_wav import RichWav
+from richchk.model.richchk.wav.rich_wav_section import RichWavSection
 
 
 class WavSearchUtil:

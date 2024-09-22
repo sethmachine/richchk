@@ -9,7 +9,7 @@ from richchk.editor.richchk.rich_chk_editor import RichChkEditor
 from richchk.editor.richchk.rich_mrgn_editor import RichMrgnEditor
 from richchk.io.chk.chk_io import ChkIo
 from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.io.util.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
 from richchk.model.chk.decoded_chk_section import DecodedChkSection
 from richchk.model.richchk.mrgn.rich_location import RichLocation
 from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection

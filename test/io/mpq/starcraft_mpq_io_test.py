@@ -8,7 +8,7 @@ from richchk.editor.richchk.rich_chk_editor import RichChkEditor
 from richchk.editor.richchk.rich_trig_editor import RichTrigEditor
 from richchk.io.mpq.starcraft_mpq_io import StarcraftMpqIo
 from richchk.io.mpq.starcraft_wav_metadata_io import StarcraftWavMetadataIo
-from richchk.io.util.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.search.chk_query_util import ChkQueryUtil
 from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.trig.actions.play_wav_action import PlayWavAction
