@@ -9,7 +9,7 @@ from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
-class _GiveUnitsActionBase(RichTriggerAction, ABC):
+class _GiveUnitActionBase(RichTriggerAction, ABC):
     _from_group: PlayerId
     _to_group: PlayerId
     _amount: int
@@ -42,5 +42,5 @@ class _GiveUnitsActionBase(RichTriggerAction, ABC):
 
 
 @dataclasses.dataclass(frozen=True)
-class GiveUnitsAction(_RichTriggerActionDefaultsBase, _GiveUnitsActionBase):
+class GiveUnitAction(_RichTriggerActionDefaultsBase, _GiveUnitActionBase):
     pass
