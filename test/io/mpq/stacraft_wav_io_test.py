@@ -7,7 +7,7 @@ import pytest
 from richchk.io.mpq.starcraft_mpq_io import StarcraftMpqIo
 from richchk.io.mpq.starcraft_wav_io import StarcraftWavIo
 from richchk.io.mpq.starcraft_wav_metadata_io import StarcraftWavMetadataIo
-from richchk.io.util.chk_query_util import ChkQueryUtil
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath

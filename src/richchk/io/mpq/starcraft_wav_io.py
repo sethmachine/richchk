@@ -9,7 +9,7 @@ from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.wav.rich_wav_section import RichWavSection
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
-from ..util.chk_query_util import ChkQueryUtil
+from ..richchk.query.chk_query_util import ChkQueryUtil
 from .starcraft_mpq_io import StarcraftMpqIo
 
 
