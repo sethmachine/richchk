@@ -3,10 +3,10 @@
 import difflib
 from typing import Optional, TypeVar
 
-from richchk.model.chk.decoded_chk_section import DecodedChkSection
-from richchk.model.richchk.mrgn.rich_location import RichLocation
-from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
-from richchk.model.richchk.rich_chk_section import RichChkSection
+from ....model.chk.decoded_chk_section import DecodedChkSection
+from ....model.richchk.mrgn.rich_location import RichLocation
+from ....model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
+from ....model.richchk.rich_chk_section import RichChkSection
 
 _T = TypeVar("_T", bound=RichChkSection, covariant=True)
 _U = TypeVar("_U", bound=DecodedChkSection, covariant=True)
