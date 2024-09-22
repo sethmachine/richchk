@@ -1,8 +1,6 @@
 import logging
 from typing import Any, Optional, Union
 
-from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
-
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
 from ...model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
@@ -43,6 +41,7 @@ from .lookups.swnm.rich_swnm_rebuilder import RichSwnmRebuilder
 from .lookups.uprp.rich_cuwp_lookup_builder import RichCuwpLookupBuilder
 from .lookups.uprp.rich_uprp_rebuilder import RichUprpRebuilder
 from .lookups.upus.decoded_upus_rebuilder import DecodedUpusRebuilder
+from .query.chk_query_util import ChkQueryUtil
 from .rich_str_lookup_builder import RichStrLookupBuilder
 
 
