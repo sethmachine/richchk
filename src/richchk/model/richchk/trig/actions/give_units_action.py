@@ -18,7 +18,7 @@ class _GiveUnitsActionBase(RichTriggerAction, ABC):
 
     @classmethod
     def action_id(cls) -> TriggerActionId:
-        return TriggerActionId.REMOVE_UNIT_AT_LOCATION
+        return TriggerActionId.GIVE_UNITS_TO_PLAYER
 
     @property
     def from_group(self) -> PlayerId:
