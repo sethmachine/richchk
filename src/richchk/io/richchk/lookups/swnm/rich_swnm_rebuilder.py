@@ -15,7 +15,7 @@ from .....model.richchk.swnm.rich_switch import RichSwitch
 from .....model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from .....model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from .....util import logger
-from ....util.chk_query_util import ChkQueryUtil
+from ....richchk.query.chk_query_util import ChkQueryUtil
 
 
 class RichSwnmRebuilder:
