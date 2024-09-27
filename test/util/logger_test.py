@@ -23,3 +23,9 @@ def test_it_creates_logger_with_config_log_level():
         os.environ[RICHCHK_CONFIG_ENV_VAR] = temp_config_file.name
         log = logger.get_logger("test_logger")
         assert log.level == logging.DEBUG
+
+
+def test_it_uses_default_log_level_if_env_variable_exist_but_config_file_does_not():
+    os.environ[RICHCHK_CONFIG_ENV_VAR] = "a-config-file-that-does-not-exist.yaml"
+    log = logger.get_logger("test_logger")
+    assert log.level == logger._DEFAULT_LOG_LEVEl

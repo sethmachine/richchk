@@ -105,7 +105,7 @@ def _determine_log_level_or_default() -> int:
     elif maybe_config_file and not os.path.exists(maybe_config_file):
         innerlog.error(
             f"No logging config file exists at path specified "
-            f"by environment variable {RICHCHK_CONFIG_ENV_VAR} ; using default logging level."
+            f"by environment variable {RICHCHK_CONFIG_ENV_VAR} ; using default logging level.  "
             f"File {maybe_config_file} does not exist!"
         )
     return _DEFAULT_LOG_LEVEl
