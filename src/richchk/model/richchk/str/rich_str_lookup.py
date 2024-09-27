@@ -31,7 +31,7 @@ class RichStrLookup:
                 f"This will return a RichNullString for non-existent entries."
             )
         elif string_id == _STRING_ID_FOR_DEFAULT_UNIT_NAME:
-            self._log.info(
+            self._log.debug(
                 f"String ID is {_STRING_ID_FOR_DEFAULT_UNIT_NAME}, "
                 f"returning RichNullString "
                 f"as this means the object uses its default name."
