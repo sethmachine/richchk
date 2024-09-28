@@ -2,50 +2,50 @@
 from typing import Optional
 
 from ...mpq.stormlib.stormlib_helper import StormLibHelper
-from .starcraft_mpq_io import StarcraftMpqIo
-from .starcraft_wav_io import StarcraftWavIo
-from .starcraft_wav_metadata_io import StarcraftWavMetadataIo
+from .starcraft_mpq_io import StarCraftMpqIo
+from .starcraft_wav_io import StarCraftWavIo
+from .starcraft_wav_metadata_io import StarCraftWavMetadataIo
 
 
-class StarcraftMpqIoHelper:
+class StarCraftMpqIoHelper:
     @staticmethod
     def create_mpq_io(
         path_to_stormlib_dll: Optional[str] = None,
-    ) -> StarcraftMpqIo:
+    ) -> StarCraftMpqIo:
         """Create a StarcraftMpqIo from a path to StormLib DLL.
 
         :param path_to_stormlib_dll: path to the DLL on the local machine. If not
             provided, will attempt to use an embedded DLL in RichChk.
         :return:
         """
-        return StarcraftMpqIo(
+        return StarCraftMpqIo(
             stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
         )
 
     @staticmethod
     def create_wav_io(
         path_to_stormlib_dll: Optional[str] = None,
-    ) -> StarcraftWavIo:
+    ) -> StarCraftWavIo:
         """Create a StarcraftWavIo from a path to StormLib DLL.
 
         :param path_to_stormlib_dll: path to the DLL on the local machine. If not
             provided, will attempt to use an embedded DLL in RichChk.
         :return:
         """
-        return StarcraftWavIo(
+        return StarCraftWavIo(
             stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
         )
 
     @staticmethod
     def create_wav_metadata_io(
         path_to_stormlib_dll: Optional[str] = None,
-    ) -> StarcraftWavMetadataIo:
+    ) -> StarCraftWavMetadataIo:
         """Create a StarcraftWavMetadataIo from a path to StormLib DLL.
 
         :param path_to_stormlib_dll: path to the DLL on the local machine. If not
             provided, will attempt to use an embedded DLL in RichChk.
         :return:
         """
-        return StarcraftWavMetadataIo(
+        return StarCraftWavMetadataIo(
             stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
         )
