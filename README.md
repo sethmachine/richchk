@@ -26,6 +26,16 @@ Python 3.11 is required.  Other versions of Python may work but are not tested. 
 * Run `pip install src/ --upgrade`
 * Verify `richchk` is installed: `python -c "import richchk; print(richchk.__file__)"`
 
+### StormLib
+
+[StormLib](http://www.zezula.net/en/mpq/stormlib.html) is an open source library used to read and write data to MPQ archives, which is the file format that StarCraft maps are stored in (either .SCX or .SCM file extensions).  StormLib is only required if you wish to directly edit a StarCraft map or add WAV files.  RichChk can edit the CHK itself without using StormLib, as the CHK can exist outside of the MPQ archive (but not as a playable map).  Nevertheless, the majority of workflows will likely produce new map files, in which case StormLib is a requirement.
+
+For convenience, RichChk comes with 3 embedded StormLib DLLs compiled for Windows, macOS intel, and macOS apple silicon.  Relying on the embedded DLLs is highly discouraged for many reasons: the DLLs will eventually no longer work for newer OS/architectures, RichChk is not meant to serve as a build repository for StormLib, DLLs without trusted sources can be dangerous, etc.
+
+Thus, you are highly encouraged to always bring your own StormLib DLL.  Some package managers can build StormLib for you, e.g. [macOS Homebrew StormLib formula](https://formulae.brew.sh/formula/stormlib).
+
+StormLib is absolutely required when using any IO classes from `richchk.io.mpq`.  These IO classes specialize in reading and write CHK data to and from StarCraft map files.
+
 ### Configuration
 
 RichChk can be externally configured by specifying a path to a local YAML configuration file using an environment variable.  Set `richchk.config` environment variable to point to a local YAML configuration file, e.g. on macOS `export richchk.config=my-config.yaml`.  
