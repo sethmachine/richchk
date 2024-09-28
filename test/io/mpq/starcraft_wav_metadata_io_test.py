@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 
-from richchk.io.mpq.starcraft_wav_metadata_io import StarcraftWavMetadataIo
+from richchk.io.mpq.starcraft_wav_metadata_io import StarCraftWavMetadataIo
 from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath
 from richchk.model.mpq.stormlib.wav.stormlib_wav import StormLibWav
 from richchk.mpq.stormlib.stormlib_loader import StormLibLoader
@@ -42,7 +42,7 @@ def stormlib_wrapper():
 @pytest.fixture(scope="function")
 def wav_metadata_io(stormlib_wrapper):
     if stormlib_wrapper:
-        return StarcraftWavMetadataIo(stormlib_wrapper)
+        return StarCraftWavMetadataIo(stormlib_wrapper)
 
 
 def _read_file_as_bytes(infile: str) -> bytes:
