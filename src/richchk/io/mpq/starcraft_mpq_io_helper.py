@@ -3,11 +3,13 @@ from typing import Optional
 
 from ...mpq.stormlib.stormlib_helper import StormLibHelper
 from .starcraft_mpq_io import StarcraftMpqIo
+from .starcraft_wav_io import StarcraftWavIo
+from .starcraft_wav_metadata_io import StarcraftWavMetadataIo
 
 
 class StarcraftMpqIoHelper:
     @staticmethod
-    def create_starcraft_mpqio(
+    def create_mpq_io(
         path_to_stormlib_dll: Optional[str] = None,
     ) -> StarcraftMpqIo:
         """Create a StarcraftMpqIo from a path to StormLib DLL.
@@ -17,5 +19,33 @@ class StarcraftMpqIoHelper:
         :return:
         """
         return StarcraftMpqIo(
+            stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
+        )
+
+    @staticmethod
+    def create_wav_io(
+        path_to_stormlib_dll: Optional[str] = None,
+    ) -> StarcraftWavIo:
+        """Create a StarcraftWavIo from a path to StormLib DLL.
+
+        :param path_to_stormlib_dll: path to the DLL on the local machine. If not
+            provided, will attempt to use an embedded DLL in RichChk.
+        :return:
+        """
+        return StarcraftWavIo(
+            stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
+        )
+
+    @staticmethod
+    def create_wav_metadata_io(
+        path_to_stormlib_dll: Optional[str] = None,
+    ) -> StarcraftWavMetadataIo:
+        """Create a StarcraftWavMetadataIo from a path to StormLib DLL.
+
+        :param path_to_stormlib_dll: path to the DLL on the local machine. If not
+            provided, will attempt to use an embedded DLL in RichChk.
+        :return:
+        """
+        return StarcraftWavMetadataIo(
             stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
         )
