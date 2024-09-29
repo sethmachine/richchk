@@ -6,8 +6,8 @@ import pytest
 
 from richchk.editor.richchk.rich_chk_editor import RichChkEditor
 from richchk.editor.richchk.rich_trig_editor import RichTrigEditor
-from richchk.io.mpq.starcraft_mpq_io import StarcraftMpqIo
-from richchk.io.mpq.starcraft_wav_metadata_io import StarcraftWavMetadataIo
+from richchk.io.mpq.starcraft_mpq_io import StarCraftMpqIo
+from richchk.io.mpq.starcraft_wav_metadata_io import StarCraftWavMetadataIo
 from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath
 from richchk.model.richchk.rich_chk import RichChk
@@ -45,13 +45,13 @@ def stormlib_wrapper():
 @pytest.fixture(scope="function")
 def mpq_io(stormlib_wrapper):
     if stormlib_wrapper:
-        return StarcraftMpqIo(stormlib_wrapper)
+        return StarCraftMpqIo(stormlib_wrapper)
 
 
 @pytest.fixture(scope="function")
 def wav_metadata_io(stormlib_wrapper):
     if stormlib_wrapper:
-        return StarcraftWavMetadataIo(stormlib_wrapper)
+        return StarCraftWavMetadataIo(stormlib_wrapper)
 
 
 def _read_file_as_bytes(infile: str) -> bytes:

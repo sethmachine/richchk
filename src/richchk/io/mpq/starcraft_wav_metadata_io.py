@@ -10,7 +10,7 @@ from ...mpq.stormlib.stormlib_file_searcher import StormLibFileSearcher
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
 
 
-class StarcraftWavMetadataIo:
+class StarCraftWavMetadataIo:
     _WAV_FILE_PATTERN = "*.wav"
 
     def __init__(self, stormlib_wrapper: StormLibWrapper):
