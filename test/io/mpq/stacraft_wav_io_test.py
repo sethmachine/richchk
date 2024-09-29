@@ -4,9 +4,9 @@ import tempfile
 
 import pytest
 
-from richchk.io.mpq.starcraft_mpq_io import StarcraftMpqIo
-from richchk.io.mpq.starcraft_wav_io import StarcraftWavIo
-from richchk.io.mpq.starcraft_wav_metadata_io import StarcraftWavMetadataIo
+from richchk.io.mpq.starcraft_mpq_io import StarCraftMpqIo
+from richchk.io.mpq.starcraft_wav_io import StarCraftWavIo
+from richchk.io.mpq.starcraft_wav_metadata_io import StarCraftWavMetadataIo
 from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
@@ -45,13 +45,13 @@ def stormlib_wrapper():
 @pytest.fixture(scope="function")
 def mpq_io(stormlib_wrapper):
     if stormlib_wrapper:
-        return StarcraftMpqIo(stormlib_wrapper)
+        return StarCraftMpqIo(stormlib_wrapper)
 
 
 @pytest.fixture(scope="function")
 def wav_io(stormlib_wrapper):
     if stormlib_wrapper:
-        return StarcraftWavIo(stormlib_wrapper)
+        return StarCraftWavIo(stormlib_wrapper)
 
 
 def _read_file_as_bytes(infile: str) -> bytes:
@@ -127,7 +127,7 @@ def _assert_wav_metadata_exists(
 ):
     wav_metadata = {
         x.path_to_wav_in_mpq: x
-        for x in StarcraftWavMetadataIo(
+        for x in StarCraftWavMetadataIo(
             stormlib_wrapper
         ).extract_all_wav_files_metadata(path_to_mpq_file)
     }
