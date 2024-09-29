@@ -38,7 +38,7 @@ StormLib is absolutely required when using any IO classes from `richchk.io.mpq`.
 
 ### Configuration
 
-RichChk can be externally configured by specifying a path to a local YAML configuration file using an environment variable.  Set `richchk.config` environment variable to point to a local YAML configuration file, e.g. on macOS `export richchk.config=my-config.yaml`.  
+RichChk can be externally configured by specifying a path to a local YAML configuration file using an environment variable.  Set `io.sethmachine.richchk.config` environment variable to point to a local YAML configuration file, e.g. on macOS `export io.sethmachine.richchk.config=my-config.yaml`.
 
 Currently the config only supports changing the logging level (verbosity).  The default logging level is `WARNING` but can be made more verbose by setting it to `INFO`, `DEBUG` or `TRACE`.  This affects the logging level for every logger in RichChk.  
 
