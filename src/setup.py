@@ -15,7 +15,7 @@ setup(
     author="sethmachine",
     author_email="sethmachine01@gmail.com",
     license="MIT",
-    install_requires=["dataclass-wizard==0.22.3"],
+    install_requires=["dataclass-wizard==0.22.3", "PyYAML==6.0.1"],
     package_data=_PACKAGE_DATA,
     packages=find_packages(),
     zip_safe=False,

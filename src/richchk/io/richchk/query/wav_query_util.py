@@ -2,13 +2,13 @@
 
 import os
 
-from ...model.richchk.rich_chk import RichChk
-from ...model.richchk.wav.rich_wav import RichWav
-from ...model.richchk.wav.rich_wav_section import RichWavSection
+from ....model.richchk.rich_chk import RichChk
+from ....model.richchk.wav.rich_wav import RichWav
+from ....model.richchk.wav.rich_wav_section import RichWavSection
 from .chk_query_util import ChkQueryUtil
 
 
-class WavSearchUtil:
+class WavQueryUtil:
     @staticmethod
     def find_only_wav_by_basename(wav_basename: str, chk: RichChk) -> RichWav:
         # possible edge case if more than 1 WAV file has the same exact basename

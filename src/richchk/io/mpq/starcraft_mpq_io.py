@@ -9,14 +9,32 @@ from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
-from .starcraft_wav_metadata_io import StarcraftWavMetadataIo
+from .starcraft_wav_metadata_io import StarCraftWavMetadataIo
 
 
-class StarcraftMpqIo:
+class StarCraftMpqIo:
     _CHK_MPQ_PATH = "staredit\\scenario.chk"
 
     def __init__(self, stormlib_wrapper: StormLibWrapper):
         self._stormlib_wrapper = stormlib_wrapper
+
+    def extract_chk_from_mpq(
+        self,
+        path_to_starcraft_mpq_file: str,
+        outfile: str,
+        overwrite_existing: bool = True,
+    ) -> None:
+        if not os.path.exists(path_to_starcraft_mpq_file):
+            raise FileNotFoundError(path_to_starcraft_mpq_file)
+        open_result = self._stormlib_wrapper.open_archive(
+            path_to_starcraft_mpq_file, StormLibArchiveMode.STORMLIB_READ_ONLY
+        )
+        self._stormlib_wrapper.extract_file(
+            open_result,
+            self._CHK_MPQ_PATH,
+            outfile,
+            overwrite_existing=overwrite_existing,
+        )
 
     def read_chk_from_mpq(self, path_to_starcraft_mpq_file: str) -> RichChk:
         if not os.path.exists(path_to_starcraft_mpq_file):
@@ -81,7 +99,7 @@ class StarcraftMpqIo:
     def _build_wav_metadata_lookup(
         self, path_to_base_mpq_file: str
     ) -> RichWavMetadataLookup:
-        wav_metadata = StarcraftWavMetadataIo(
+        wav_metadata = StarCraftWavMetadataIo(
             stormlib_wrapper=self._stormlib_wrapper
         ).extract_all_wav_files_metadata(path_to_base_mpq_file)
         return RichWavMetadataLookup(

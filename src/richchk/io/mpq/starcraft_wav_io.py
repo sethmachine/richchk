@@ -9,18 +9,18 @@ from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.wav.rich_wav_section import RichWavSection
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
-from ..util.chk_query_util import ChkQueryUtil
-from .starcraft_mpq_io import StarcraftMpqIo
+from ..richchk.query.chk_query_util import ChkQueryUtil
+from .starcraft_mpq_io import StarCraftMpqIo
 
 
-class StarcraftWavIo:
+class StarCraftWavIo:
 
     # canonical location where WAV files are stored in a StarCraft MPQ
     _WAV_DIRECTORY = "staredit\\wav"
 
     def __init__(self, stormlib_wrapper: StormLibWrapper):
         self._stormlib_wrapper = stormlib_wrapper
-        self._starcraft_mpq_io = StarcraftMpqIo(stormlib_wrapper=stormlib_wrapper)
+        self._starcraft_mpq_io = StarCraftMpqIo(stormlib_wrapper=stormlib_wrapper)
 
     def add_wav_files_to_mpq(
         self,

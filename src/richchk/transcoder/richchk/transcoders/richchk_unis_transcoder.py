@@ -112,7 +112,7 @@ class RichChkUnisTranscoder(
         weapons: list[WeaponSetting] = []
         maybe_weapons: list[WeaponId] = get_weapons_for_unit(unit_id)
         if not maybe_weapons:
-            self.log.info(
+            self.log.debug(
                 f"No weapons found for unit {unit_id}.  "
                 f"Verify this unit does not have any weapons."
             )
