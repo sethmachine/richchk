@@ -33,7 +33,6 @@ from ...transcoder.richchk.transcoders.richchk_uprp_transcoder import (
     RichChkUprpTranscoder,
 )
 from ...util import logger
-from ..util.chk_query_util import ChkQueryUtil
 from .decoded_str_section_rebuilder import DecodedStrSectionRebuilder
 from .lookups.mrgn.rich_mrgn_lookup_builder import RichMrgnLookupBuilder
 from .lookups.mrgn.rich_mrgn_section_rebuilder import RichMrgnSectionRebuilder
@@ -42,6 +41,7 @@ from .lookups.swnm.rich_swnm_rebuilder import RichSwnmRebuilder
 from .lookups.uprp.rich_cuwp_lookup_builder import RichCuwpLookupBuilder
 from .lookups.uprp.rich_uprp_rebuilder import RichUprpRebuilder
 from .lookups.upus.decoded_upus_rebuilder import DecodedUpusRebuilder
+from .query.chk_query_util import ChkQueryUtil
 from .rich_str_lookup_builder import RichStrLookupBuilder
 
 

@@ -6,8 +6,8 @@ from typing import TypeVar
 import pytest
 
 from richchk.io.chk.chk_io import ChkIo
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.io.util.chk_query_util import ChkQueryUtil
 from richchk.model.chk.decoded_chk import DecodedChk
 from richchk.model.chk.decoded_chk_section import DecodedChkSection
 from richchk.model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection

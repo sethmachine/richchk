@@ -7,7 +7,7 @@ from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
 from ...model.richchk.str.rich_string import RichNullString, RichString
-from ..util.chk_query_util import ChkQueryUtil
+from .query.chk_query_util import ChkQueryUtil
 
 
 class DecodedStrSectionRebuilder:

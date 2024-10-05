@@ -16,7 +16,7 @@ from .....model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from .....model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
-from ....util.chk_query_util import ChkQueryUtil
+from ....richchk.query.chk_query_util import ChkQueryUtil
 
 
 class RichMrgnSectionRebuilder:

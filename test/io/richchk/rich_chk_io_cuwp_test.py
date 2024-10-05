@@ -5,8 +5,8 @@ from test.fixtures.location_fixtures import generate_rich_location
 
 import pytest
 
+from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.io.util.chk_query_util import ChkQueryUtil
 from richchk.model.chk.uprp.uprp_constants import MAX_CUWP_SLOTS
 from richchk.model.chk.upus.decoded_upus_section import DecodedUpusSection
 from richchk.model.chk_section_name import ChkSectionName

@@ -56,6 +56,17 @@ def generate_rich_location(index: Optional[int] = None):
     )
 
 
+def generate_rich_location_with_name(name: str, index: Optional[int] = None):
+    return RichLocation(
+        _left_x1=100,
+        _top_y1=200,
+        _right_x2=300,
+        _bottom_y2=400,
+        _custom_location_name=RichString(_value=name),
+        _index=index,
+    )
+
+
 def generate_rich_location_with_all_elevations_enabled(
     custom_name: RichString, index: int
 ) -> RichLocation:

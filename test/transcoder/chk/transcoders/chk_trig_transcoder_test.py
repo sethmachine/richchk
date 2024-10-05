@@ -124,7 +124,7 @@ def test_it_decodes_expected_triggers():
     chk_binary_data = _read_chk_section()
     trig_section: DecodedTrigSection = transcoder.decode(chk_binary_data)
     triggers = trig_section.triggers
-    assert len(triggers) == 12
+    assert len(triggers) == 13
     resources_trigger = triggers[0]
     assert (
         _EXPECTED_STARTING_RESOURCES_TRIGGER.conditions[0]
