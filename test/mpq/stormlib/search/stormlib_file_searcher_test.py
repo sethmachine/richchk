@@ -9,8 +9,12 @@ from richchk.mpq.stormlib.stormlib_file_searcher import StormLibFileSearcher
 from richchk.mpq.stormlib.stormlib_loader import StormLibLoader
 from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
 
-from ....chk_resources import COMPLEX_STARCRAFT_SCX_MAP, MACOS_STORMLIB_M1
-from ....helpers.stormlib_helper import run_test_if_mac_m1
+from ....chk_resources import (
+    COMPLEX_STARCRAFT_SCX_MAP,
+    LINUX_STORMLIB_X86_64,
+    MACOS_STORMLIB_M1,
+)
+from ....helpers.stormlib_helper import run_test_if_linux_x86_64, run_test_if_mac_m1
 
 # the canonical place the CHK is stored in a SCX/SCM map file
 _CHK_MPQ_PATH = "staredit\\scenario.chk"
@@ -33,6 +37,14 @@ def stormlib_wrapper():
             StormLibLoader.load_stormlib(
                 path_to_stormlib=StormLibFilePath(
                     _path_to_stormlib_dll=MACOS_STORMLIB_M1
+                )
+            )
+        )
+    elif run_test_if_linux_x86_64():
+        return StormLibWrapper(
+            StormLibLoader.load_stormlib(
+                path_to_stormlib=StormLibFilePath(
+                    _path_to_stormlib_dll=LINUX_STORMLIB_X86_64
                 )
             )
         )
