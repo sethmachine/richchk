@@ -72,11 +72,7 @@ def test_it_finds_precompiled_linux_dll_if_no_path_provided():
 
 
 def test_it_throws_if_unrecognized_operating_system():
-    with (
-        patch("platform.system") as mock_platform_system,
-        patch("platform.machine") as mock_cpu,
-    ):
-        mock_platform_system.return_value = "Linux"
-        mock_cpu.return_value = "i386"
+    with patch("platform.system") as mock_platform_system:
+        mock_platform_system.return_value = "iOS"
         with pytest.raises(OSError):
             StormLibFinder.find_stormlib()
