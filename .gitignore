@@ -8,7 +8,7 @@ data/
 # temporary ignore these
 chkjson-v1/
 chkjson-v2/
-examples/
+examples-dev/
 tst/
 test/prof
 
