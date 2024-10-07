@@ -3,7 +3,6 @@
 This also sets all unit names to "Hello World!" to demonstrate how to edit unit data.
 """
 
-import os
 from decimal import Decimal
 
 from richchk.editor.richchk.rich_chk_editor import RichChkEditor
@@ -27,12 +26,8 @@ from richchk.model.richchk.unix.rich_unix_section import RichUnixSection
 
 # replace this with the path to the DLL on your local computer
 PATH_TO_STORMLIB_DLL = None
-INPUT_MAP_FILE = "maps/hello-world-base.scx"
+INPUT_MAP_FILE = "maps/base-map.scx"
 OUTPUT_MAP_FILE = "generated-maps/hello-world-generated.scx"
-MACOS_MAPFILES = (
-    "/Users/sdworman/Library/Application Support/Blizzard/StarCraft/Maps/test-maps"
-)
-MAC_OUTPUT = os.path.join(MACOS_MAPFILES, "hello-world-generated.scx")
 
 BLACKLISTED_UNIT_IDS = [
     UnitId.ANY_UNIT,
@@ -47,12 +42,10 @@ def generate_unit_settings() -> list[UnitSetting]:
     settings = []
     for unit in UnitId:
         if unit in BLACKLISTED_UNIT_IDS:
-            # skip meta values like ALL or ANY_UNIT
             continue
-        weapons = get_weapons_for_unit(unit)
         ws = [
             WeaponSetting(_weapon_id=weapon, _base_damage=1, _upgrade_damage=1)
-            for weapon in weapons
+            for weapon in get_weapons_for_unit(unit)
         ]
         # the default unit settings are not stored in the CHK
         # so we must fully replace each value even if we wish to only edit a single setting
@@ -94,4 +87,6 @@ if __name__ == "__main__":
     new_chk = RichChkEditor().replace_chk_section(
         new_trig, RichChkEditor().replace_chk_section(new_unix, chk)
     )
-    mpqio.save_chk_to_mpq(new_chk, INPUT_MAP_FILE, MAC_OUTPUT, overwrite_existing=True)
+    mpqio.save_chk_to_mpq(
+        new_chk, INPUT_MAP_FILE, OUTPUT_MAP_FILE, overwrite_existing=True
+    )
