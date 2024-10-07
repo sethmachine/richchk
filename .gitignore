@@ -9,6 +9,7 @@ data/
 chkjson-v1/
 chkjson-v2/
 examples-dev/
+examples/generated-maps
 tst/
 test/prof
 

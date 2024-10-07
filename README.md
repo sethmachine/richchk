@@ -6,7 +6,7 @@ RichChk offers numerous advantages over the traditional method of using a GUI ba
 
 * Edit a map directly from Python to a .SCX/.SCM map file.  No copy+pasting triggers needed!
 * Ergonomically write many triggers in a Python/text based format without using a GUI.
-* Leverage all the power of Python/version control to organize triggers, unit settings, etc. outside of a map file for high maintainbility and portability.
+* Leverage all the power of Python/version control to organize triggers, unit settings, etc. outside of a map file for high maintainability and portability.
 * Unify static data (unit settings, player settings, etc.) with Trigger data.  Trigger data can programmatically reference static data when building a map.  
 
 
@@ -51,10 +51,24 @@ logging:
 
 Note the above is the only possible configuration supported at the moment (changing the logging level).  In the future additional configuration options may be available.  
 
+## Usage
 
-## Examples
+Specific examples are provided in the `examples/`[examples/] top level folder.  These showcase the basic operations of a reading a map's CHK data, adding new data, and saving it to a new map.  
 
-TBD
+To use RichChk for map development, it is best to divide a map into two logical divisions:
+
+* A .SCM/.SCX map file containing the terrain, pre-placed units, pre-placed locations, etc. (anything that is best done in a graphical interface)
+* A set of RichChk Python scripts that represent the triggers, unit setting data, etc.  
+
+Producing a new map typically involves the following steps:
+
+1.  Load the map in memory, e.g. `StarcraftMpqIo#read_chk_from_mpq`
+1.  Edit the desired sections, e.g. to add new triggers use `RichTrigEditor#add_triggers`
+1.  Create a new CHK with the edited section(s), e.g. `RichChkEditor#replace_chk_section`
+1.  Save the new CHK to a new map file, e.g. `StarcraftMpqIo#save_chk_to_mpq`
+
+Whenever a map is "edited", a new map file should be created everytime.  It is highly discouraged to replace the map file being edited, as this risks loss of data.  Existing maps should be viewed as immutable--they cannot be changed, only used to make newer versions.  The RichChk file I/O operations have safeguards that prevent overwriting exist files, but these flags can be disabled in each method.  
+
 
 ## Design Philosophy
 
