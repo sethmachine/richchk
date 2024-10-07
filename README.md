@@ -46,14 +46,14 @@ Example YAML config that sets the log level to `DEBUG`:
 
 ```yaml
 logging:
-	level: DEBUG
+  level: DEBUG
 ```
 
 Note the above is the only possible configuration supported at the moment (changing the logging level).  In the future additional configuration options may be available.  
 
 ## Usage
 
-Specific examples are provided in the `examples/`[examples/] top level folder.  These showcase the basic operations of a reading a map's CHK data, adding new data, and saving it to a new map.  
+Specific examples are provided in the [`examples/`](examples/) top level folder.  These showcase the basic operations of a reading a map's CHK data, adding new data, and saving it to a new map.  
 
 To use RichChk for map development, it is best to divide a map into two logical divisions:
 
