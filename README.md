@@ -53,7 +53,7 @@ Note the above is the only possible configuration supported at the moment (chang
 
 ## Usage
 
-Specific examples are provided in the [`examples/`](examples/) top level folder.  These showcase the basic operations of a reading a map's CHK data, adding new data, and saving it to a new map.  
+Specific examples are provided in the [examples/](examples/) top level folder.  These showcase the basic operations of a reading a map's CHK data, adding new data, and saving it to a new map.  [hello_world.py](examples/hello_world.py) illustrates how to edit unit settings data and display messages.  [hyper_triggers.py](examples/hyper_triggers.py) shows how to add hyper triggers to a map and demonstrates this by spawning many Zerglings quickly in the map center.
 
 To use RichChk for map development, it is best to divide a map into two logical divisions:
 
