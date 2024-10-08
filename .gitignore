@@ -8,7 +8,8 @@ data/
 # temporary ignore these
 chkjson-v1/
 chkjson-v2/
-examples/
+examples-dev/
+examples/generated-maps
 tst/
 test/prof
 
