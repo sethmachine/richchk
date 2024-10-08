@@ -15,31 +15,31 @@ class RichUnixEditor:
         self.log: logging.Logger = logger.get_logger(RichUnixEditor.__name__)
 
     def upsert_all_unit_settings(
-        self, unit_settings: list[UnitSetting], unis: RichUnixSection
+        self, unit_settings: list[UnitSetting], unix: RichUnixSection
     ) -> RichUnixSection:
         """Add or replace the unit settings for each modified unit.
 
         :param self:
         :param unit_settings:
-        :param unis:
+        :param unix:
         :return:
         """
-        new_unis = copy.deepcopy(unis)
+        new_unix = copy.deepcopy(unix)
         for us in unit_settings:
-            new_unis = self.upsert_unit_setting(unit_setting=us, unis=new_unis)
-        return new_unis
+            new_unix = self.upsert_unit_setting(unit_setting=us, unix=new_unix)
+        return new_unix
 
     def upsert_unit_setting(
-        self, unit_setting: UnitSetting, unis: RichUnixSection
+        self, unit_setting: UnitSetting, unix: RichUnixSection
     ) -> RichUnixSection:
         """Add or replace the unit settings for a modified unit.
 
         :param unit_setting:
-        :param unis:
+        :param unix:
         :return:
         """
         already_existing_unit_setting = self._find_unit_setting_by_unit_id(
-            unit_setting.unit_id, unis
+            unit_setting.unit_id, unix
         )
         if already_existing_unit_setting:
             self.log.info(
@@ -47,19 +47,19 @@ class RichUnixEditor:
                 f"This will be replaced by the new unit setting."
             )
         new_unit_settings = self._append_or_replace_unit_setting(
-            unit_setting, unis.unit_settings
+            unit_setting, unix.unit_settings
         )
         return RichUnixSection(_unit_settings=new_unit_settings)
 
     def _find_unit_setting_by_unit_id(
-        self, unit_id: UnitId, unis: RichUnixSection
+        self, unit_id: UnitId, unix: RichUnixSection
     ) -> Optional[UnitSetting]:
         """Find the modified unit setting for a give unit ID.
 
         :param unit_id:
         :return:
         """
-        maybe_unit_settings = [x for x in unis.unit_settings if x.unit_id == unit_id]
+        maybe_unit_settings = [x for x in unix.unit_settings if x.unit_id == unit_id]
         if not maybe_unit_settings:
             return None
         if len(maybe_unit_settings) > 1:
