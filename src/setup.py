@@ -10,7 +10,7 @@ _PACKAGE_DATA["richchk"] = [
 setup(
     name="richchk",
     version="0.1",
-    description="Parse Starcraft CHK format to a rich, readable, and editable format.",
+    description="Parse Starcraft CHK format into a rich, readable, and editable format.",
     url="https://github.com/sethmachine/richchk",
     author="sethmachine",
     author_email="sethmachine01@gmail.com",

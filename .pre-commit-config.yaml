@@ -22,7 +22,7 @@ repos:
     hooks:
     -   id: mypy
         args: ["--strict", "--ignore-missing-imports"]
-        exclude: ^test/
+        exclude: (^test/|^examples/)
         additional_dependencies: ['types-PyYAML']
 -   repo: https://github.com/psf/black
     rev: 22.12.0
