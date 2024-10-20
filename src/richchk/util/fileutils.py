@@ -32,7 +32,9 @@ class CrossPlatformSafeTemporaryNamedFile:
         self._tempFile = open(file_name, self._mode)
         return self._tempFile
 
-    def __exit__(self, exc_type: str, exc_val: str, exc_tb: typing.Any) -> None:
+    def __exit__(
+        self, exc_type: typing.Any, exc_val: typing.Any, exc_tb: typing.Any
+    ) -> None:
         self._tempFile.close()
         if self._delete:
             os.remove(self._tempFile.name)
