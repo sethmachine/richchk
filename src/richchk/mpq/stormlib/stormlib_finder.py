@@ -17,7 +17,7 @@ class StormLibFinder:
     _SCRIPT_PATH = os.path.dirname(__file__)
     _MAC_STORM_INTEL = os.path.join(_SCRIPT_PATH, "dlls/macos/libStorm.dylib")
     _MAC_STORM_M1 = os.path.join(_SCRIPT_PATH, "dlls/macos/libstorm.9.22.0.dylib")
-    _WINDOWS_STORM = os.path.join(_SCRIPT_PATH, "dlls/windows/Storm.dll")
+    _WINDOWS_STORM = os.path.join(_SCRIPT_PATH, "dlls\\windows\\Storm.dll")
     _LINUX_STORM_X86_64 = os.path.join(_SCRIPT_PATH, "dlls/linux/libstorm.so.9.22.0")
 
     @classmethod
