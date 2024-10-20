@@ -67,6 +67,10 @@ MACOS_STORMLIB_M1 = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/macos/libstorm.9.22.0.dylib")
 ).absolute()
 
+LINUX_STORMLIB_X86_64 = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/linux/libstorm.so.9.22.0")
+).absolute()
+
 EXAMPLE_STARCRAFT_SCX_MAP = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/example-stacraft-map.scx")
 ).absolute()
