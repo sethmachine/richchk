@@ -18,6 +18,7 @@ class StormLibFinder:
     _MAC_STORM_INTEL = os.path.join(_SCRIPT_PATH, "dlls/macos/libStorm.dylib")
     _MAC_STORM_M1 = os.path.join(_SCRIPT_PATH, "dlls/macos/libstorm.9.22.0.dylib")
     _WINDOWS_STORM = os.path.join(_SCRIPT_PATH, "dlls/windows/Storm.dll")
+    _LINUX_STORM_X86_64 = os.path.join(_SCRIPT_PATH, "dlls/linux/libstorm.so.9.22.0")
 
     @classmethod
     def find_stormlib(
@@ -29,7 +30,7 @@ class StormLibFinder:
         else:
             cls._LOG.warning(
                 "No path to a StormLib DLL was provided, "
-                "attempting to use precompiled DLL for Windows and macOS.  "
+                "attempting to use precompiled DLL for Windows, macOS and Linux. "
                 "Future compatibility is not guaranteed; "
                 "please provide a path to StormLib DLL compiled for your platform."
             )
@@ -42,6 +43,11 @@ class StormLibFinder:
                 return StormLibFilePath(_path_to_stormlib_dll=cls._MAC_STORM_M1)
             elif platform.system().lower() == "darwin":
                 return StormLibFilePath(_path_to_stormlib_dll=cls._MAC_STORM_INTEL)
+            elif (
+                platform.system().lower() == "linux"
+                and platform.machine().lower() == "x86_64"
+            ):
+                return StormLibFilePath(_path_to_stormlib_dll=cls._LINUX_STORM_X86_64)
             else:
                 msg = (
                     f"Unsupported platform for precompiled StormLib DLL.  "
