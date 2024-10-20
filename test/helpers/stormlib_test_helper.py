@@ -1,5 +1,4 @@
 import platform
-from pathlib import PosixPath
 from test.chk_resources import (
     LINUX_STORMLIB_X86_64,
     MACOS_STORMLIB_M1,
@@ -44,10 +43,10 @@ def _first_true(iterable, default=False, predicate=None):
 
 
 def _get_embedded_stormlib_path() -> Optional[str]:
-    possible_stormlibs: tuple[tuple[bool, PosixPath], ...] = (
-        (run_test_if_mac_m1(), MACOS_STORMLIB_M1),
-        (run_test_if_linux_x86_64(), LINUX_STORMLIB_X86_64),
-        (run_test_if_windows(), WINDOWS_STORMLIB),
+    possible_stormlibs: tuple[tuple[bool, str], ...] = (
+        (run_test_if_mac_m1(), str(MACOS_STORMLIB_M1)),
+        (run_test_if_linux_x86_64(), str(LINUX_STORMLIB_X86_64)),
+        (run_test_if_windows(), str(WINDOWS_STORMLIB)),
     )
     maybe_embedded_stormlib = _first_true(
         possible_stormlibs, default=None, predicate=lambda x: x[0] is True

@@ -21,7 +21,7 @@ def test_it_create_stormlib_wrapper_from_embedded_dll():
 
 
 @pytest.mark.usefixtures("embedded_stormlib_path")
-def test_it_create_stormlib_wrapper_from_provided_dll(
+def test_it_creates_stormlib_wrapper_from_provided_dll(
     embedded_stormlib_path,
 ):
     if embedded_stormlib_path:
