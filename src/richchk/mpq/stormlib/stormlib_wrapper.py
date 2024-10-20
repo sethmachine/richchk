@@ -55,7 +55,11 @@ class StormLibWrapper:
             f"PATH to archive file: {mpq_file_path!r}, encoded as: {encoded_path!r}"
         )
         if not os.path.exists(encoded_path):
+            msg = (
+                f"PATH to archive file: {mpq_file_path!r}, encoded as: {encoded_path!r}"
+            )
             self._log.error(f"Encoded path does not exist!  {encoded_path!r}")
+            raise ValueError(msg)
         result: int = func(
             mpq_file_path.encode("ascii"), 0, archive_mode.value, ctypes.byref(handle)
         )
