@@ -15,7 +15,7 @@ from ...chk_resources import (
     EXAMPLE_STARCRAFT_SCM_MAP,
     MACOS_STORMLIB_M1,
 )
-from ...helpers.stormlib_helper import run_test_if_mac_m1
+from ...helpers.stormlib_test_helper import run_test_if_mac_m1
 
 # these are the 3 WAV files in COMPLEX_STARCRAFT_SCX_MAP
 # these are the paths each WAV file is stored inside the MPQ archive

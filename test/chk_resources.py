@@ -66,9 +66,11 @@ DEMON_LORE_CHK_SECTION_FILE_PATHS = {
 MACOS_STORMLIB_M1 = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/macos/libstorm.9.22.0.dylib")
 ).absolute()
-
 LINUX_STORMLIB_X86_64 = Path(
     Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/linux/libstorm.so.9.22.0")
+).absolute()
+WINDOWS_STORMLIB = Path(
+    Path.joinpath(_RESOURCES_DIR_PATH, "stormlib/windows/Storm.dll")
 ).absolute()
 
 EXAMPLE_STARCRAFT_SCX_MAP = Path(
