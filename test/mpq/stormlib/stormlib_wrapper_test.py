@@ -8,6 +8,7 @@ import pytest
 from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from richchk.model.mpq.stormlib.stormlib_mpq_handle import StormLibMpqHandle
 from richchk.model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
+from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ...chk_resources import EXAMPLE_STARCRAFT_SCX_MAP
 
@@ -23,7 +24,7 @@ def _read_file_as_bytes(infile: str) -> bytes:
 @pytest.mark.usefixtures("embedded_stormlib")
 def test_it_opens_and_closes_scx_map_unchanged_in_read_mode(embedded_stormlib):
     if embedded_stormlib:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
             shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
             map_bytes_before_open = _read_file_as_bytes(temp_scx_file.name)
             open_result = embedded_stormlib.open_archive(
