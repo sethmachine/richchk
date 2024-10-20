@@ -50,6 +50,12 @@ class StormLibWrapper:
             ctypes.c_uint,
             POINTER(StormLibMpqHandle),
         ]
+        encoded_path = mpq_file_path.encode("ascii")
+        self._log.warning(
+            f"PATH to archive file: {mpq_file_path!r}, encoded as: {encoded_path!r}"
+        )
+        if not os.path.exists(encoded_path):
+            self._log.error(f"Encoded path does not exist!  {encoded_path!r}")
         result: int = func(
             mpq_file_path.encode("ascii"), 0, archive_mode.value, ctypes.byref(handle)
         )
@@ -192,7 +198,7 @@ class StormLibWrapper:
             getLastErrorCode = func()
             msg = (
                 f"StormLib archive operation: <{operation_name}> failed due to a {result} result value.  "
-                f"Error code: {getLastErrorCode}"
+                f"Error code: {getLastErrorCode}, "
                 f"StormLib reference: {self._stormlib}"
             )
             self._log.error(msg)
