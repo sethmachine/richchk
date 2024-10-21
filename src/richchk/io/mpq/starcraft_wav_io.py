@@ -1,7 +1,6 @@
 """Add WAV files to a StarCraft MPQ and update the WAV/STR sections in the CHK."""
 import os
 import shutil
-import tempfile
 
 from ...editor.richchk.rich_chk_editor import RichChkEditor
 from ...editor.richchk.rich_wav_editor import RichWavEditor
@@ -9,6 +8,7 @@ from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.wav.rich_wav_section import RichWavSection
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
 from ..richchk.query.chk_query_util import ChkQueryUtil
 from .starcraft_mpq_io import StarCraftMpqIo
 
@@ -48,16 +48,16 @@ class StarCraftWavIo:
             raise FileExistsError(
                 f"The output MPQ file {path_to_new_mpq_file} already exists."
             )
-        with (tempfile.NamedTemporaryFile() as temp_mpq_file):
-            shutil.copyfile(path_to_base_mpq_file, temp_mpq_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_mpq_file:
+            shutil.copyfile(path_to_base_mpq_file, temp_mpq_file)
             new_wav_files = self._add_wavfiles_to_mpq(
-                path_to_mpq_file=temp_mpq_file.name,
+                path_to_mpq_file=temp_mpq_file,
                 path_to_wavs_on_disk=path_to_wavs_on_disk,
             )
-            new_chk = self._update_chk_wav_section(temp_mpq_file.name, new_wav_files)
+            new_chk = self._update_chk_wav_section(temp_mpq_file, new_wav_files)
             self._starcraft_mpq_io.save_chk_to_mpq(
                 new_chk,
-                path_to_base_mpq_file=temp_mpq_file.name,
+                path_to_base_mpq_file=temp_mpq_file,
                 path_to_new_mpq_file=path_to_new_mpq_file,
                 overwrite_existing=True,
             )
