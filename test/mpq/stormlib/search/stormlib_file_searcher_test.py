@@ -14,7 +14,10 @@ from ....chk_resources import (
     LINUX_STORMLIB_X86_64,
     MACOS_STORMLIB_M1,
 )
-from ....helpers.stormlib_helper import run_test_if_linux_x86_64, run_test_if_mac_m1
+from ....helpers.stormlib_test_helper import (
+    run_test_if_linux_x86_64,
+    run_test_if_mac_m1,
+)
 
 # the canonical place the CHK is stored in a SCX/SCM map file
 _CHK_MPQ_PATH = "staredit\\scenario.chk"
