@@ -1,5 +1,4 @@
 import shutil
-import tempfile
 
 import pytest
 
@@ -8,6 +7,7 @@ from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath
 from richchk.mpq.stormlib.stormlib_file_searcher import StormLibFileSearcher
 from richchk.mpq.stormlib.stormlib_loader import StormLibLoader
 from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ....chk_resources import (
     COMPLEX_STARCRAFT_SCX_MAP,
@@ -60,10 +60,10 @@ def _read_file_as_bytes(infile: str) -> bytes:
 
 def test_it_finds_all_files_in_scx_map(stormlib_wrapper):
     if stormlib_wrapper:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
-            shutil.copyfile(COMPLEX_STARCRAFT_SCX_MAP, temp_scx_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
+            shutil.copyfile(COMPLEX_STARCRAFT_SCX_MAP, temp_scx_file)
             open_result = stormlib_wrapper.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_READ_ONLY,
             )
             searcher = StormLibFileSearcher(
@@ -77,10 +77,10 @@ def test_it_finds_all_files_in_scx_map(stormlib_wrapper):
 
 def test_it_finds_all_wav_files_in_scx_map(stormlib_wrapper):
     if stormlib_wrapper:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
-            shutil.copyfile(COMPLEX_STARCRAFT_SCX_MAP, temp_scx_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
+            shutil.copyfile(COMPLEX_STARCRAFT_SCX_MAP, temp_scx_file)
             open_result = stormlib_wrapper.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_READ_ONLY,
             )
             searcher = StormLibFileSearcher(
@@ -94,10 +94,10 @@ def test_it_finds_all_wav_files_in_scx_map(stormlib_wrapper):
 
 def test_it_returns_empty_list_if_no_files_found(stormlib_wrapper):
     if stormlib_wrapper:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
-            shutil.copyfile(COMPLEX_STARCRAFT_SCX_MAP, temp_scx_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
+            shutil.copyfile(COMPLEX_STARCRAFT_SCX_MAP, temp_scx_file)
             open_result = stormlib_wrapper.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_READ_ONLY,
             )
             searcher = StormLibFileSearcher(
