@@ -192,7 +192,7 @@ class StormLibWrapper:
             getLastErrorCode = func()
             msg = (
                 f"StormLib archive operation: <{operation_name}> failed due to a {result} result value.  "
-                f"Error code: {getLastErrorCode}"
+                f"Error code: {getLastErrorCode}, "
                 f"StormLib reference: {self._stormlib}"
             )
             self._log.error(msg)
