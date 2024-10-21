@@ -1,6 +1,5 @@
 import os
 import shutil
-import tempfile
 import uuid
 
 import pytest
@@ -8,6 +7,7 @@ import pytest
 from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from richchk.model.mpq.stormlib.stormlib_mpq_handle import StormLibMpqHandle
 from richchk.model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
+from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ...chk_resources import EXAMPLE_STARCRAFT_SCX_MAP
 
@@ -23,38 +23,38 @@ def _read_file_as_bytes(infile: str) -> bytes:
 @pytest.mark.usefixtures("embedded_stormlib")
 def test_it_opens_and_closes_scx_map_unchanged_in_read_mode(embedded_stormlib):
     if embedded_stormlib:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
-            map_bytes_before_open = _read_file_as_bytes(temp_scx_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
+            map_bytes_before_open = _read_file_as_bytes(temp_scx_file)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_READ_ONLY,
             )
             embedded_stormlib.close_archive(open_result)
-            assert map_bytes_before_open == _read_file_as_bytes(temp_scx_file.name)
+            assert map_bytes_before_open == _read_file_as_bytes(temp_scx_file)
 
 
 @pytest.mark.usefixtures("embedded_stormlib")
 def test_it_opens_and_closes_scx_map_unchanged_in_write_mode(embedded_stormlib):
     if embedded_stormlib:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
-            map_bytes_before_open = _read_file_as_bytes(temp_scx_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
+            map_bytes_before_open = _read_file_as_bytes(temp_scx_file)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
             )
             embedded_stormlib.close_archive(open_result)
-            assert map_bytes_before_open == _read_file_as_bytes(temp_scx_file.name)
+            assert map_bytes_before_open == _read_file_as_bytes(temp_scx_file)
 
 
 @pytest.mark.usefixtures("embedded_stormlib")
 def test_it_throws_if_input_file_is_not_mpq(embedded_stormlib):
     if embedded_stormlib:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
             with pytest.raises(ValueError):
                 embedded_stormlib.open_archive(
-                    temp_scx_file.name,
+                    temp_scx_file,
                     archive_mode=StormLibArchiveMode.STORMLIB_READ_ONLY,
                 )
 
@@ -83,26 +83,25 @@ def test_it_throws_if_closing_an_archive_never_opened(embedded_stormlib):
 def test_it_extracts_chk_from_scx_file(embedded_stormlib):
     if embedded_stormlib:
         with (
-            tempfile.NamedTemporaryFile() as temp_scx_file,
-            tempfile.NamedTemporaryFile() as temp_chk_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_chk_file,
         ):
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
-            temp_chk_file_bytes_before_extract = _read_file_as_bytes(temp_scx_file.name)
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
+            temp_chk_file_bytes_before_extract = _read_file_as_bytes(temp_scx_file)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
             )
             embedded_stormlib.extract_file(
                 open_result,
                 path_to_file_in_archive=_CHK_MPQ_PATH,
-                outfile=temp_chk_file.name,
+                outfile=temp_chk_file,
                 overwrite_existing=True,
             )
             embedded_stormlib.close_archive(open_result)
-            assert os.path.exists(temp_chk_file.name)
+            assert os.path.exists(temp_chk_file)
             assert (
-                _read_file_as_bytes(temp_chk_file.name)
-                != temp_chk_file_bytes_before_extract
+                _read_file_as_bytes(temp_chk_file) != temp_chk_file_bytes_before_extract
             )
 
 
@@ -110,45 +109,45 @@ def test_it_extracts_chk_from_scx_file(embedded_stormlib):
 def test_it_ovewrites_existing_file_when_extracting(embedded_stormlib):
     if embedded_stormlib:
         with (
-            tempfile.NamedTemporaryFile() as temp_scx_file,
-            tempfile.NamedTemporaryFile() as temp_chk_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_chk_file,
         ):
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
             bytes_before_overwrite = b"123456"
-            with open(temp_chk_file.name, "wb") as f:
+            with open(temp_chk_file, "wb") as f:
                 f.write(bytes_before_overwrite)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
             )
             embedded_stormlib.extract_file(
                 open_result,
                 path_to_file_in_archive=_CHK_MPQ_PATH,
-                outfile=temp_chk_file.name,
+                outfile=temp_chk_file,
                 overwrite_existing=True,
             )
             embedded_stormlib.close_archive(open_result)
-            assert os.path.exists(temp_chk_file.name)
-            assert _read_file_as_bytes(temp_chk_file.name) != bytes_before_overwrite
+            assert os.path.exists(temp_chk_file)
+            assert _read_file_as_bytes(temp_chk_file) != bytes_before_overwrite
 
 
 @pytest.mark.usefixtures("embedded_stormlib")
 def test_it_throws_if_ovewriting_existing_file_when_extracting(embedded_stormlib):
     if embedded_stormlib:
         with (
-            tempfile.NamedTemporaryFile() as temp_scx_file,
-            tempfile.NamedTemporaryFile() as temp_chk_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_chk_file,
         ):
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
             )
             with pytest.raises(FileExistsError):
                 embedded_stormlib.extract_file(
                     open_result,
                     path_to_file_in_archive=_CHK_MPQ_PATH,
-                    outfile=temp_chk_file.name,
+                    outfile=temp_chk_file,
                     overwrite_existing=False,
                 )
 
@@ -157,57 +156,53 @@ def test_it_throws_if_ovewriting_existing_file_when_extracting(embedded_stormlib
 def test_it_adds_file_to_archive(embedded_stormlib):
     if embedded_stormlib:
         with (
-            tempfile.NamedTemporaryFile() as temp_scx_file,
-            tempfile.NamedTemporaryFile() as temp_madeup_file,
-            tempfile.NamedTemporaryFile() as temp_madeup_file_extract,
+            CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_madeup_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_madeup_file_extract,
         ):
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
             madeup_file_content = b"123456"
-            with open(temp_madeup_file.name, "wb") as f:
+            with open(temp_madeup_file, "wb") as f:
                 f.write(madeup_file_content)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
             )
-            embedded_stormlib.add_file(
-                open_result, temp_madeup_file.name, temp_madeup_file.name
-            )
+            embedded_stormlib.add_file(open_result, temp_madeup_file, temp_madeup_file)
             embedded_stormlib.compact_archive(open_result)
             embedded_stormlib.close_archive(open_result)
             embedded_stormlib.close_archive(
                 embedded_stormlib.extract_file(
                     embedded_stormlib.open_archive(
-                        temp_scx_file.name,
+                        temp_scx_file,
                         archive_mode=StormLibArchiveMode.STORMLIB_READ_ONLY,
                     ),
-                    temp_madeup_file.name,
-                    temp_madeup_file_extract.name,
+                    temp_madeup_file,
+                    temp_madeup_file_extract,
                     overwrite_existing=True,
                 )
             )
-            assert madeup_file_content == _read_file_as_bytes(
-                temp_madeup_file_extract.name
-            )
+            assert madeup_file_content == _read_file_as_bytes(temp_madeup_file_extract)
 
 
 @pytest.mark.usefixtures("embedded_stormlib")
 def test_it_compacts_archive(embedded_stormlib):
     if embedded_stormlib:
-        with tempfile.NamedTemporaryFile() as temp_scx_file:
-            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
+        with CrossPlatformSafeTemporaryNamedFile() as temp_scx_file:
+            shutil.copyfile(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
             open_result = embedded_stormlib.open_archive(
-                temp_scx_file.name,
+                temp_scx_file,
                 archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
             )
             embedded_stormlib.compact_archive(open_result)
             embedded_stormlib.close_archive(open_result)
-            compacted_bytes = _read_file_as_bytes(temp_scx_file.name)
+            compacted_bytes = _read_file_as_bytes(temp_scx_file)
             embedded_stormlib.close_archive(
                 embedded_stormlib.compact_archive(
                     embedded_stormlib.open_archive(
-                        temp_scx_file.name,
+                        temp_scx_file,
                         archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY,
                     )
                 )
             )
-            assert compacted_bytes == _read_file_as_bytes(temp_scx_file.name)
+            assert compacted_bytes == _read_file_as_bytes(temp_scx_file)
