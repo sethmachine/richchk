@@ -2,7 +2,57 @@
 
 import os
 import re
-from typing import Iterator
+import tempfile
+import typing
+from typing import Iterator, Optional
+
+
+class CrossPlatformSafeTemporaryNamedFile:
+    """This custom implementation is needed because of the following limitation of
+    tempfile.NamedTemporaryFile:
+
+    > Whether the name can be used to open the file a second time, while the named
+    temporary file is still open, > varies across platforms (it can be so used on Unix;
+    it cannot on Windows NT or later).
+
+    Taken from:
+    https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
+    """
+
+    def __init__(
+        self,
+        delete: bool = True,
+        prefix: Optional[str] = None,
+        suffix: Optional[str] = None,
+    ) -> None:
+        self._delete = delete
+        self._filename = ""
+        self._prefix = prefix
+        self._suffix = suffix
+
+    def __enter__(self) -> str:
+        # Generate a random temporary file name
+        self._filename = self._create_filename()
+        # Ensure the file is created
+        open(self._filename, mode="w").close()
+        # Open the file in the given mode
+        return self._filename
+
+    def _create_filename(self) -> str:
+        parts = []
+        if self._prefix:
+            parts.append(self._prefix)
+        parts.append(os.urandom(24).hex())
+        if self._suffix:
+            parts.append(self._suffix)
+        return os.path.join(tempfile.gettempdir(), "".join(parts))
+
+    def __exit__(
+        self, exc_type: typing.Any, exc_val: typing.Any, exc_tb: typing.Any
+    ) -> None:
+        if self._delete:
+            assert isinstance(self._filename, str)
+            os.remove(self._filename)
 
 
 def absolute_filepaths(

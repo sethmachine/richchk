@@ -1,6 +1,5 @@
 import os.path
 import shutil
-import tempfile
 
 import pytest
 
@@ -15,6 +14,7 @@ from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.wav.rich_wav_section import RichWavSection
 from richchk.mpq.stormlib.stormlib_loader import StormLibLoader
 from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ...chk_resources import (
     EXAMPLE_STARCRAFT_SCX_MAP,
@@ -62,28 +62,28 @@ def _read_file_as_bytes(infile: str) -> bytes:
 def test_integration_it_adds_a_wav_file_to_mpq(mpq_io, wav_io, stormlib_wrapper):
     if mpq_io and wav_io and stormlib_wrapper:
         with (
-            tempfile.NamedTemporaryFile() as temp_scx_file,
-            tempfile.NamedTemporaryFile() as new_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as new_scx_file,
         ):
-            shutil.copy(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file.name)
+            shutil.copy(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
             wav_io.add_wav_files_to_mpq(
                 [EXAMPLE_WAV_FILE.as_posix()],
-                temp_scx_file.name,
-                new_scx_file.name,
+                temp_scx_file,
+                new_scx_file,
                 overwrite_existing=True,
             )
             expected_wav_file_in_mpq = _build_expected_wav_mpq_path(
                 EXAMPLE_WAV_FILE.as_posix()
             )
-            chk = mpq_io.read_chk_from_mpq(new_scx_file.name)
+            chk = mpq_io.read_chk_from_mpq(new_scx_file)
             _assert_chk_has_wav_data(expected_wav_file_in_mpq, chk)
             _assert_wav_metadata_exists(
-                expected_wav_file_in_mpq, new_scx_file.name, stormlib_wrapper
+                expected_wav_file_in_mpq, new_scx_file, stormlib_wrapper
             )
             _assert_wav_file_exists_in_mpq(
                 EXAMPLE_WAV_FILE.as_posix(),
                 expected_wav_file_in_mpq,
-                new_scx_file.name,
+                new_scx_file,
                 stormlib_wrapper,
             )
 
@@ -106,7 +106,7 @@ def _assert_wav_file_exists_in_mpq(
     path_to_mpq_file: str,
     stormlib_wrapper: StormLibWrapper,
 ):
-    with (tempfile.NamedTemporaryFile() as temp_wav_file_copy_from_mpq):
+    with (CrossPlatformSafeTemporaryNamedFile() as temp_wav_file_copy_from_mpq):
         wav_bytes_on_disk = _read_file_as_bytes(wav_file_on_disk)
         open_archive_result = stormlib_wrapper.open_archive(
             path_to_mpq_file, archive_mode=StormLibArchiveMode.STORMLIB_WRITE_ONLY
@@ -114,11 +114,11 @@ def _assert_wav_file_exists_in_mpq(
         stormlib_wrapper.extract_file(
             open_archive_result,
             wav_file_in_mpq,
-            temp_wav_file_copy_from_mpq.name,
+            temp_wav_file_copy_from_mpq,
             overwrite_existing=True,
         )
         stormlib_wrapper.close_archive(open_archive_result)
-        wav_bytes_from_mpq = _read_file_as_bytes(temp_wav_file_copy_from_mpq.name)
+        wav_bytes_from_mpq = _read_file_as_bytes(temp_wav_file_copy_from_mpq)
         assert wav_bytes_on_disk == wav_bytes_from_mpq
 
 
