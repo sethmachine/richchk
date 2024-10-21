@@ -1,6 +1,6 @@
 """Makes all pytest fixtures available to use across any unit test.
 
-See: embedded_stormlib_path
+See: https://gist.github.com/peterhurford/09f7dcda0ab04b95c026c60fa49c2a68
 """
 import pytest
 
