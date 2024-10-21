@@ -8,50 +8,32 @@ from richchk.editor.richchk.rich_trig_editor import RichTrigEditor
 from richchk.io.mpq.starcraft_mpq_io import StarCraftMpqIo
 from richchk.io.mpq.starcraft_wav_metadata_io import StarCraftWavMetadataIo
 from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
-from richchk.model.mpq.stormlib.stormlib_file_path import StormLibFilePath
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.trig.actions.play_wav_action import PlayWavAction
 from richchk.model.richchk.trig.conditions.always_condition import AlwaysCondition
 from richchk.model.richchk.trig.player_id import PlayerId
 from richchk.model.richchk.trig.rich_trig_section import RichTrigSection
 from richchk.model.richchk.trig.rich_trigger import RichTrigger
-from richchk.mpq.stormlib.stormlib_loader import StormLibLoader
-from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
 from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
-from ...chk_resources import (
-    EXAMPLE_STARCRAFT_SCM_MAP,
-    EXAMPLE_STARCRAFT_SCX_MAP,
-    MACOS_STORMLIB_M1,
-)
-from ...helpers.stormlib_test_helper import run_test_if_mac_m1
+from ...chk_resources import EXAMPLE_STARCRAFT_SCM_MAP, EXAMPLE_STARCRAFT_SCX_MAP
 
 # the canonical place the CHK is stored in a SCX/SCM map file
 _CHK_MPQ_PATH = "staredit\\scenario.chk"
 
 
+@pytest.mark.usefixtures("embedded_stormlib")
 @pytest.fixture(scope="function")
-def stormlib_wrapper():
-    if run_test_if_mac_m1():
-        return StormLibWrapper(
-            StormLibLoader.load_stormlib(
-                path_to_stormlib=StormLibFilePath(
-                    _path_to_stormlib_dll=MACOS_STORMLIB_M1
-                )
-            )
-        )
+def mpq_io(embedded_stormlib):
+    if embedded_stormlib:
+        return StarCraftMpqIo(embedded_stormlib)
 
 
+@pytest.mark.usefixtures("embedded_stormlib")
 @pytest.fixture(scope="function")
-def mpq_io(stormlib_wrapper):
-    if stormlib_wrapper:
-        return StarCraftMpqIo(stormlib_wrapper)
-
-
-@pytest.fixture(scope="function")
-def wav_metadata_io(stormlib_wrapper):
-    if stormlib_wrapper:
-        return StarCraftWavMetadataIo(stormlib_wrapper)
+def wav_metadata_io(embedded_stormlib):
+    if embedded_stormlib:
+        return StarCraftWavMetadataIo(embedded_stormlib)
 
 
 def _read_file_as_bytes(infile: str) -> bytes:
