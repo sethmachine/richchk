@@ -26,9 +26,7 @@ def run_test_if_supported_os() -> bool:
 
 
 def _first_true(iterable, default=False, predicate=None):
-    "Returns the first true value or the *default* if there is no true value."
-    # first_true([a,b,c], x) → a or b or c or x
-    # first_true([a,b], x, f) → a if f(a) else b if f(b) else x
+    """Returns the first true value or the *default* if there is no true value."""
     return next(filter(predicate, iterable), default)
 
 
