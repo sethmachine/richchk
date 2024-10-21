@@ -1,7 +1,6 @@
 """"""
 import os
 import shutil
-import tempfile
 
 from ...io.chk.chk_io import ChkIo
 from ...io.richchk.richchk_io import RichChkIo
@@ -9,6 +8,7 @@ from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
 from .starcraft_wav_metadata_io import StarCraftWavMetadataIo
 
 
@@ -39,17 +39,17 @@ class StarCraftMpqIo:
     def read_chk_from_mpq(self, path_to_starcraft_mpq_file: str) -> RichChk:
         if not os.path.exists(path_to_starcraft_mpq_file):
             raise FileNotFoundError(path_to_starcraft_mpq_file)
-        with tempfile.NamedTemporaryFile() as temp_chk_file:
+        with CrossPlatformSafeTemporaryNamedFile() as temp_chk_file:
             open_result = self._stormlib_wrapper.open_archive(
                 path_to_starcraft_mpq_file, StormLibArchiveMode.STORMLIB_READ_ONLY
             )
             self._stormlib_wrapper.extract_file(
                 open_result,
                 self._CHK_MPQ_PATH,
-                temp_chk_file.name,
+                temp_chk_file,
                 overwrite_existing=True,
             )
-            chk = RichChkIo().decode_chk(ChkIo().decode_chk_file(temp_chk_file.name))
+            chk = RichChkIo().decode_chk(ChkIo().decode_chk_file(temp_chk_file))
             self._stormlib_wrapper.close_archive(open_result)
             return chk
 
@@ -67,8 +67,8 @@ class StarCraftMpqIo:
                 f"Refusing to create new MPQ because it already exists: {path_to_new_mpq_file}"
             )
         with (
-            tempfile.NamedTemporaryFile() as temp_chk_file,
-            tempfile.NamedTemporaryFile() as temp_mpq_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_chk_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_mpq_file,
         ):
 
             ChkIo().encode_chk_to_file(
@@ -78,23 +78,23 @@ class StarCraftMpqIo:
                         path_to_base_mpq_file
                     ),
                 ),
-                temp_chk_file.name,
+                temp_chk_file,
                 force_create=True,
             )
-            shutil.copyfile(path_to_base_mpq_file, temp_mpq_file.name)
+            shutil.copyfile(path_to_base_mpq_file, temp_mpq_file)
             open_result = self._stormlib_wrapper.open_archive(
-                temp_mpq_file.name, StormLibArchiveMode.STORMLIB_WRITE_ONLY
+                temp_mpq_file, StormLibArchiveMode.STORMLIB_WRITE_ONLY
             )
             self._stormlib_wrapper.add_file(
                 open_result,
-                infile=temp_chk_file.name,
+                infile=temp_chk_file,
                 path_to_file_in_archive=self._CHK_MPQ_PATH,
                 overwrite_existing=True,
             )
             self._stormlib_wrapper.close_archive(
                 self._stormlib_wrapper.compact_archive(open_result)
             )
-            shutil.copyfile(temp_mpq_file.name, path_to_new_mpq_file)
+            shutil.copyfile(temp_mpq_file, path_to_new_mpq_file)
 
     def _build_wav_metadata_lookup(
         self, path_to_base_mpq_file: str

@@ -1,6 +1,5 @@
 """Extract WAV files metadata, including durations from a StarCraft MPQ."""
 import os
-import tempfile
 import wave
 
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
@@ -8,6 +7,7 @@ from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationRes
 from ...model.mpq.stormlib.wav.stormlib_wav import StormLibWav
 from ...mpq.stormlib.stormlib_file_searcher import StormLibFileSearcher
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 
 class StarCraftWavMetadataIo:
@@ -51,14 +51,14 @@ class StarCraftWavMetadataIo:
     def _calculate_wav_file_duration_in_mpq(
         self, wav_filepath_in_mpq: str, open_archive_result: StormLibOperationResult
     ) -> int:
-        with tempfile.NamedTemporaryFile() as temp_wav_file:
+        with CrossPlatformSafeTemporaryNamedFile() as temp_wav_file:
             self._stormlib_wrapper.extract_file(
                 open_archive_result,
                 wav_filepath_in_mpq,
-                temp_wav_file.name,
+                temp_wav_file,
                 overwrite_existing=True,
             )
-            return self._calculate_wav_file_duration_ms(temp_wav_file.name)
+            return self._calculate_wav_file_duration_ms(temp_wav_file)
 
     @classmethod
     def _calculate_wav_file_duration_ms(cls, path_to_wav_file_on_disk: str) -> int:
