@@ -1,6 +1,6 @@
 # RichChk
 
-RichChk is a Python library that parses StarCraft's [CHK format](http://www.starcraftai.com/wiki/CHK_Format) into a **richer**, human readable representation for editing all aspects of a Stacraft map inside Python.  RichChk implements the CHK format specified in [Staredit.net CHK format wiki](http://www.staredit.net/wiki/index.php/Scenario.chk).  This project was originally called chkjson, but that name no longer fits since the library does much more than turn CHK into JSON.  The CHK data can be safely edited in Python and then written back to a playable .SCX/.SCM Starcraft map file.
+RichChk is a cross-platform Python library that parses StarCraft's [CHK format](http://www.starcraftai.com/wiki/CHK_Format) into a **richer**, human readable representation for editing all aspects of a Stacraft map (.SCM/.SCX files) inside Python.  RichChk implements the CHK format specified in [Staredit.net CHK format wiki](http://www.staredit.net/wiki/index.php/Scenario.chk).  This project was originally called chkjson, but that name no longer fits since the library does much more than turn CHK into JSON.  The CHK data can be safely edited in Python and then written back to a playable .SCX/.SCM Starcraft map file.
 
 RichChk offers numerous advantages over the traditional method of using a GUI based editor for creating a custom map.  These include:
 
@@ -10,7 +10,7 @@ RichChk offers numerous advantages over the traditional method of using a GUI ba
 * Unify static data (unit settings, player settings, etc.) with Trigger data.  Trigger data can programmatically reference static data when building a map.  
 
 
-RichChk is not a full replacement for traditional GUI based editors which should be used for terrain/unit/location placements.  Other key omissions are listed below:
+RichChk is not a full replacement for traditional GUI editors (e.g. ScmDraft 2) which should still be used for terrain/unit/location placements.  Other key omissions are listed below:
 
 * No support for modded StarCraft
 * No support for EUDs
@@ -28,9 +28,9 @@ Python 3.11 is required.  Other versions of Python may work but are not tested. 
 
 ### StormLib
 
-[StormLib](http://www.zezula.net/en/mpq/stormlib.html) is an open source library used to read and write data to MPQ archives, which is the file format that StarCraft maps are stored in (either .SCX or .SCM file extensions).  StormLib is only required if you wish to directly edit a StarCraft map or add WAV files.  RichChk can edit the CHK itself without using StormLib, as the CHK can exist outside of the MPQ archive (but not as a playable map).  Nevertheless, the majority of workflows will likely produce new map files, in which case StormLib is a requirement.
+[StormLib](http://www.zezula.net/en/mpq/stormlib.html) is an open source library used to read and write data to MPQ archives, which is the file format that StarCraft maps are stored in (a .SCM/.SCX file).  StormLib is only required if you wish to directly edit a StarCraft map or add WAV files.  RichChk can edit the CHK itself without using StormLib, as the CHK can exist outside of the MPQ archive (but not as a playable map).  Nevertheless, the majority of workflows will likely produce new map files, in which case StormLib is a requirement.
 
-For convenience, RichChk comes with 3 embedded StormLib DLLs compiled for Windows, macOS intel, and macOS apple silicon.  Relying on the embedded DLLs is highly discouraged for many reasons: the DLLs will eventually no longer work for newer OS/architectures, RichChk is not meant to serve as a build repository for StormLib, DLLs without trusted sources can be dangerous, etc.
+For convenience, RichChk comes with 3 embedded StormLib DLLs compiled for Windows (64-bit), macOS apple silicon, and Linux (64-bit).  Relying on the embedded DLLs is highly discouraged for many reasons: the DLLs will eventually no longer work for newer OS/architectures, RichChk is not meant to serve as a build repository for StormLib, DLLs without trusted sources can be dangerous, etc.
 
 Thus, you are highly encouraged to always bring your own StormLib DLL.  Some package managers can build StormLib for you, e.g. [macOS Homebrew StormLib formula](https://formulae.brew.sh/formula/stormlib).
 
@@ -120,3 +120,10 @@ I recommend using Python virtual environments to manage local development.  I us
 I also recommend integrating the static typing check and linting tools like mypy, flake8, black, isort, and docformatter directly into the IDE.  You can use [File Watchers](https://www.jetbrains.com/help/pycharm/using-file-watchers.html) to automatically reformat your Python code when you save the file.  This will help reduce manual reformatting and avoid headaches if pre-commit checks fail.  
 
 
+## Acknowledgements
+
+Many thanks to the StarCraft community for providing a wealth of knowledge, libraries, and existing examples that made RichChk possible:
+
+* [staredit.net](http://www.staredit.net/): a vibrant StarCraft community that has always been helpful and answered many questions, and intensively documented the [staredit\\Scenario.chk](http://www.staredit.net/wiki/index.php/Scenario.chk) format.
+* [StormLib](https://www.zezula.net/en/mpq/stormlib.html): Ladislav Zezula for creating and maintaining StormLib, which is the foundation of most mapping tools.
+* [PyMS](https://github.com/poiuyqwert/PyMS): poiuyqwert's BroodWar modding suite provided some helpful examples on how to use StormLib in Python correctly
