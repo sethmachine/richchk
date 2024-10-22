@@ -106,7 +106,7 @@ def test_it_extracts_chk_from_scx_file(embedded_stormlib):
 
 
 @pytest.mark.usefixtures("embedded_stormlib")
-def test_it_ovewrites_existing_file_when_extracting(embedded_stormlib):
+def test_it_overwrites_existing_file_when_extracting(embedded_stormlib):
     if embedded_stormlib:
         with (
             CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
@@ -132,7 +132,7 @@ def test_it_ovewrites_existing_file_when_extracting(embedded_stormlib):
 
 
 @pytest.mark.usefixtures("embedded_stormlib")
-def test_it_throws_if_ovewriting_existing_file_when_extracting(embedded_stormlib):
+def test_it_throws_if_overwriting_existing_file_when_extracting(embedded_stormlib):
     if embedded_stormlib:
         with (
             CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
@@ -150,6 +150,7 @@ def test_it_throws_if_ovewriting_existing_file_when_extracting(embedded_stormlib
                     outfile=temp_chk_file,
                     overwrite_existing=False,
                 )
+            embedded_stormlib.close_archive(open_result)
 
 
 @pytest.mark.usefixtures("embedded_stormlib")

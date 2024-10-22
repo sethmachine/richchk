@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 _PACKAGE_DATA = {package: ["py.typed"] for package in find_packages()}
 _PACKAGE_DATA["richchk"] = [
     "mpq/stormlib/dlls/macos/*.*",
-    "mpq/stormlib/dlls/windows/*.*",
+    "mpq/stormlib/dlls/windows/x64/*.*",
     "mpq/stormlib/dlls/linux/*.*",
 ]
 
