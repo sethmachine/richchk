@@ -35,6 +35,7 @@ class StarCraftMpqIo:
             outfile,
             overwrite_existing=overwrite_existing,
         )
+        self._stormlib_wrapper.close_archive(open_result)
 
     def read_chk_from_mpq(self, path_to_starcraft_mpq_file: str) -> RichChk:
         if not os.path.exists(path_to_starcraft_mpq_file):

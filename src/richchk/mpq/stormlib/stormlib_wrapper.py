@@ -7,7 +7,9 @@ StormLib library compiled for their operating system and CPU architecture.
 """
 import ctypes
 import os
+import platform
 from ctypes import POINTER
+from typing import Any, Union
 
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.mpq.stormlib.stormlib_flag import StormLibFlag
@@ -16,6 +18,8 @@ from ...model.mpq.stormlib.stormlib_operation import StormLibOperation
 from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationResult
 from ...model.mpq.stormlib.stormlib_reference import StormLibReference
 from ...util import logger
+
+_STORMLIB_STRING_ARG_ENCODING = "ascii"
 
 
 class StormLibWrapper:
@@ -44,14 +48,12 @@ class StormLibWrapper:
             self._stormlib.stormlib_dll, StormLibOperation.S_FILE_OPEN_ARCHIVE.value
         )
         func.restype = ctypes.c_bool
-        func.argtypes = [
-            ctypes.c_char_p,
-            ctypes.c_uint,
-            ctypes.c_uint,
-            POINTER(StormLibMpqHandle),
-        ]
+        func.argtypes = self._get_arg_types_for_open_archive_for_platform()
         result: int = func(
-            mpq_file_path.encode("ascii"), 0, archive_mode.value, ctypes.byref(handle)
+            self._encode_file_path_for_platform(mpq_file_path),
+            0,
+            archive_mode.value,
+            ctypes.byref(handle),
         )
         self._throw_if_operation_fails(
             StormLibOperation.S_FILE_OPEN_ARCHIVE.value, result
@@ -107,7 +109,7 @@ class StormLibWrapper:
         result: int = func(
             stormlib_operation_result.handle,
             path_to_file_in_archive.encode("ascii"),
-            outfile.encode("ascii"),
+            self._encode_file_path_for_platform(outfile),
             StormLibFlag.SFILE_OPEN_FROM_MPQ.value,
         )
         self._throw_if_operation_fails(
@@ -153,7 +155,7 @@ class StormLibWrapper:
         )
         result: int = func(
             stormlib_operation_result.handle,
-            infile.encode("ascii"),
+            self._encode_file_path_for_platform(infile),
             path_to_file_in_archive.encode("ascii"),
             flags,
             compression,
@@ -185,6 +187,42 @@ class StormLibWrapper:
             _handle=stormlib_operation_result.handle, _result=result
         )
 
+    def _get_arg_types_for_open_archive_for_platform(self) -> list[Any]:
+        """Return argument types for opening an archive based on OS.
+
+        Unsure why Windows uses different signatures than Linux/macOS.  Maybe it depends
+        upon how the Windows StormLib was compiled?
+
+        :return:
+        """
+        if platform.system().lower() == "windows":
+            return [
+                ctypes.c_wchar_p,
+                ctypes.c_uint,
+                ctypes.c_uint,
+                POINTER(StormLibMpqHandle),
+            ]
+        return [
+            ctypes.c_char_p,
+            ctypes.c_uint,
+            ctypes.c_uint,
+            POINTER(StormLibMpqHandle),
+        ]
+
+    def _encode_file_path_for_platform(
+        self, path_to_file_on_disk: str
+    ) -> Union[str, bytes]:
+        """Create the file path string encoding needed for StormLib arguments depending
+        upon OS.
+
+        :param path_to_file_on_disk: the string path to a file on disk (not in the MPQ
+            archive)
+        :return:
+        """
+        if platform.system().lower() == "windows":
+            return path_to_file_on_disk
+        return path_to_file_on_disk.encode(_STORMLIB_STRING_ARG_ENCODING)
+
     def _throw_if_operation_fails(self, operation_name: str, result: int) -> None:
         if result == 0:
             func = getattr(self._stormlib.stormlib_dll, "GetLastError")
@@ -192,7 +230,7 @@ class StormLibWrapper:
             getLastErrorCode = func()
             msg = (
                 f"StormLib archive operation: <{operation_name}> failed due to a {result} result value.  "
-                f"Error code: {getLastErrorCode}"
+                f"Error code: {getLastErrorCode}, "
                 f"StormLib reference: {self._stormlib}"
             )
             self._log.error(msg)

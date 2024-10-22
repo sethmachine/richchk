@@ -17,7 +17,9 @@ class StormLibFinder:
     _SCRIPT_PATH = os.path.dirname(__file__)
     _MAC_STORM_INTEL = os.path.join(_SCRIPT_PATH, "dlls/macos/libStorm.dylib")
     _MAC_STORM_M1 = os.path.join(_SCRIPT_PATH, "dlls/macos/libstorm.9.22.0.dylib")
-    _WINDOWS_STORM = os.path.join(_SCRIPT_PATH, "dlls\\windows\\StormLib.dll")
+    _WINDOWS_STORM_X86_64 = os.path.join(
+        _SCRIPT_PATH, "dlls\\windows\\x64\\StormLib.dll"
+    )
     _LINUX_STORM_X86_64 = os.path.join(_SCRIPT_PATH, "dlls/linux/libstorm.so.9.22.0")
 
     @classmethod
@@ -35,7 +37,7 @@ class StormLibFinder:
                 "please provide a path to StormLib DLL compiled for your platform."
             )
             if platform.system().lower() == "windows":
-                return StormLibFilePath(_path_to_stormlib_dll=cls._WINDOWS_STORM)
+                return StormLibFilePath(_path_to_stormlib_dll=cls._WINDOWS_STORM_X86_64)
             elif (
                 platform.system().lower() == "darwin"
                 and platform.machine().lower() == "arm64"
