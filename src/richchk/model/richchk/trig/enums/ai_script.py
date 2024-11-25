@@ -50,3 +50,31 @@ class KnownAiScript(Enum):
         "+Vi0",
         "Turn on shared vision of Player 1 with current player",
     )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_2 = AiScript(
+        "+Vi1",
+        "Turn on shared vision of Player 2 with current player",
+    )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_3 = AiScript(
+        "+Vi2",
+        "Turn on shared vision of Player 3 with current player",
+    )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_4 = AiScript(
+        "+Vi3",
+        "Turn on shared vision of Player 4 with current player",
+    )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_5 = AiScript(
+        "+Vi4",
+        "Turn on shared vision of Player 5 with current player",
+    )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_6 = AiScript(
+        "+Vi5",
+        "Turn on shared vision of Player 6 with current player",
+    )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_7 = AiScript(
+        "+Vi6",
+        "Turn on shared vision of Player 7 with current player",
+    )
+    TURN_ON_SHARED_VISION_WITH_PLAYER_8 = AiScript(
+        "+Vi7",
+        "Turn on shared vision of Player 8 with current player",
+    )
