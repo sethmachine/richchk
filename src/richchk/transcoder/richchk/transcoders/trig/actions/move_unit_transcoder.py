@@ -31,12 +31,12 @@ class RichTriggerMoveUnitActionTranscoder(
         assert decoded_action.action_id == MoveUnitAction.action_id().id
         assert rich_chk_decode_context.rich_mrgn_lookup is not None
         # Location - source location in "Order" and "Move Unit", dest location in "Move Location"
-        maybe_destination_location = (
+        maybe_source_location = (
             rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
                 decoded_action.location_id
             )
         )
-        maybe_source_location = (
+        maybe_destination_location = (
             rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
                 decoded_action.second_group
             )
@@ -74,12 +74,12 @@ class RichTriggerMoveUnitActionTranscoder(
         assert maybe_destination_loc_id is not None
         assert maybe_source_loc_id is not None
         return DecodedTriggerAction(
-            _location_id=maybe_destination_loc_id,
+            _location_id=maybe_source_loc_id,
             _text_string_id=0,
             _wav_string_id=0,
             _time=0,
             _first_group=RichChkEnumTranscoder.encode_enum(rich_action.group),
-            _second_group=maybe_source_loc_id,
+            _second_group=maybe_destination_loc_id,
             _action_argument_type=RichChkEnumTranscoder.encode_enum(rich_action.unit),
             _action_id=rich_action.action_id().id,
             _quantifier_or_switch_or_order=rich_action.amount,
