@@ -19,7 +19,7 @@ class _AccumulateResourcesConditionBase(RichTriggerCondition):
 
     @classmethod
     def condition_id(cls) -> TriggerConditionId:
-        return TriggerConditionId.COMMAND
+        return TriggerConditionId.ACCUMULATE
 
     @property
     def group(self) -> PlayerId:
