@@ -20,6 +20,7 @@ class ChkSectionName(Enum):
     IOWN = ("IOWN",)
     OWNR = ("OWNR",)
     STR = ("STR ",)
+    STRX = ("STRx",)
     UNIS = ("UNIS",)
     UNIX = ("UNIx",)
     MRGN = ("MRGN",)
