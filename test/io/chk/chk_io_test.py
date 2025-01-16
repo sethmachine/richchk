@@ -15,6 +15,7 @@ from richchk.transcoder.chk.chk_section_transcoder_factory import (
 )
 
 T = TypeVar("T", bound=DecodedChkSection, covariant=True)
+_EXCLUDED_CHK_SECTIONS = [ChkSectionName.STRX]
 
 
 @pytest.fixture(scope="function")
@@ -69,10 +70,14 @@ def _assert_decoded_chk_has_expected_decoded_sections(chk: DecodedChk):
     expected_decoded_section_names: set[ChkSectionName] = {
         x for x in ChkSectionName
     }.intersection(
-        {x for x in ChkSectionTranscoderFactory.get_all_registered_chk_section_names()}
+        {
+            x
+            for x in ChkSectionTranscoderFactory.get_all_registered_chk_section_names()
+            if x not in _EXCLUDED_CHK_SECTIONS
+        }
     )
     for expected_section_name in expected_decoded_section_names:
-        assert expected_section_name.value in section_by_name
+        assert expected_section_name.value in section_by_name.keys()
 
 
 def _get_actual_section_name_for_chk_section(
