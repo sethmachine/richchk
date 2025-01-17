@@ -56,7 +56,11 @@ class DecodedStrSectionEditor:
                 f'The string "{string_to_add}" already exists in the STR section.  '
                 f"Not performing any modifications."
             )
-            return copy.deepcopy(decoded_str_section)
+            return DecodedStrSection(
+                _number_of_strings=decoded_str_section.number_of_strings,
+                _string_offsets=decoded_str_section.strings_offsets,
+                _strings=decoded_str_section.strings,
+            )
         number_of_strings: int = decoded_str_section.number_of_strings + 1
         # increment the previous offsets by 2 bytes,
         # since we'll be adding exactly 1 more offset
