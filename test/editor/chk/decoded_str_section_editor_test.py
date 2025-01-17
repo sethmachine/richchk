@@ -30,8 +30,8 @@ def test_it_does_not_modify_the_str_section_if_adding_already_existing_string():
     transcoder: ChkStrTranscoder = ChkStrTranscoder()
     chk_binary_data = _read_chk_section()
     str_section: DecodedStrSection = transcoder.decode(chk_binary_data)
-    new_str_section = editor.add_string_to_str_section(
-        _EXPECTED_STRINGS[0], str_section
+    new_str_section = editor.add_strings_to_str_section(
+        [_EXPECTED_STRINGS[0]], str_section
     )
     assert new_str_section == str_section
 
@@ -51,7 +51,7 @@ def test_it_adds_a_new_string_and_modifies_str_as_expected():
     chk_binary_data = _read_chk_section()
     str_section: DecodedStrSection = transcoder.decode(chk_binary_data)
     string_to_add = str(uuid.uuid4())
-    new_str_section = editor.add_string_to_str_section(string_to_add, str_section)
+    new_str_section = editor.add_strings_to_str_section([string_to_add], str_section)
     assert new_str_section != str_section
     assert string_to_add == new_str_section.strings[-1]
     assert new_str_section.number_of_strings == str_section.number_of_strings + 1
@@ -66,8 +66,8 @@ def test_adding_a_string_creates_a_valid_str_section():
     chk_binary_data = _read_chk_section()
     str_section: DecodedStrSection = transcoder.decode(chk_binary_data)
     string_to_add = str(uuid.uuid4())
-    new_str_section: DecodedStrSection = editor.add_string_to_str_section(
-        string_to_add, str_section
+    new_str_section: DecodedStrSection = editor.add_strings_to_str_section(
+        [string_to_add], str_section
     )
     decoded_new_str_section: DecodedStrSection = transcoder.decode(
         transcoder.encode(new_str_section, include_header=False)
