@@ -79,10 +79,14 @@ class DecodedStrxSectionEditor:
                     highest_offset,
                     highest_string,
                 ) = self._find_initial_highest_offset_and_string(decoded_strx_section)
-            # if they are defined, we use the previous string offset we just added
-            # new_offset = string_offsets[-1] + len(strings_[-1]) + 1
-            # +1 is there to skip the null terminator
-            new_offset = (highest_offset + 4) + len(highest_string) + 1
+                new_offset = (
+                    (highest_offset + total_offset_increase) + len(highest_string) + 1
+                )
+            else:
+                # if they are defined, we use the previous string offset we just added
+                # new_offset = string_offsets[-1] + len(strings_[-1]) + 1
+                # +1 is there to skip the null terminator
+                new_offset = highest_offset + len(highest_string) + 1
             new_string_offsets.append(new_offset)
             # set up the next string being added, if any
             highest_offset = new_offset

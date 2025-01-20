@@ -108,7 +108,7 @@ def test_it_finds_all_rich_strings_in_rich_chk(rich_chk_with_new_rich_strings: R
     rich_strings = DecodedStrSectionRebuilder.find_all_rich_strings_in_rich_chk(
         rich_chk_with_new_rich_strings
     )
-    assert rich_strings == {RichString(_value="custom-terran-marine-name")}
+    assert rich_strings == [RichString(_value="custom-terran-marine-name")]
 
 
 def test_integration_it_throws_if_multiple_decoded_str_sections():

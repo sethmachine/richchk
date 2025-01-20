@@ -9,6 +9,7 @@ from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscod
 from richchk.transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
+from .str_test_utils import assert_string_offsets_are_valid_for_strx
 
 # these strings were added into the CHK section by using a GUI map editor
 _EXPECTED_STRINGS = [
@@ -36,6 +37,7 @@ def test_it_generates_strx_from_str():
     assert strx_again == strx_section
     _assert_strx_equals_str(strx_section, str_section)
     _assert_strx_equals_str(strx_again, str_section)
+    assert_string_offsets_are_valid_for_strx(strx_section)
 
 
 def _assert_strx_equals_str(strx: DecodedStrxSection, str_: DecodedStrSection):
