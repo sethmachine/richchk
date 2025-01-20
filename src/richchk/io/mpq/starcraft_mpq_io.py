@@ -4,6 +4,7 @@ import shutil
 
 from ...io.chk.chk_io import ChkIo
 from ...io.richchk.richchk_io import RichChkIo
+from ...model.io.chk_io_config import ChkIoConfig
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
@@ -15,8 +16,13 @@ from .starcraft_wav_metadata_io import StarCraftWavMetadataIo
 class StarCraftMpqIo:
     _CHK_MPQ_PATH = "staredit\\scenario.chk"
 
-    def __init__(self, stormlib_wrapper: StormLibWrapper):
+    def __init__(
+        self,
+        stormlib_wrapper: StormLibWrapper,
+        config: ChkIoConfig = ChkIoConfig(),
+    ):
         self._stormlib_wrapper = stormlib_wrapper
+        self._config = config
 
     def extract_chk_from_mpq(
         self,

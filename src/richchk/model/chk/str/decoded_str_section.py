@@ -27,10 +27,11 @@ import dataclasses
 
 from ...chk_section_name import ChkSectionName
 from ..decoded_chk_section import DecodedChkSection
+from ..decoded_string_section import DecodedStringSection
 
 
 @dataclasses.dataclass(frozen=True)
-class DecodedStrSection(DecodedChkSection):
+class DecodedStrSection(DecodedChkSection, DecodedStringSection):
     # u16: Number of strings in the section (Default: 1024)
     _number_of_strings: int
     # u16[Number of strings]: 1 integer for each string specifying the offset
