@@ -10,6 +10,7 @@ from richchk.model.chk.strx.decoded_strx_section import DecodedStrxSection
 from richchk.transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
+from .str_test_utils import assert_string_offsets_are_valid_for_strx
 
 # these strings were added into the CHK section by using a GUI map editor
 _EXPECTED_STRINGS = [
@@ -40,6 +41,7 @@ def test_it_does_not_modify_the_str_section_if_adding_only_already_existing_stri
         _EXPECTED_STRINGS, decoded_strx
     )
     assert new_str_section == decoded_strx
+    assert_string_offsets_are_valid_for_strx(decoded_strx)
 
 
 def test_it_adds_a_new_string_to_strx(decoded_strx):
@@ -48,6 +50,7 @@ def test_it_adds_a_new_string_to_strx(decoded_strx):
     new_strx_section = editor.add_strings_to_strx_section([string_to_add], decoded_strx)
     _assert_it_encodes_and_decodes_new_strx_without_changes(new_strx_section)
     _assert_new_strings_are_added(new_strx_section, decoded_strx, [string_to_add])
+    assert_string_offsets_are_valid_for_strx(decoded_strx)
 
 
 def test_it_adds_multiple_strings_to_strx(decoded_strx):
@@ -56,6 +59,7 @@ def test_it_adds_multiple_strings_to_strx(decoded_strx):
     new_strx_section = editor.add_strings_to_strx_section(strings_to_add, decoded_strx)
     _assert_it_encodes_and_decodes_new_strx_without_changes(new_strx_section)
     _assert_new_strings_are_added(new_strx_section, decoded_strx, strings_to_add)
+    assert_string_offsets_are_valid_for_strx(decoded_strx)
 
 
 def test_it_only_adds_unique_strings_to_strx(decoded_strx):
@@ -77,6 +81,7 @@ def test_it_adds_more_than_u16_strings(decoded_strx):
     editor = DecodedStrxSectionEditor()
     new_strx = editor.add_strings_to_strx_section(strings_to_add, decoded_strx)
     _assert_new_strings_are_added(new_strx, decoded_strx, strings_to_add)
+    assert_string_offsets_are_valid_for_strx(decoded_strx)
 
 
 def _assert_it_encodes_and_decodes_new_strx_without_changes(strx_section):
