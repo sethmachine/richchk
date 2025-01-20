@@ -6,11 +6,11 @@ import uuid
 import pytest
 
 from richchk.editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
-from richchk.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 
 from ...chk_resources import CHK_SECTION_FILE_PATHS
+from .str_test_utils import assert_string_offsets_are_valid_for_str
 
 # these strings were added into the CHK section by using a GUI map editor
 _EXPECTED_STRINGS = [
@@ -81,22 +81,9 @@ def test_added_strings_have_correct_offsets(str_section):
     new_str = DecodedStrSectionEditor().add_strings_to_str_section(
         first_strings_to_add, str_section
     )
-    _assert_string_offsets_are_valid(new_str)
+    assert_string_offsets_are_valid_for_str(new_str)
     next_strings_to_add = [str(uuid.uuid4()), str(uuid.uuid4())]
     next_new_str = DecodedStrSectionEditor().add_strings_to_str_section(
         next_strings_to_add, str_section
     )
-    _assert_string_offsets_are_valid(next_new_str)
-
-
-def _assert_string_offsets_are_valid(str_section: DecodedStrSection):
-    expected_strings = set(str_section.strings)
-    found_strings = set()
-    str_binary_data = ChkStrTranscoder().encode(str_section, include_header=False)
-    for offset in str_section.strings_offsets:
-        found_strings.add(
-            RichStrLookupBuilder.get_rich_string_by_offset(
-                offset=offset, str_binary_data=str_binary_data
-            ).value
-        )
-    assert expected_strings == found_strings
+    assert_string_offsets_are_valid_for_str(next_new_str)
