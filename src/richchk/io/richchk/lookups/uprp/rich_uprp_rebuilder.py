@@ -21,7 +21,7 @@ class RichUprpRebuilder:
 
     @classmethod
     def _find_or_create_new_rich_uprp(cls, rich_chk: RichChk) -> RichUprpSection:
-        if ChkQueryUtil.determine_if_rich_chk_contains_section(
+        if ChkQueryUtil.determine_if_chk_contains_section(
             RichUprpSection.section_name(), rich_chk
         ):
             return ChkQueryUtil.find_only_rich_section_in_chk(RichUprpSection, rich_chk)

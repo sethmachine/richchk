@@ -31,7 +31,7 @@ def test_it_generates_strx_from_str():
     str_transcoder = ChkStrTranscoder()
     strx_transcoder = ChkStrxTranscoder()
     str_section = str_transcoder.decode(_read_chk_section())
-    strx_section = DecodedStrxSectionGenerator().generate_strx_from_str(str_section)
+    strx_section = DecodedStrxSectionGenerator.generate_strx_from_str(str_section)
     strx_bytes = strx_transcoder.encode(strx_section, include_header=False)
     strx_again = strx_transcoder.decode(strx_bytes)
     assert strx_again == strx_section

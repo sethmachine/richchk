@@ -64,8 +64,8 @@ class ChkQueryUtil:
         return only_section
 
     @staticmethod
-    def find_only_string_section(
-        chk: DecodedChk,
+    def find_string_section_in_chk(
+        chk: Union[DecodedChk, RichChk],
     ) -> DecodedStringSection:
         has_str = ChkQueryUtil.determine_if_chk_contains_section(
             ChkSectionName.STR, chk
@@ -125,18 +125,27 @@ class ChkQueryUtil:
         assert isinstance(only_section, chk_section_type)
         return only_section
 
-    @staticmethod
-    def determine_if_rich_chk_contains_section(
-        chk_section_name: ChkSectionName, rich_chk: RichChk
+    @classmethod
+    def determine_if_chk_contains_section(
+        cls, chk_section_name: ChkSectionName, chk: Union[DecodedChk, RichChk]
+    ) -> bool:
+        if isinstance(chk, DecodedChk):
+            return cls._determine_if_chk_contains_section(chk_section_name, chk)
+        elif isinstance(chk, RichChk):
+            return cls._determine_if_rich_chk_contains_section(chk_section_name, chk)
+
+    @classmethod
+    def _determine_if_rich_chk_contains_section(
+        cls, chk_section_name: ChkSectionName, rich_chk: RichChk
     ) -> bool:
         named_sections = rich_chk.get_sections_by_name(
             chk_section_name=chk_section_name
         )
         return len(named_sections) > 0
 
-    @staticmethod
-    def determine_if_chk_contains_section(
-        chk_section_name: ChkSectionName, chk: DecodedChk
+    @classmethod
+    def _determine_if_chk_contains_section(
+        cls, chk_section_name: ChkSectionName, chk: DecodedChk
     ) -> bool:
         named_sections = chk.get_sections_by_name(chk_section_name=chk_section_name)
         return len(named_sections) > 0

@@ -8,21 +8,14 @@ and 2 more extra bytes for each u32[Number of strings]: 1 integer for each strin
 specifying the offset
 """
 
-import logging
-
 from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
-from ...util import logger
 
 
 class DecodedStrxSectionGenerator:
-    def __init__(self) -> None:
-        self.log: logging.Logger = logger.get_logger(
-            DecodedStrxSectionGenerator.__name__
-        )
-
+    @staticmethod
     def generate_strx_from_str(
-        self, decoded_str_section: DecodedStrSection
+        decoded_str_section: DecodedStrSection,
     ) -> DecodedStrxSection:
         total_byte_shifts = 2 + (len(decoded_str_section.strings_offsets) * 2)
         return DecodedStrxSection(
