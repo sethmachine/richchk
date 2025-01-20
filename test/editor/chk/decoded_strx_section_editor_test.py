@@ -6,6 +6,7 @@ import uuid
 import pytest
 
 from richchk.editor.chk.decoded_strx_section_editor import DecodedStrxSectionEditor
+from richchk.io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from richchk.model.chk.strx.decoded_strx_section import DecodedStrxSection
 from richchk.transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 
@@ -40,6 +41,7 @@ def test_it_does_not_modify_the_str_section_if_adding_only_already_existing_stri
         _EXPECTED_STRINGS, decoded_strx
     )
     assert new_str_section == decoded_strx
+    _assert_string_offsets_are_valid(decoded_strx)
 
 
 def test_it_adds_a_new_string_to_strx(decoded_strx):
@@ -48,6 +50,7 @@ def test_it_adds_a_new_string_to_strx(decoded_strx):
     new_strx_section = editor.add_strings_to_strx_section([string_to_add], decoded_strx)
     _assert_it_encodes_and_decodes_new_strx_without_changes(new_strx_section)
     _assert_new_strings_are_added(new_strx_section, decoded_strx, [string_to_add])
+    _assert_string_offsets_are_valid(decoded_strx)
 
 
 def test_it_adds_multiple_strings_to_strx(decoded_strx):
@@ -56,6 +59,7 @@ def test_it_adds_multiple_strings_to_strx(decoded_strx):
     new_strx_section = editor.add_strings_to_strx_section(strings_to_add, decoded_strx)
     _assert_it_encodes_and_decodes_new_strx_without_changes(new_strx_section)
     _assert_new_strings_are_added(new_strx_section, decoded_strx, strings_to_add)
+    _assert_string_offsets_are_valid(decoded_strx)
 
 
 def test_it_only_adds_unique_strings_to_strx(decoded_strx):
@@ -77,6 +81,7 @@ def test_it_adds_more_than_u16_strings(decoded_strx):
     editor = DecodedStrxSectionEditor()
     new_strx = editor.add_strings_to_strx_section(strings_to_add, decoded_strx)
     _assert_new_strings_are_added(new_strx, decoded_strx, strings_to_add)
+    _assert_string_offsets_are_valid(decoded_strx)
 
 
 def _assert_it_encodes_and_decodes_new_strx_without_changes(strx_section):
@@ -96,3 +101,16 @@ def _assert_new_strings_are_added(new_strx, old_strx, strings_added):
     )
     assert len(new_strx.strings) == (len(old_strx.strings) + len(strings_added))
     assert new_strx.strings[:index_for_newly_added_strings] == old_strx.strings
+
+
+def _assert_string_offsets_are_valid(str_section: DecodedStrxSection):
+    expected_strings = set(str_section.strings)
+    found_strings = set()
+    str_binary_data = ChkStrxTranscoder().encode(str_section, include_header=False)
+    for offset in str_section.strings_offsets:
+        found_strings.add(
+            RichStrLookupBuilder.get_rich_string_by_offset(
+                offset=offset, str_binary_data=str_binary_data
+            ).value
+        )
+    assert expected_strings == found_strings
