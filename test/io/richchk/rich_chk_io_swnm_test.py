@@ -84,9 +84,7 @@ def test_integration_it_adds_new_switches_when_they_are_used(rich_chk_with_no_sw
     )
     assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.SWNM, chk)
     rich_chk_again = RichChkIo().decode_chk(chk)
-    ChkQueryUtil.determine_if_rich_chk_contains_section(
-        ChkSectionName.SWNM, rich_chk_again
-    )
+    ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.SWNM, rich_chk_again)
     swnm = ChkQueryUtil.find_only_rich_section_in_chk(RichSwnmSection, rich_chk_again)
     trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_switches(trig.triggers)
@@ -126,9 +124,7 @@ def test_integration_it_adds_new_switches_when_some_switches_already_exist(
     )
     assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.SWNM, chk)
     rich_chk_again = RichChkIo().decode_chk(chk)
-    ChkQueryUtil.determine_if_rich_chk_contains_section(
-        ChkSectionName.SWNM, rich_chk_again
-    )
+    ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.SWNM, rich_chk_again)
     swnm = ChkQueryUtil.find_only_rich_section_in_chk(RichSwnmSection, rich_chk_again)
     trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_switches(trig.triggers)
