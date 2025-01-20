@@ -9,6 +9,7 @@ from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from ...model.chk.upus.decoded_upus_section import DecodedUpusSection
+from ...model.io.chk_io_config import ChkIoConfig
 from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
@@ -46,8 +47,9 @@ from .rich_str_lookup_builder import RichStrLookupBuilder
 
 
 class RichChkIo:
-    def __init__(self) -> None:
+    def __init__(self, config: ChkIoConfig = ChkIoConfig()) -> None:
         self.log: logging.Logger = logger.get_logger(RichChkIo.__name__)
+        self.config = config
 
     def decode_chk(self, chk: DecodedChk) -> RichChk:
         decode_context = self._build_decode_context(chk)

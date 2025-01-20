@@ -56,7 +56,7 @@ def real_str_lookup() -> RichStrLookup:
     ) as f:
         chk_binary_data = f.read()
     return RichStrLookupBuilder().build_lookup(
-        decoded_str_section=ChkStrTranscoder().decode(chk_binary_data)
+        decoded_string_section=ChkStrTranscoder().decode(chk_binary_data)
     )
 
 
