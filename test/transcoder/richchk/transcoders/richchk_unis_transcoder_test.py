@@ -303,7 +303,7 @@ def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
     real_decoded_unis, real_decoded_str, rich_chk_empty_encode_context
 ):
     rich_str_lookup = RichStrLookupBuilder().build_lookup(
-        decoded_str_section=real_decoded_str
+        decoded_string_section=real_decoded_str
     )
     rich_mrgn_lookup = RichMrgnLookup(
         _location_by_id_lookup={}, _id_by_location_lookup={}

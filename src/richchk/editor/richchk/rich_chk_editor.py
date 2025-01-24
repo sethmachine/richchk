@@ -4,6 +4,7 @@ import logging
 from typing import Union
 
 from ...model.chk.decoded_chk_section import DecodedChkSection
+from ...model.chk_section_name import ChkSectionName
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
 from ...util import logger
@@ -42,3 +43,31 @@ class RichChkEditor:
                 f"because no RichChkSection was found with that section name"
             )
         return modified_sections
+
+    @classmethod
+    def add_chk_section(cls, new_section: DecodedChkSection, chk: RichChk) -> RichChk:
+        """Adds a new section to the CHK.
+
+        Throws if the section already exists.
+        """
+        if chk.get_sections_by_name(new_section.section_name()):
+            msg = (
+                f"Cannot add CHK section with name {new_section.section_name()} "
+                f"as it already exists in the CHK!"
+            )
+            raise ValueError(msg)
+        new_sections = [section for section in chk.chk_sections]
+        new_sections.append(new_section)
+        return RichChk(_chk_sections=new_sections)
+
+    @classmethod
+    def remove_chk_sections_by_name(
+        cls, section_to_remove: ChkSectionName, chk: RichChk
+    ) -> RichChk:
+        """Make a new CHK with all sections matching the name removed."""
+        new_sections = [
+            section
+            for section in chk.chk_sections
+            if section.section_name() != section_to_remove
+        ]
+        return RichChk(_chk_sections=new_sections)
