@@ -29,3 +29,9 @@ def assert_string_offsets_are_valid_for_strx(str_section: DecodedStrxSection):
             ).value
         )
     assert expected_strings == found_strings
+
+
+def assert_strx_equals_str(strx: DecodedStrxSection, str_: DecodedStrSection):
+    assert strx.number_of_strings == str_.number_of_strings
+    assert len(strx.strings_offsets) == len(str_.strings_offsets)
+    assert strx.strings == str_.strings

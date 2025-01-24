@@ -2,8 +2,8 @@
 import os
 import shutil
 
-from ...editor.chk.decoded_chk_editor import DecodedChkEditor
 from ...editor.chk.decoded_strx_section_generator import DecodedStrxSectionGenerator
+from ...editor.richchk.rich_chk_editor import RichChkEditor
 from ...io.chk.chk_io import ChkIo
 from ...io.richchk.richchk_io import RichChkIo
 from ...model.chk.str.decoded_str_section import DecodedStrSection
@@ -123,16 +123,21 @@ class StarCraftMpqIo:
             CrossPlatformSafeTemporaryNamedFile() as temp_chk_file,
             CrossPlatformSafeTemporaryNamedFile() as temp_mpq_file,
         ):
-            chk = ChkIo().decode_chk_file(path_to_base_mpq_file)
+            chk = self.read_chk_from_mpq(path_to_base_mpq_file)
             new_strx_section = DecodedStrxSectionGenerator.generate_strx_from_str(
                 ChkQueryUtil.find_only_decoded_section_in_chk(DecodedStrSection, chk)
             )
-            new_chk = DecodedChkEditor.remove_chk_sections_by_name(
+            new_chk = RichChkEditor.remove_chk_sections_by_name(
                 ChkSectionName.STR,
-                DecodedChkEditor.add_chk_section(new_strx_section, chk),
+                RichChkEditor.add_chk_section(new_strx_section, chk),
             )
             ChkIo().encode_chk_to_file(
-                new_chk,
+                RichChkIo().encode_chk(
+                    rich_chk=new_chk,
+                    wav_metadata_lookup=self._build_wav_metadata_lookup(
+                        path_to_base_mpq_file
+                    ),
+                ),
                 temp_chk_file,
                 force_create=True,
             )
