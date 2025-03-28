@@ -17,6 +17,7 @@ from richchk.mpq.stormlib.stormlib_wrapper import StormLibWrapper
 from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ...chk_resources import (
+    EXAMPLE_OGG_FILE,
     EXAMPLE_STARCRAFT_SCX_MAP,
     EXAMPLE_WAV_FILE,
     MACOS_STORMLIB_M1,
@@ -82,6 +83,35 @@ def test_integration_it_adds_a_wav_file_to_mpq(mpq_io, wav_io, stormlib_wrapper)
             )
             _assert_wav_file_exists_in_mpq(
                 EXAMPLE_WAV_FILE.as_posix(),
+                expected_wav_file_in_mpq,
+                new_scx_file,
+                stormlib_wrapper,
+            )
+
+
+def test_integration_it_adds_an_ogg_file_to_mpq(mpq_io, wav_io, stormlib_wrapper):
+    if mpq_io and wav_io and stormlib_wrapper:
+        with (
+            CrossPlatformSafeTemporaryNamedFile() as temp_scx_file,
+            CrossPlatformSafeTemporaryNamedFile() as new_scx_file,
+        ):
+            shutil.copy(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
+            wav_io.add_wav_files_to_mpq(
+                [EXAMPLE_OGG_FILE.as_posix()],
+                temp_scx_file,
+                new_scx_file,
+                overwrite_existing=True,
+            )
+            expected_wav_file_in_mpq = _build_expected_wav_mpq_path(
+                EXAMPLE_OGG_FILE.as_posix()
+            )
+            chk = mpq_io.read_chk_from_mpq(new_scx_file)
+            _assert_chk_has_wav_data(expected_wav_file_in_mpq, chk)
+            _assert_wav_metadata_exists(
+                expected_wav_file_in_mpq, new_scx_file, stormlib_wrapper
+            )
+            _assert_wav_file_exists_in_mpq(
+                EXAMPLE_OGG_FILE.as_posix(),
                 expected_wav_file_in_mpq,
                 new_scx_file,
                 stormlib_wrapper,
