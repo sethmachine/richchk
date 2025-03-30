@@ -5,8 +5,10 @@ import pytest
 
 from richchk.editor.richchk.rich_chk_editor import RichChkEditor
 from richchk.editor.richchk.rich_trig_editor import RichTrigEditor
+from richchk.io.mpq.starcraft_audio_files_metadata_io import (
+    StarCraftAudioFilesMetadataIo,
+)
 from richchk.io.mpq.starcraft_mpq_io import StarCraftMpqIo
-from richchk.io.mpq.starcraft_wav_metadata_io import StarCraftWavMetadataIo
 from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.trig.actions.play_wav_action import PlayWavAction
@@ -33,7 +35,7 @@ def mpq_io(embedded_stormlib):
 @pytest.fixture(scope="function")
 def wav_metadata_io(embedded_stormlib):
     if embedded_stormlib:
-        return StarCraftWavMetadataIo(embedded_stormlib)
+        return StarCraftAudioFilesMetadataIo(embedded_stormlib)
 
 
 def _read_file_as_bytes(infile: str) -> bytes:
@@ -164,7 +166,7 @@ def test_integration_it_adds_play_wav_action_without_duration(mpq_io, wav_metada
             assert play_wav_action.path_to_wav_in_mpq == wavfile_in_chk
             # now assert the duration is filled in as expected
             # the exact duration milliseconds of the WAV file as stored in the CHK
-            expected_duration = wav_metadata_io.extract_all_wav_files_metadata(
+            expected_duration = wav_metadata_io.extract_all_audio_files_metadata(
                 temp_scx_file
             )[0].duration_ms
             assert play_wav_action.duration_ms == expected_duration
