@@ -1,4 +1,4 @@
-"""Extract WAV files metadata, including durations from a StarCraft MPQ."""
+"""Extract audio files metadata, including durations from a StarCraft MPQ."""
 import os
 import wave
 
@@ -12,7 +12,7 @@ from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
 from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 
-class StarCraftWavMetadataIo:
+class StarCraftAudioFilesMetadataIo:
     _WAV_FILE_PATTERN = "*.wav"
     _OGG_FILE_PATTERN = "*.ogg"
     _WAV_EXTENSION = ".wav"
@@ -21,7 +21,7 @@ class StarCraftWavMetadataIo:
     def __init__(self, stormlib_wrapper: StormLibWrapper):
         self._stormlib_wrapper = stormlib_wrapper
 
-    def extract_all_wav_files_metadata(
+    def extract_all_audio_files_metadata(
         self, path_to_starcraft_mpq_file: str
     ) -> list[StormLibWav]:
         """Extract metadata of all WAV files in the MPQ archive, including duration in

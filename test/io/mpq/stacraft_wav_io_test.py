@@ -3,9 +3,11 @@ import shutil
 
 import pytest
 
+from richchk.io.mpq.starcraft_audio_files_io import StarCraftAudioFilesIo
+from richchk.io.mpq.starcraft_audio_files_metadata_io import (
+    StarCraftAudioFilesMetadataIo,
+)
 from richchk.io.mpq.starcraft_mpq_io import StarCraftMpqIo
-from richchk.io.mpq.starcraft_wav_io import StarCraftWavIo
-from richchk.io.mpq.starcraft_wav_metadata_io import StarCraftWavMetadataIo
 from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
 from richchk.model.chk.str.decoded_str_section import DecodedStrSection
 from richchk.model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
@@ -52,7 +54,7 @@ def mpq_io(stormlib_wrapper):
 @pytest.fixture(scope="function")
 def wav_io(stormlib_wrapper):
     if stormlib_wrapper:
-        return StarCraftWavIo(stormlib_wrapper)
+        return StarCraftAudioFilesIo(stormlib_wrapper)
 
 
 def _read_file_as_bytes(infile: str) -> bytes:
@@ -67,7 +69,7 @@ def test_integration_it_adds_a_wav_file_to_mpq(mpq_io, wav_io, stormlib_wrapper)
             CrossPlatformSafeTemporaryNamedFile() as new_scx_file,
         ):
             shutil.copy(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
-            wav_io.add_wav_files_to_mpq(
+            wav_io.add_audio_files_to_mpq(
                 [EXAMPLE_WAV_FILE.as_posix()],
                 temp_scx_file,
                 new_scx_file,
@@ -96,7 +98,7 @@ def test_integration_it_adds_an_ogg_file_to_mpq(mpq_io, wav_io, stormlib_wrapper
             CrossPlatformSafeTemporaryNamedFile() as new_scx_file,
         ):
             shutil.copy(EXAMPLE_STARCRAFT_SCX_MAP, temp_scx_file)
-            wav_io.add_wav_files_to_mpq(
+            wav_io.add_audio_files_to_mpq(
                 [EXAMPLE_OGG_FILE.as_posix()],
                 temp_scx_file,
                 new_scx_file,
@@ -157,8 +159,8 @@ def _assert_wav_metadata_exists(
 ):
     wav_metadata = {
         x.path_to_wav_in_mpq: x
-        for x in StarCraftWavMetadataIo(
+        for x in StarCraftAudioFilesMetadataIo(
             stormlib_wrapper
-        ).extract_all_wav_files_metadata(path_to_mpq_file)
+        ).extract_all_audio_files_metadata(path_to_mpq_file)
     }
     assert wav_file_in_mpq in wav_metadata
