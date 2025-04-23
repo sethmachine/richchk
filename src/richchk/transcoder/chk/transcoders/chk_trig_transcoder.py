@@ -128,7 +128,6 @@ executed, trigger execution ends when this is 64 (Max Actions) or an action is
 encountered with Action byte as 0 This section can be split. Additional TRIG sections
 will add more triggers.
 """
-
 import struct
 from io import BytesIO
 
@@ -146,7 +145,6 @@ class ChkTrigTranscoder(
     _RegistrableTranscoder,
     chk_section_name=DecodedTrigSection.section_name(),
 ):
-
     _NUM_BYTES_PER_TRIGGER = 2400
     _NUM_CONDITIONS_PER_TRIGGER = 16
     _NUM_ACTIONS_PER_TRIGGER = 64
@@ -263,61 +261,85 @@ class ChkTrigTranscoder(
         )
 
     def _encode(self, decoded_chk_section: DecodedTrigSection) -> bytes:
-        data: bytes = b""
+        # Pre-calculate total size needed
+        total_size = len(decoded_chk_section.triggers) * self._NUM_BYTES_PER_TRIGGER
+        data = bytearray(total_size)
+        offset = 0
+
         for trigger in decoded_chk_section.triggers:
-            data += self._encode_trigger(trigger)
-        return data
+            # Encode each trigger's data into the pre-allocated bytearray
+            trigger_data = self._encode_trigger(trigger)
+            data[offset : offset + self._NUM_BYTES_PER_TRIGGER] = trigger_data
+            offset += self._NUM_BYTES_PER_TRIGGER
+
+        return bytes(data)
 
     @classmethod
     def _encode_trigger(cls, trigger: DecodedTrigger) -> bytes:
-        data: bytes = b""
+        # Pre-calculate size for a single trigger
+        data = bytearray(cls._NUM_BYTES_PER_TRIGGER)
+        offset = 0
+
+        # Encode conditions
         for condition in trigger.conditions:
-            data += cls._encode_condition(condition)
+            condition_data = cls._encode_condition(condition)
+            data[offset : offset + len(condition_data)] = condition_data
+            offset += len(condition_data)
+
+        # Encode actions
         for action in trigger.actions:
-            data += cls._encode_action(action)
-        data += cls._encode_player_execution(trigger.player_execution)
-        return data
+            action_data = cls._encode_action(action)
+            data[offset : offset + len(action_data)] = action_data
+            offset += len(action_data)
+
+        # Encode player execution
+        player_execution_data = cls._encode_player_execution(trigger.player_execution)
+        data[offset : offset + len(player_execution_data)] = player_execution_data
+
+        return bytes(data)
 
     @classmethod
     def _encode_condition(cls, condition: DecodedTriggerCondition) -> bytes:
-        return (
-            struct.pack("I", condition.location_id)
-            + struct.pack("I", condition.group)
-            + struct.pack("I", condition.quantity)
-            + struct.pack("H", condition.unit_id)
-            + struct.pack("B", condition.numeric_comparison_operation)
-            + struct.pack("B", condition.condition_id)
-            + struct.pack("B", condition.numeric_comparand_type)
-            + struct.pack("B", condition.flags)
-            + struct.pack("H", condition.mask_flag)
-        )
+        data = bytearray()
+        data.extend(struct.pack("I", condition.location_id))
+        data.extend(struct.pack("I", condition.group))
+        data.extend(struct.pack("I", condition.quantity))
+        data.extend(struct.pack("H", condition.unit_id))
+        data.extend(struct.pack("B", condition.numeric_comparison_operation))
+        data.extend(struct.pack("B", condition.condition_id))
+        data.extend(struct.pack("B", condition.numeric_comparand_type))
+        data.extend(struct.pack("B", condition.flags))
+        data.extend(struct.pack("H", condition.mask_flag))
+        return bytes(data)
 
     @classmethod
     def _encode_action(cls, action: DecodedTriggerAction) -> bytes:
-        return (
-            struct.pack("I", action.location_id)
-            + struct.pack("I", action.text_string_id)
-            + struct.pack("I", action.wav_string_id)
-            + struct.pack("I", action.time)
-            + struct.pack("I", action.first_group)
-            + struct.pack("I", action.second_group)
-            + struct.pack("H", action.action_argument_type)
-            + struct.pack("B", action.action_id)
-            + struct.pack("B", action.quantifier_or_switch_or_order)
-            + struct.pack("B", action.flags)
-            + struct.pack("B", action.padding)
-            + struct.pack("H", action.mask_flag)
-        )
+        data = bytearray()
+        data.extend(struct.pack("I", action.location_id))
+        data.extend(struct.pack("I", action.text_string_id))
+        data.extend(struct.pack("I", action.wav_string_id))
+        data.extend(struct.pack("I", action.time))
+        data.extend(struct.pack("I", action.first_group))
+        data.extend(struct.pack("I", action.second_group))
+        data.extend(struct.pack("H", action.action_argument_type))
+        data.extend(struct.pack("B", action.action_id))
+        data.extend(struct.pack("B", action.quantifier_or_switch_or_order))
+        data.extend(struct.pack("B", action.flags))
+        data.extend(struct.pack("B", action.padding))
+        data.extend(struct.pack("H", action.mask_flag))
+        return bytes(data)
 
     @classmethod
     def _encode_player_execution(
         cls, player_execution: DecodedPlayerExecution
     ) -> bytes:
-        data: bytes = b""
-        data += struct.pack("I", player_execution.execution_flags)
-        data += struct.pack(
-            "{}B".format(len(player_execution.player_flags)),
-            *player_execution.player_flags
+        data = bytearray()
+        data.extend(struct.pack("I", player_execution.execution_flags))
+        data.extend(
+            struct.pack(
+                "{}B".format(len(player_execution.player_flags)),
+                *player_execution.player_flags
+            )
         )
-        data += struct.pack("B", player_execution.current_action_index)
-        return data
+        data.extend(struct.pack("B", player_execution.current_action_index))
+        return bytes(data)
