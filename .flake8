@@ -4,3 +4,4 @@
 max-line-length = 110
 max-doc-length = 200
 per-file-ignores = conftest.py:F401
+extend-ignore = E203
