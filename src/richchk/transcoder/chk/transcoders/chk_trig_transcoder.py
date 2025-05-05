@@ -128,7 +128,6 @@ executed, trigger execution ends when this is 64 (Max Actions) or an action is
 encountered with Action byte as 0 This section can be split. Additional TRIG sections
 will add more triggers.
 """
-
 import struct
 from io import BytesIO
 
@@ -146,16 +145,47 @@ class ChkTrigTranscoder(
     _RegistrableTranscoder,
     chk_section_name=DecodedTrigSection.section_name(),
 ):
-
-    _NUM_BYTES_PER_TRIGGER = 2400
+    # Counts of elements
     _NUM_CONDITIONS_PER_TRIGGER = 16
     _NUM_ACTIONS_PER_TRIGGER = 64
     _NUM_PLAYER_EXECUTION_IDS = 27
 
+    # Byte sizes for each component
+    _NUM_BYTES_PER_CONDITION = 20  # 3*4 + 2 + 4*1 + 2
+    _NUM_BYTES_PER_ACTION = 32  # 6*4 + 2 + 3*1 + 1 + 2
+    _NUM_BYTES_PER_PLAYER_EXECUTION = 32  # 4 + 27*1 + 1
+    _NUM_BYTES_PER_TRIGGER = (
+        _NUM_BYTES_PER_CONDITION * _NUM_CONDITIONS_PER_TRIGGER
+        + _NUM_BYTES_PER_ACTION * _NUM_ACTIONS_PER_TRIGGER
+        + _NUM_BYTES_PER_PLAYER_EXECUTION
+    )
+
+    # Values per struct
+    # location_id, group, quantity, unit_id, numeric_comparison_operation, condition_id,
+    # numeric_comparand_type, flags, mask_flag
+    _NUM_VALUES_PER_CONDITION = 9
+
+    # location_id, text_string_id, wav_string_id, time, first_group, second_group,
+    # action_argument_type, action_id, quantifier_or_switch_or_order, flags, padding, mask_flag
+    _NUM_VALUES_PER_ACTION = 12
+
+    # Format strings for struct packing
+    _CONDITION_FORMAT = "3I H 4B H"  # 20 bytes: 3*4 + 2 + 4*1 + 2
+    _ACTION_FORMAT = "6I H 3B B H"  # 32 bytes: 6*4 + 2 + 3*1 + 1 + 2
+    _PLAYER_EXECUTION_FORMAT = "I 27B B"  # 32 bytes: 4 + 27*1 + 1
+
+    # Bulk format strings for decoding multiple items at once
+    _ALL_CONDITIONS_FORMAT = (
+        _CONDITION_FORMAT * _NUM_CONDITIONS_PER_TRIGGER
+    )  # 16 conditions
+    _ALL_ACTIONS_FORMAT = _ACTION_FORMAT * _NUM_ACTIONS_PER_TRIGGER  # 64 actions
+
     def decode(self, chk_section_binary_data: bytes) -> DecodedTrigSection:
+        num_triggers = len(chk_section_binary_data) // self._NUM_BYTES_PER_TRIGGER
+        triggers = []
+
         bytes_stream: BytesIO = BytesIO(chk_section_binary_data)
-        triggers: list[DecodedTrigger] = []
-        while bytes_stream.tell() != len(chk_section_binary_data):
+        for i in range(num_triggers):
             triggers.append(
                 self._decode_single_trigger(
                     bytes_stream.read(self._NUM_BYTES_PER_TRIGGER)
@@ -166,12 +196,8 @@ class ChkTrigTranscoder(
     @classmethod
     def _decode_single_trigger(cls, trigger_bytes: bytes) -> DecodedTrigger:
         bytes_stream: BytesIO = BytesIO(trigger_bytes)
-        conditions: list[
-            DecodedTriggerCondition
-        ] = cls._decode_conditions_for_single_trigger(bytes_stream)
-        actions: list[DecodedTriggerAction] = cls._decode_actions_for_single_trigger(
-            bytes_stream
-        )
+        conditions = cls._decode_conditions_for_single_trigger(bytes_stream)
+        actions = cls._decode_actions_for_single_trigger(bytes_stream)
         player_execution = cls._decode_player_execution_for_single_trigger(bytes_stream)
 
         return DecodedTrigger(
@@ -182,29 +208,28 @@ class ChkTrigTranscoder(
     def _decode_conditions_for_single_trigger(
         cls, bytes_stream: BytesIO
     ) -> list[DecodedTriggerCondition]:
-        conditions: list[DecodedTriggerCondition] = []
-        # there are always 16 conditions, even if not all are used
-        for _ in range(cls._NUM_CONDITIONS_PER_TRIGGER):
-            location_id = struct.unpack("I", bytes_stream.read(4))[0]
-            group = struct.unpack("I", bytes_stream.read(4))[0]
-            quantity = struct.unpack("I", bytes_stream.read(4))[0]
-            unit_id = struct.unpack("H", bytes_stream.read(2))[0]
-            numeric_comparison_operation = struct.unpack("B", bytes_stream.read(1))[0]
-            condition_id = struct.unpack("B", bytes_stream.read(1))[0]
-            numeric_comparand_type = struct.unpack("B", bytes_stream.read(1))[0]
-            flags = struct.unpack("B", bytes_stream.read(1))[0]
-            mask_flag = struct.unpack("H", bytes_stream.read(2))[0]
+        # Read all conditions at once
+        values = struct.unpack(
+            cls._ALL_CONDITIONS_FORMAT,
+            bytes_stream.read(
+                cls._NUM_BYTES_PER_CONDITION * cls._NUM_CONDITIONS_PER_TRIGGER
+            ),
+        )
+
+        conditions = []  # Pre-allocate list
+        for i in range(cls._NUM_CONDITIONS_PER_TRIGGER):
+            base = i * cls._NUM_VALUES_PER_CONDITION
             conditions.append(
                 DecodedTriggerCondition(
-                    _location_id=location_id,
-                    _group=group,
-                    _quantity=quantity,
-                    _unit_id=unit_id,
-                    _numeric_comparison_operation=numeric_comparison_operation,
-                    _condition_id=condition_id,
-                    _numeric_comparand_type=numeric_comparand_type,
-                    _flags=flags,
-                    _mask_flag=mask_flag,
+                    _location_id=values[base],
+                    _group=values[base + 1],
+                    _quantity=values[base + 2],
+                    _unit_id=values[base + 3],
+                    _numeric_comparison_operation=values[base + 4],
+                    _condition_id=values[base + 5],
+                    _numeric_comparand_type=values[base + 6],
+                    _flags=values[base + 7],
+                    _mask_flag=values[base + 8],
                 )
             )
         return conditions
@@ -213,35 +238,29 @@ class ChkTrigTranscoder(
     def _decode_actions_for_single_trigger(
         cls, bytes_stream: BytesIO
     ) -> list[DecodedTriggerAction]:
-        actions: list[DecodedTriggerAction] = []
-        # there are always 64 conditions, even if not all are used
-        for _ in range(cls._NUM_ACTIONS_PER_TRIGGER):
-            location_id = struct.unpack("I", bytes_stream.read(4))[0]
-            text_string_id = struct.unpack("I", bytes_stream.read(4))[0]
-            wav_string_id = struct.unpack("I", bytes_stream.read(4))[0]
-            time_ = struct.unpack("I", bytes_stream.read(4))[0]
-            first_group = struct.unpack("I", bytes_stream.read(4))[0]
-            second_group = struct.unpack("I", bytes_stream.read(4))[0]
-            action_argument_type = struct.unpack("H", bytes_stream.read(2))[0]
-            action_id = struct.unpack("B", bytes_stream.read(1))[0]
-            quantifier_or_switch_or_order = struct.unpack("B", bytes_stream.read(1))[0]
-            flags = struct.unpack("B", bytes_stream.read(1))[0]
-            padding = struct.unpack("B", bytes_stream.read(1))[0]
-            mask_flag = struct.unpack("H", bytes_stream.read(2))[0]
+        # Read all actions at once
+        values = struct.unpack(
+            cls._ALL_ACTIONS_FORMAT,
+            bytes_stream.read(cls._NUM_BYTES_PER_ACTION * cls._NUM_ACTIONS_PER_TRIGGER),
+        )
+
+        actions = []
+        for i in range(cls._NUM_ACTIONS_PER_TRIGGER):
+            base = i * cls._NUM_VALUES_PER_ACTION
             actions.append(
                 DecodedTriggerAction(
-                    _location_id=location_id,
-                    _text_string_id=text_string_id,
-                    _wav_string_id=wav_string_id,
-                    _time=time_,
-                    _first_group=first_group,
-                    _second_group=second_group,
-                    _action_argument_type=action_argument_type,
-                    _action_id=action_id,
-                    _quantifier_or_switch_or_order=quantifier_or_switch_or_order,
-                    _flags=flags,
-                    _padding=padding,
-                    _mask_flag=mask_flag,
+                    _location_id=values[base],
+                    _text_string_id=values[base + 1],
+                    _wav_string_id=values[base + 2],
+                    _time=values[base + 3],
+                    _first_group=values[base + 4],
+                    _second_group=values[base + 5],
+                    _action_argument_type=values[base + 6],
+                    _action_id=values[base + 7],
+                    _quantifier_or_switch_or_order=values[base + 8],
+                    _flags=values[base + 9],
+                    _padding=values[base + 10],
+                    _mask_flag=values[base + 11],
                 )
             )
         return actions
@@ -250,74 +269,84 @@ class ChkTrigTranscoder(
     def _decode_player_execution_for_single_trigger(
         cls, bytes_stream: BytesIO
     ) -> DecodedPlayerExecution:
-        execution_flags = struct.unpack("I", bytes_stream.read(4))[0]
-        player_flags = [
-            struct.unpack("B", bytes_stream.read(1))[0]
-            for _ in range(cls._NUM_PLAYER_EXECUTION_IDS)
-        ]
-        _current_action_index = struct.unpack("B", bytes_stream.read(1))[0]
+        values = struct.unpack(
+            cls._PLAYER_EXECUTION_FORMAT,
+            bytes_stream.read(cls._NUM_BYTES_PER_PLAYER_EXECUTION),
+        )
         return DecodedPlayerExecution(
-            _execution_flags=execution_flags,
-            _player_flags=player_flags,
-            _current_action_index=_current_action_index,
+            _execution_flags=values[0],
+            _player_flags=list(values[1:28]),  # 27 player flags
+            _current_action_index=values[28],
         )
 
     def _encode(self, decoded_chk_section: DecodedTrigSection) -> bytes:
-        data: bytes = b""
+        # Pre-calculate total size needed
+        total_size = len(decoded_chk_section.triggers) * self._NUM_BYTES_PER_TRIGGER
+        data = bytearray(total_size)
+        offset = 0
+
         for trigger in decoded_chk_section.triggers:
-            data += self._encode_trigger(trigger)
-        return data
+            # Encode directly into the main bytearray
+            self._encode_trigger_into(trigger, data, offset)
+            offset += self._NUM_BYTES_PER_TRIGGER
+
+        return bytes(data)
 
     @classmethod
-    def _encode_trigger(cls, trigger: DecodedTrigger) -> bytes:
-        data: bytes = b""
+    def _encode_trigger_into(
+        cls, trigger: DecodedTrigger, data: bytearray, base_offset: int
+    ) -> None:
+        offset = base_offset
+
+        # Pack all conditions at once
+        all_condition_values = []
         for condition in trigger.conditions:
-            data += cls._encode_condition(condition)
+            all_condition_values.extend(
+                [
+                    condition.location_id,
+                    condition.group,
+                    condition.quantity,
+                    condition.unit_id,
+                    condition.numeric_comparison_operation,
+                    condition.condition_id,
+                    condition.numeric_comparand_type,
+                    condition.flags,
+                    condition.mask_flag,
+                ]
+            )
+        struct.pack_into(
+            cls._ALL_CONDITIONS_FORMAT, data, offset, *all_condition_values
+        )
+        offset += cls._NUM_BYTES_PER_CONDITION * cls._NUM_CONDITIONS_PER_TRIGGER
+
+        # Pack all actions at once
+        all_action_values = []
         for action in trigger.actions:
-            data += cls._encode_action(action)
-        data += cls._encode_player_execution(trigger.player_execution)
-        return data
+            all_action_values.extend(
+                [
+                    action.location_id,
+                    action.text_string_id,
+                    action.wav_string_id,
+                    action.time,
+                    action.first_group,
+                    action.second_group,
+                    action.action_argument_type,
+                    action.action_id,
+                    action.quantifier_or_switch_or_order,
+                    action.flags,
+                    action.padding,
+                    action.mask_flag,
+                ]
+            )
+        struct.pack_into(cls._ALL_ACTIONS_FORMAT, data, offset, *all_action_values)
+        offset += cls._NUM_BYTES_PER_ACTION * cls._NUM_ACTIONS_PER_TRIGGER
 
-    @classmethod
-    def _encode_condition(cls, condition: DecodedTriggerCondition) -> bytes:
-        return (
-            struct.pack("I", condition.location_id)
-            + struct.pack("I", condition.group)
-            + struct.pack("I", condition.quantity)
-            + struct.pack("H", condition.unit_id)
-            + struct.pack("B", condition.numeric_comparison_operation)
-            + struct.pack("B", condition.condition_id)
-            + struct.pack("B", condition.numeric_comparand_type)
-            + struct.pack("B", condition.flags)
-            + struct.pack("H", condition.mask_flag)
+        # Pack player execution
+        struct.pack_into(
+            cls._PLAYER_EXECUTION_FORMAT,
+            data,
+            offset,
+            trigger.player_execution.execution_flags,
+            *trigger.player_execution.player_flags,
+            trigger.player_execution.current_action_index,
         )
-
-    @classmethod
-    def _encode_action(cls, action: DecodedTriggerAction) -> bytes:
-        return (
-            struct.pack("I", action.location_id)
-            + struct.pack("I", action.text_string_id)
-            + struct.pack("I", action.wav_string_id)
-            + struct.pack("I", action.time)
-            + struct.pack("I", action.first_group)
-            + struct.pack("I", action.second_group)
-            + struct.pack("H", action.action_argument_type)
-            + struct.pack("B", action.action_id)
-            + struct.pack("B", action.quantifier_or_switch_or_order)
-            + struct.pack("B", action.flags)
-            + struct.pack("B", action.padding)
-            + struct.pack("H", action.mask_flag)
-        )
-
-    @classmethod
-    def _encode_player_execution(
-        cls, player_execution: DecodedPlayerExecution
-    ) -> bytes:
-        data: bytes = b""
-        data += struct.pack("I", player_execution.execution_flags)
-        data += struct.pack(
-            "{}B".format(len(player_execution.player_flags)),
-            *player_execution.player_flags
-        )
-        data += struct.pack("B", player_execution.current_action_index)
-        return data
