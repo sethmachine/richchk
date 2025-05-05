@@ -14,7 +14,7 @@ from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
 from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
 from ..richchk.query.chk_query_util import ChkQueryUtil
-from .starcraft_wav_metadata_io import StarCraftWavMetadataIo
+from .starcraft_audio_files_metadata_io import StarCraftAudioFilesMetadataIo
 
 
 class StarCraftMpqIo:
@@ -159,9 +159,9 @@ class StarCraftMpqIo:
     def _build_wav_metadata_lookup(
         self, path_to_base_mpq_file: str
     ) -> RichWavMetadataLookup:
-        wav_metadata = StarCraftWavMetadataIo(
+        wav_metadata = StarCraftAudioFilesMetadataIo(
             stormlib_wrapper=self._stormlib_wrapper
-        ).extract_all_wav_files_metadata(path_to_base_mpq_file)
+        ).extract_all_audio_files_metadata(path_to_base_mpq_file)
         return RichWavMetadataLookup(
             _metadata_by_wav_path={x.path_to_wav_in_mpq: x for x in wav_metadata}
         )
