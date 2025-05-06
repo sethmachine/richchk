@@ -24,21 +24,15 @@ class ChkStrxTranscoder(
         for _ in range(num_strings):
             string_offsets.append(struct.unpack("I", bytes_stream.read(4))[0])
         strings: list[str] = []
-        # there can be more offsets than actual string data,
-        # means some offsets reference the same string!
+        # Read bytes until null byte, then decode the full byte sequence
         while bytes_stream.tell() != len(chk_section_binary_data):
-            char: str = struct.unpack("c", bytes_stream.read(1))[0].decode(
-                _STRING_ENCODING
-            )
-            chars: list[str] = []
-            # until null character, read one char at a time,
-            # strings won't store the null terminators
-            while char != _NULL_TERMINATE_CHAR_FOR_STRING:
-                chars.append(char)
-                char = struct.unpack("c", bytes_stream.read(1))[0].decode(
-                    _STRING_ENCODING
-                )
-            strings.append("".join(chars))
+            chars = bytearray()
+            while True:
+                b = bytes_stream.read(1)
+                if not b or b == b"\x00":
+                    break
+                chars.extend(b)
+            strings.append(chars.decode(_STRING_ENCODING))
         return DecodedStrxSection(
             _number_of_strings=num_strings,
             _string_offsets=string_offsets,
