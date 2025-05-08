@@ -13,7 +13,7 @@ class UnitHitpointsTranscoder:
         maybe_remainder = hitpoints_before_decode % cls._HITPOINTS_CONVERSION_RATE
         if maybe_remainder:
             cls._LOG.warning(
-                not f"Unit {unit_id} "
+                f"Unit {unit_id} "
                 f"had fractional hitpoints of {maybe_remainder} / {cls._HITPOINTS_CONVERSION_RATE} "
                 f"due to decoded hitpoints {hitpoints_before_decode}"
                 f"not being an even multiple of 256"

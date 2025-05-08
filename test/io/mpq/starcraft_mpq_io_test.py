@@ -10,15 +10,24 @@ from richchk.io.mpq.starcraft_audio_files_metadata_io import (
 )
 from richchk.io.mpq.starcraft_mpq_io import StarCraftMpqIo
 from richchk.io.richchk.query.chk_query_util import ChkQueryUtil
+from richchk.model.chk.str.decoded_str_section import DecodedStrSection
+from richchk.model.chk.strx.decoded_strx_section import DecodedStrxSection
+from richchk.model.chk_section_name import ChkSectionName
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.trig.actions.play_wav_action import PlayWavAction
 from richchk.model.richchk.trig.conditions.always_condition import AlwaysCondition
 from richchk.model.richchk.trig.player_id import PlayerId
 from richchk.model.richchk.trig.rich_trig_section import RichTrigSection
 from richchk.model.richchk.trig.rich_trigger import RichTrigger
+from richchk.model.richchk.ver.rich_ver_section import RichVerSection
+from richchk.model.richchk.ver.ver_version import VerVersion
 from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ...chk_resources import EXAMPLE_STARCRAFT_SCM_MAP, EXAMPLE_STARCRAFT_SCX_MAP
+from ...editor.chk.str_test_utils import (
+    assert_string_offsets_are_valid_for_strx,
+    assert_strx_equals_str,
+)
 
 # the canonical place the CHK is stored in a SCX/SCM map file
 _CHK_MPQ_PATH = "staredit\\scenario.chk"
@@ -170,3 +179,32 @@ def test_integration_it_adds_play_wav_action_without_duration(mpq_io, wav_metada
                 temp_scx_file
             )[0].duration_ms
             assert play_wav_action.duration_ms == expected_duration
+
+
+def test_it_replaces_str_with_strx(mpq_io):
+    if mpq_io:
+        with (
+            CrossPlatformSafeTemporaryNamedFile() as temp_base_file,
+            CrossPlatformSafeTemporaryNamedFile() as temp_new_file,
+        ):
+            shutil.copy(EXAMPLE_STARCRAFT_SCX_MAP, temp_base_file)
+            chk = mpq_io.read_chk_from_mpq(temp_base_file)
+            str_ = ChkQueryUtil.find_string_section_in_chk(chk)
+            assert isinstance(str_, DecodedStrSection)
+            old_ver = ChkQueryUtil.find_only_rich_section_in_chk(RichVerSection, chk)
+            assert old_ver.version != VerVersion.STARCRAFT_REMASTERED_BROODWAR
+            mpq_io.create_mpq_with_strx(
+                temp_base_file, temp_new_file, overwrite_existing=True
+            )
+            new_chk = mpq_io.read_chk_from_mpq(temp_new_file)
+            strx = ChkQueryUtil.find_string_section_in_chk(new_chk)
+            assert isinstance(strx, DecodedStrxSection)
+            assert not ChkQueryUtil.determine_if_chk_contains_section(
+                ChkSectionName.STR, new_chk
+            )
+            assert_strx_equals_str(strx, str_)
+            assert_string_offsets_are_valid_for_strx(strx)
+            new_ver = ChkQueryUtil.find_only_rich_section_in_chk(
+                RichVerSection, new_chk
+            )
+            assert new_ver.version == VerVersion.STARCRAFT_REMASTERED_BROODWAR

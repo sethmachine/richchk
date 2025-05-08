@@ -4,7 +4,10 @@ import dataclasses
 from collections import OrderedDict
 
 from ...editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
+from ...editor.chk.decoded_strx_section_editor import DecodedStrxSectionEditor
+from ...model.chk.decoded_string_section import DecodedStringSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
+from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
 from ...model.richchk.str.rich_string import RichNullString, RichString
@@ -13,17 +16,28 @@ from .query.chk_query_util import ChkQueryUtil
 
 class DecodedStrSectionRebuilder:
     @staticmethod
-    def rebuild_str_section_from_rich_chk(rich_chk: RichChk) -> DecodedStrSection:
-        decoded_str = ChkQueryUtil.find_only_decoded_section_in_chk(
-            DecodedStrSection, rich_chk
+    def rebuild_str_section_from_rich_chk(rich_chk: RichChk) -> DecodedStringSection:
+        decoded_str = ChkQueryUtil.find_string_section_in_chk(rich_chk)
+        rich_strings = DecodedStrSectionRebuilder.find_all_rich_strings_in_rich_chk(
+            rich_chk
         )
-        rich_strings: list[
-            RichString
-        ] = DecodedStrSectionRebuilder.find_all_rich_strings_in_rich_chk(rich_chk)
-        str_editor: DecodedStrSectionEditor = DecodedStrSectionEditor()
-        return str_editor.add_strings_to_str_section(
+        return DecodedStrSectionRebuilder._add_strings_to_string_section(
             [x.value for x in rich_strings], decoded_str
         )
+
+    @staticmethod
+    def _add_strings_to_string_section(
+        strings_to_add: list[str], decoded_string_section: DecodedStringSection
+    ) -> DecodedStringSection:
+        if isinstance(decoded_string_section, DecodedStrSection):
+            return DecodedStrSectionEditor().add_strings_to_str_section(
+                strings_to_add, decoded_string_section
+            )
+        elif isinstance(decoded_string_section, DecodedStrxSection):
+            return DecodedStrxSectionEditor().add_strings_to_strx_section(
+                strings_to_add, decoded_string_section
+            )
+        raise ValueError("Unknown string section, got neither STR or STRx")
 
     @staticmethod
     def find_all_rich_strings_in_rich_chk(rich_chk: RichChk) -> list[RichString]:

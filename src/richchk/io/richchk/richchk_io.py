@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
+from ...model.chk.decoded_string_section import DecodedStringSection
 from ...model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
+from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
 from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
@@ -76,7 +78,7 @@ class RichChkIo:
         # first need to iterate all relevant RichChk sections
         # and determine all new strings to add
         # then construct the new DecodedStrChk, plus
-        new_str_section: DecodedStrSection = (
+        new_str_section: DecodedStringSection = (
             DecodedStrSectionRebuilder.rebuild_str_section_from_rich_chk(rich_chk)
         )
         (
@@ -106,7 +108,15 @@ class RichChkIo:
         for chk_section in rich_chk.chk_sections:
             if isinstance(chk_section, DecodedUnknownSection):
                 decoded_sections.append(chk_section)
-            elif isinstance(chk_section, DecodedStrSection):
+            elif isinstance(chk_section, DecodedStrSection) and isinstance(
+                new_str_section, DecodedStrSection
+            ):
+                # replace the old STR section
+                # TODO: make an editor to replace sections by index or ID
+                decoded_sections.append(new_str_section)
+            elif isinstance(chk_section, DecodedStrxSection) and isinstance(
+                new_str_section, DecodedStrxSection
+            ):
                 # replace the old STR section
                 # TODO: make an editor to replace sections by index or ID
                 decoded_sections.append(new_str_section)
@@ -173,7 +183,7 @@ class RichChkIo:
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
         rich_str_lookup = RichStrLookupBuilder().build_lookup(
-            ChkQueryUtil.find_only_decoded_section_in_chk(DecodedStrSection, chk)
+            ChkQueryUtil.find_string_section_in_chk(chk)
         )
         partial_decode_context = RichChkDecodeContext(
             _rich_str_lookup=rich_str_lookup,
@@ -231,7 +241,7 @@ class RichChkIo:
     def _build_encode_context(
         self,
         chk: RichChk,
-        new_str_section: DecodedStrSection,
+        new_str_section: DecodedStringSection,
         new_mrgn_section: RichMrgnSection,
         swnm_lookup: RichSwnmLookup,
         new_uprp_section: RichUprpSection,

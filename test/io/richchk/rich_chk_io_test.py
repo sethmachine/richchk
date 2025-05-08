@@ -116,7 +116,7 @@ def test_integration_it_adds_swnm_to_chk_after_encoding_if_it_did_not_exist():
         ChkSectionName.SWNM, chk_without_swnm
     )
     rich_chk_without_swnm: RichChk = richhk_io.decode_chk(chk_without_swnm)
-    assert not ChkQueryUtil.determine_if_rich_chk_contains_section(
+    assert not ChkQueryUtil.determine_if_chk_contains_section(
         ChkSectionName.SWNM, rich_chk_without_swnm
     )
     chk_with_swnm_added = RichChkIo().encode_chk(rich_chk_without_swnm)

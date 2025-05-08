@@ -151,12 +151,8 @@ def test_integration_it_creates_uprp_and_upus_if_they_did_not_exist_before(
     assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPRP, chk)
     assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPUS, chk)
     rich_chk_again = RichChkIo().decode_chk(chk)
-    ChkQueryUtil.determine_if_rich_chk_contains_section(
-        ChkSectionName.UPRP, rich_chk_again
-    )
-    ChkQueryUtil.determine_if_rich_chk_contains_section(
-        ChkSectionName.UPUS, rich_chk_again
-    )
+    ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPRP, rich_chk_again)
+    ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPUS, rich_chk_again)
     trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_cuwps(trig.triggers)
     uprp = ChkQueryUtil.find_only_rich_section_in_chk(RichUprpSection, rich_chk_again)
@@ -180,12 +176,8 @@ def test_integration_it_adds_new_cuwps_if_some_already_existed_before(
     assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPRP, chk)
     assert ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPUS, chk)
     rich_chk_again = RichChkIo().decode_chk(chk)
-    ChkQueryUtil.determine_if_rich_chk_contains_section(
-        ChkSectionName.UPRP, rich_chk_again
-    )
-    ChkQueryUtil.determine_if_rich_chk_contains_section(
-        ChkSectionName.UPUS, rich_chk_again
-    )
+    ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPRP, rich_chk_again)
+    ChkQueryUtil.determine_if_chk_contains_section(ChkSectionName.UPUS, rich_chk_again)
     trig = ChkQueryUtil.find_only_rich_section_in_chk(RichTrigSection, rich_chk_again)
     assert_triggers_all_have_allocated_cuwps(trig.triggers)
     uprp = ChkQueryUtil.find_only_rich_section_in_chk(RichUprpSection, rich_chk_again)
