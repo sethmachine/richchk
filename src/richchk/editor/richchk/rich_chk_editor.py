@@ -45,7 +45,9 @@ class RichChkEditor:
         return modified_sections
 
     @classmethod
-    def add_chk_section(cls, new_section: DecodedChkSection, chk: RichChk) -> RichChk:
+    def add_chk_section(
+        cls, new_section: Union[DecodedChkSection, RichChkSection], chk: RichChk
+    ) -> RichChk:
         """Adds a new section to the CHK.
 
         Throws if the section already exists.

@@ -10,6 +10,8 @@ from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk_section_name import ChkSectionName
 from ...model.mpq.stormlib.stormlib_archive_mode import StormLibArchiveMode
 from ...model.richchk.rich_chk import RichChk
+from ...model.richchk.ver.rich_ver_section import RichVerSection
+from ...model.richchk.ver.ver_version import VerVersion
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
 from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
@@ -127,9 +129,11 @@ class StarCraftMpqIo:
             new_strx_section = DecodedStrxSectionGenerator.generate_strx_from_str(
                 ChkQueryUtil.find_only_decoded_section_in_chk(DecodedStrSection, chk)
             )
-            new_chk = RichChkEditor.remove_chk_sections_by_name(
-                ChkSectionName.STR,
-                RichChkEditor.add_chk_section(new_strx_section, chk),
+            new_chk = self._change_to_remastered_ver_version(
+                RichChkEditor.remove_chk_sections_by_name(
+                    ChkSectionName.STR,
+                    RichChkEditor.add_chk_section(new_strx_section, chk),
+                )
             )
             ChkIo().encode_chk_to_file(
                 RichChkIo().encode_chk(
@@ -155,6 +159,20 @@ class StarCraftMpqIo:
                 self._stormlib_wrapper.compact_archive(open_result)
             )
             shutil.copyfile(temp_mpq_file, path_to_new_mpq_file)
+
+    def _change_to_remastered_ver_version(self, chk: RichChk) -> RichChk:
+        """Replace the VER section with the remastered version to use STRx.
+
+        STRx only works if the VER version has value 206, which is Starcraft Remastered
+        (1.21) (broodwar)
+        """
+        remastered_ver = RichVerSection(
+            _version=VerVersion.STARCRAFT_REMASTERED_BROODWAR
+        )
+        return RichChkEditor.add_chk_section(
+            remastered_ver,
+            RichChkEditor.remove_chk_sections_by_name(ChkSectionName.VER, chk),
+        )
 
     def _build_wav_metadata_lookup(
         self, path_to_base_mpq_file: str
