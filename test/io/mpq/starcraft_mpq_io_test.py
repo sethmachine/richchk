@@ -19,6 +19,8 @@ from richchk.model.richchk.trig.conditions.always_condition import AlwaysConditi
 from richchk.model.richchk.trig.player_id import PlayerId
 from richchk.model.richchk.trig.rich_trig_section import RichTrigSection
 from richchk.model.richchk.trig.rich_trigger import RichTrigger
+from richchk.model.richchk.ver.rich_ver_section import RichVerSection
+from richchk.model.richchk.ver.ver_version import VerVersion
 from richchk.util.fileutils import CrossPlatformSafeTemporaryNamedFile
 
 from ...chk_resources import EXAMPLE_STARCRAFT_SCM_MAP, EXAMPLE_STARCRAFT_SCX_MAP
@@ -189,6 +191,8 @@ def test_it_replaces_str_with_strx(mpq_io):
             chk = mpq_io.read_chk_from_mpq(temp_base_file)
             str_ = ChkQueryUtil.find_string_section_in_chk(chk)
             assert isinstance(str_, DecodedStrSection)
+            old_ver = ChkQueryUtil.find_only_rich_section_in_chk(RichVerSection, chk)
+            assert old_ver.version != VerVersion.STARCRAFT_REMASTERED_BROODWAR
             mpq_io.create_mpq_with_strx(
                 temp_base_file, temp_new_file, overwrite_existing=True
             )
@@ -200,3 +204,7 @@ def test_it_replaces_str_with_strx(mpq_io):
             )
             assert_strx_equals_str(strx, str_)
             assert_string_offsets_are_valid_for_strx(strx)
+            new_ver = ChkQueryUtil.find_only_rich_section_in_chk(
+                RichVerSection, new_chk
+            )
+            assert new_ver.version == VerVersion.STARCRAFT_REMASTERED_BROODWAR
