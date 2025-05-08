@@ -4,15 +4,21 @@ from typing import Type, TypeVar, Union
 
 from ....model.chk.decoded_chk import DecodedChk
 from ....model.chk.decoded_chk_section import DecodedChkSection
+from ....model.chk.decoded_string_section import DecodedStringSection
+from ....model.chk.str.decoded_str_section import DecodedStrSection
+from ....model.chk.strx.decoded_strx_section import DecodedStrxSection
 from ....model.chk_section_name import ChkSectionName
 from ....model.richchk.rich_chk import RichChk
 from ....model.richchk.rich_chk_section import RichChkSection
+from ....util import logger
 
 _T = TypeVar("_T", bound=RichChkSection, covariant=True)
 _U = TypeVar("_U", bound=DecodedChkSection, covariant=True)
 
 
 class ChkQueryUtil:
+    _LOG = logger.get_logger("ChkQueryUtil")
+
     @staticmethod
     def find_only_decoded_section_in_chk(
         chk_section_type: Type[_U], chk: Union[DecodedChk, RichChk]
@@ -58,6 +64,31 @@ class ChkQueryUtil:
         return only_section
 
     @staticmethod
+    def find_string_section_in_chk(
+        chk: Union[DecodedChk, RichChk],
+    ) -> DecodedStringSection:
+        has_str = ChkQueryUtil.determine_if_chk_contains_section(
+            ChkSectionName.STR, chk
+        )
+        has_strx = ChkQueryUtil.determine_if_chk_contains_section(
+            ChkSectionName.STRX, chk
+        )
+        if has_str and has_strx:
+            ChkQueryUtil._LOG.warning(
+                "The CHK contains both the STR and STRx sections. "
+                " The STR will be ignored in favor of the STRx."
+            )
+        if has_strx:
+            return ChkQueryUtil.find_only_decoded_section_in_chk(
+                DecodedStrxSection, chk
+            )
+        elif has_str:
+            return ChkQueryUtil.find_only_decoded_section_in_chk(DecodedStrSection, chk)
+        msg = "The CHK contains no string data!  At least one required section STR or STRx, but none found!"
+        ChkQueryUtil._LOG.error(msg)
+        raise ValueError(msg)
+
+    @staticmethod
     def find_only_rich_section_in_chk(
         chk_section_type: Type[_T], rich_chk: RichChk
     ) -> _T:
@@ -94,18 +125,27 @@ class ChkQueryUtil:
         assert isinstance(only_section, chk_section_type)
         return only_section
 
-    @staticmethod
-    def determine_if_rich_chk_contains_section(
-        chk_section_name: ChkSectionName, rich_chk: RichChk
+    @classmethod
+    def determine_if_chk_contains_section(
+        cls, chk_section_name: ChkSectionName, chk: Union[DecodedChk, RichChk]
+    ) -> bool:
+        if isinstance(chk, DecodedChk):
+            return cls._determine_if_chk_contains_section(chk_section_name, chk)
+        elif isinstance(chk, RichChk):
+            return cls._determine_if_rich_chk_contains_section(chk_section_name, chk)
+
+    @classmethod
+    def _determine_if_rich_chk_contains_section(
+        cls, chk_section_name: ChkSectionName, rich_chk: RichChk
     ) -> bool:
         named_sections = rich_chk.get_sections_by_name(
             chk_section_name=chk_section_name
         )
         return len(named_sections) > 0
 
-    @staticmethod
-    def determine_if_chk_contains_section(
-        chk_section_name: ChkSectionName, chk: DecodedChk
+    @classmethod
+    def _determine_if_chk_contains_section(
+        cls, chk_section_name: ChkSectionName, chk: DecodedChk
     ) -> bool:
         named_sections = chk.get_sections_by_name(chk_section_name=chk_section_name)
         return len(named_sections) > 0
