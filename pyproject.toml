@@ -1,2 +1,50 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "richchk"
+version = "0.1"
+dependencies = [
+    "PyYAML==6.0.1",
+    "dataclass-wizard==0.22.3",
+    "mutagen==1.47.0",
+]
+requires-python = ">=3.11,<3.13"
+description = "Parse Starcraft CHK format into a rich, readable, and editable format."
+authors = [ {name = "sethmachine", email = "sethmachine01@gmail.com"} ]
+license = "MIT"
+
+[project.urls]
+Repository = "https://github.com/sethmachine/richchk.git"
+
+[project.optional-dependencies]
+test = ["pytest==8.3.1"]
+dev = [
+    "black==22.12.0",
+    "docformatter==1.7.5",
+    "flake8==7.0.0",
+    "isort==5.12.0",
+    "mypy==1.7.1",
+    "pre-commit==3.5.0",
+]
+
+# [tool.setuptools]
+# zip_safe = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+"richchk" = [
+    "mpq/stormlib/dlls/macos/*.*",
+    "mpq/stormlib/dlls/windows/x64/*.*",
+    "mpq/stormlib/dlls/linux/*.*",
+]
+
 [tool.isort]
 profile = "black"
+
+[tool.pytest.ini_options]
+testpaths = [ "test" ]

@@ -7,7 +7,7 @@ RichChk offers numerous advantages over the traditional method of using a GUI ba
 * Edit a map directly from Python to a .SCX/.SCM map file.  No copy+pasting triggers needed!
 * Ergonomically write many triggers in a Python/text based format without using a GUI.
 * Leverage all the power of Python/version control to organize triggers, unit settings, etc. outside of a map file for high maintainability and portability.
-* Unify static data (unit settings, player settings, etc.) with Trigger data.  Trigger data can programmatically reference static data when building a map.  
+* Unify static data (unit settings, player settings, etc.) with Trigger data.  Trigger data can programmatically reference static data when building a map.
 
 
 RichChk is not a full replacement for traditional GUI editors (e.g. ScmDraft 2) which should still be used for terrain/unit/location placements.  Other key omissions are listed below:
@@ -23,7 +23,7 @@ Python 3.11 is required.  Other versions of Python may work but are not tested. 
 
 * Clone master branch: `git clone https://github.com/sethmachine/richchk`
 * Enter the root directory of the repo, e.g. `cd richchk/`
-* Run `pip install src/ --upgrade`
+* Run `pip install . --upgrade`
 * Verify `richchk` is installed: `python -c "import richchk; print(richchk.__file__)"`
 
 ### StormLib
@@ -32,7 +32,7 @@ Python 3.11 is required.  Other versions of Python may work but are not tested. 
 
 For convenience, RichChk comes with 3 embedded StormLib DLLs compiled for Windows (64-bit), macOS apple silicon, and Linux (64-bit).  Relying on the embedded DLLs is highly discouraged for many reasons: the DLLs will eventually no longer work for newer OS/architectures, RichChk is not meant to serve as a build repository for StormLib, DLLs without trusted sources can be dangerous, etc.
 
-Thus, you are highly encouraged to always bring your own StormLib DLL.  Some package managers can build StormLib for you, e.g. [macOS Homebrew StormLib formula](https://formulae.brew.sh/formula/stormlib).
+Thus, you are highly encouraged to always bring your own StormLib DLL.  Some package managers can build StormLib for you, e.g. [macOS Homebrew StormLib formula](https://formulae.brew.sh/formula/stormlib) / [AUR StormLib](https://aur.archlinux.org/packages/stormlib).
 
 StormLib is absolutely required when using any IO classes from `richchk.io.mpq`.  These IO classes specialize in reading and write CHK data to and from StarCraft map files.
 
@@ -40,7 +40,7 @@ StormLib is absolutely required when using any IO classes from `richchk.io.mpq`.
 
 RichChk can be externally configured by specifying a path to a local YAML configuration file using an environment variable.  Set `io.sethmachine.richchk.config` environment variable to point to a local YAML configuration file, e.g. on macOS `export io.sethmachine.richchk.config=my-config.yaml`.
 
-Currently the config only supports changing the logging level (verbosity).  The default logging level is `WARNING` but can be made more verbose by setting it to `INFO`, `DEBUG` or `TRACE`.  This affects the logging level for every logger in RichChk.  
+Currently the config only supports changing the logging level (verbosity).  The default logging level is `WARNING` but can be made more verbose by setting it to `INFO`, `DEBUG` or `TRACE`.  This affects the logging level for every logger in RichChk.
 
 Example YAML config that sets the log level to `DEBUG`:
 
@@ -49,7 +49,7 @@ logging:
   level: DEBUG
 ```
 
-Note the above is the only possible configuration supported at the moment (changing the logging level).  In the future additional configuration options may be available.  
+Note the above is the only possible configuration supported at the moment (changing the logging level).  In the future additional configuration options may be available.
 
 ## Usage
 
@@ -58,7 +58,7 @@ Specific examples are provided in the [examples/](examples/) top level folder.  
 To use RichChk for map development, it is best to divide a map into two logical divisions:
 
 * A .SCM/.SCX map file containing the terrain, pre-placed units, pre-placed locations, etc. (anything that is best done in a graphical interface)
-* A set of RichChk Python scripts that represent the triggers, unit setting data, etc.  
+* A set of RichChk Python scripts that represent the triggers, unit setting data, etc.
 
 Producing a new map typically involves the following steps:
 
@@ -67,18 +67,18 @@ Producing a new map typically involves the following steps:
 1.  Create a new CHK with the edited section(s), e.g. `RichChkEditor#replace_chk_section`
 1.  Save the new CHK to a new map file, e.g. `StarcraftMpqIo#save_chk_to_mpq`
 
-Whenever a map is "edited", a new map file should be created everytime.  It is highly discouraged to replace the map file being edited, as this risks loss of data.  Existing maps should be viewed as immutable--they cannot be changed, only used to make newer versions.  The RichChk file I/O operations have safeguards that prevent overwriting exist files, but these flags can be disabled in each method.  
+Whenever a map is "edited", a new map file should be created every time.  It is highly discouraged to replace the map file being edited, as this risks loss of data.  Existing maps should be viewed as immutable--they cannot be changed, only used to make newer versions.  The RichChk file I/O operations have safeguards that prevent overwriting exist files, but these flags can be disabled in each method.
 
 
 ## Design Philosophy
 
-RichChk is a statically typed Python codebase, leveraging [mypy](https://mypy-lang.org/) for enforcing static type checking.  RichChk's technical design is focused on functional style programming, separating data from business logic.  This means for a single concept, such as a CHK section, there will be at least 2 Python classes/files: one for modeling just the data, and a 2nd for manipulating the model.  All manipulations produce new objects, making code easier to read about since there are no in place modifications or mutations.  Related to this, RichChk's classes are designed to be modular.  This means each class generally does a singular operation, and complex operations are produced by chaining together many specialized classes.  
+RichChk is a statically typed Python codebase, leveraging [mypy](https://mypy-lang.org/) for enforcing static type checking.  RichChk's technical design is focused on functional style programming, separating data from business logic.  This means for a single concept, such as a CHK section, there will be at least 2 Python classes/files: one for modeling just the data, and a 2nd for manipulating the model.  All manipulations produce new objects, making code easier to read about since there are no in place modifications or mutations.  Related to this, RichChk's classes are designed to be modular.  This means each class generally does a singular operation, and complex operations are produced by chaining together many specialized classes.
 
-RichChk also comes with a large test suite that verifies CHK data is being properly read, edited, and written back.  This gives confidence in developing new features and prevents regressions when changes are made.  
+RichChk also comes with a large test suite that verifies CHK data is being properly read, edited, and written back.  This gives confidence in developing new features and prevents regressions when changes are made.
 
-RichChk does not need to know how to parse every CHK section into a rich representation to work, and gracefully handles partial state by having special handlers for as-of-yet unmodeled parts of the CHK format.  
+RichChk does not need to know how to parse every CHK section into a rich representation to work, and gracefully handles partial state by having special handlers for as-of-yet unmodeled parts of the CHK format.
 
-RichChk does its best not to mutate data.  What this means is if a CHK section is decoded into a rich format and then written back without being edited, the original binary CHK section should be unchanged.  
+RichChk does its best not to mutate data.  What this means is if a CHK section is decoded into a rich format and then written back without being edited, the original binary CHK section should be unchanged.
 
 For a consistent and lint-free codebase, the codebase uses the [pre-commit framework](https://pre-commit.com/) for both local development, and as part of GitHub Action Workflows to prevent unformatted code from merging in the codebase.  These linters and checks include [mypy](https://mypy-lang.org/), [isort](https://pycqa.github.io/isort/), [docformatter](https://pypi.org/project/docformatter/), [flake8](https://flake8.pycqa.org/en/latest/), and [black](https://github.com/psf/black).
 
@@ -89,7 +89,7 @@ In summary:
 * Modularity and isolation of functionality to specialist classes; each class should have a single core function.
 * Large unit test suite to verify the library works, and make it easier to add new functionality/avoid regressions.
 * Handle partial parse of CHK format; RichChk works even if it does not understand every CHK section.
-* No mutation of data when writing back unchanged CHK sections.  
+* No mutation of data when writing back unchanged CHK sections.
 * Use [pre-commit framework](https://pre-commit.com/) for uniform and consistent code style with isort, docformatter, flake8, and black
 
 
@@ -107,17 +107,17 @@ Contributions are welcome!  There are several ways to contribute:
 * Review the [CHK format](http://www.starcraftai.com/wiki/CHK_Format) and propose adding support for an unhandled CHK section.
 * Create a new issue to improve an existing feature, fix a bug, add tests, etc. and propose a fix.
 
-Contributions should follow the [design philosophy](#design-philosophy), and re-use as much existing components as possible.  There are already patterns for most common scenarios and these should be repeated when possible.  
+Contributions should follow the [design philosophy](#design-philosophy), and re-use as much existing components as possible.  There are already patterns for most common scenarios and these should be repeated when possible.
 
-The repository has pre-commit and unit test checks in place to prevent merges to the master branch, so you will want to replicate these locally before opening a pull request.  
+The repository has pre-commit and unit test checks in place to prevent merges to the master branch, so you will want to replicate these locally before opening a pull request.
 
-To get started, install [pre-commit](https://pre-commit.com/#install) in your local development environment.  There is extensive documentation on how pre-commit works.  This will ensure your code locally passes the checks before you can even open a pull request.  
+To get started, install [pre-commit](https://pre-commit.com/#install) in your local development environment.  There is extensive documentation on how pre-commit works.  This will ensure your code locally passes the checks before you can even open a pull request.
 
-[PyCharm Community Edition](https://www.jetbrains.com/pycharm/download) is the recommended IDE and is available for free. 
+[PyCharm Community Edition](https://www.jetbrains.com/pycharm/download) is the recommended IDE and is available for free.
 
-I recommend using Python virtual environments to manage local development.  I use [miniconda](https://docs.anaconda.com/free/miniconda/) but any equivalent tool will work too.  
+I recommend using Python virtual environments to manage local development.  I use [miniconda](https://docs.anaconda.com/free/miniconda/) but any equivalent tool will work too.
 
-I also recommend integrating the static typing check and linting tools like mypy, flake8, black, isort, and docformatter directly into the IDE.  You can use [File Watchers](https://www.jetbrains.com/help/pycharm/using-file-watchers.html) to automatically reformat your Python code when you save the file.  This will help reduce manual reformatting and avoid headaches if pre-commit checks fail.  
+I also recommend integrating the static typing check and linting tools like mypy, flake8, black, isort, and docformatter directly into the IDE.  You can use [File Watchers](https://www.jetbrains.com/help/pycharm/using-file-watchers.html) to automatically reformat your Python code when you save the file.  This will help reduce manual reformatting and avoid headaches if pre-commit checks fail.
 
 
 ## Acknowledgements

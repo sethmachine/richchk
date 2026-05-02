@@ -4,6 +4,7 @@ This also sets all unit names to "Hello World!" to demonstrate how to edit unit 
 """
 
 from decimal import Decimal
+from pathlib import Path
 
 from richchk.editor.richchk.rich_chk_editor import RichChkEditor
 from richchk.editor.richchk.rich_trig_editor import RichTrigEditor
@@ -87,6 +88,7 @@ if __name__ == "__main__":
     new_chk = RichChkEditor().replace_chk_section(
         new_trig, RichChkEditor().replace_chk_section(new_unix, chk)
     )
+    Path(OUTPUT_MAP_FILE).parents[0].mkdir(parents=True, exist_ok=True)
     mpqio.save_chk_to_mpq(
         new_chk, INPUT_MAP_FILE, OUTPUT_MAP_FILE, overwrite_existing=True
     )
