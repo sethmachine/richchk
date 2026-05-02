@@ -1,6 +1,6 @@
 name: pre-commit
 
-on: [pull_request]
+on: [pull_request, workflow_dispatch]
 
 jobs:
   pre-commit:
@@ -8,16 +8,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-14, windows-latest]
+        python-version: ["3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pre-commit==3.5.0
+          pip install ".[dev]"
       - name: Run pre-commit
         run: pre-commit run --all-files
   test:
@@ -25,17 +26,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-14, windows-latest]
+        python-version: ["3.11", "3.12"]
     needs: pre-commit
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install src/ --upgrade
-          pip install pytest
+          pip install ".[test]" --upgrade
       - name: Run tests
-        run: pytest test/
+        run: pytest
