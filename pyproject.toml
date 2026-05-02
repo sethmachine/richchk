@@ -7,10 +7,10 @@ name = "richchk"
 version = "0.1"
 dependencies = [
     "PyYAML==6.0.1",
-    "dataclass-wizard==0.22.3",
+    "dataclass-wizard==0.39.0",
     "mutagen==1.47.0",
 ]
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.14"
 description = "Parse Starcraft CHK format into a rich, readable, and editable format."
 authors = [ {name = "sethmachine", email = "sethmachine01@gmail.com"} ]
 license = "MIT"
