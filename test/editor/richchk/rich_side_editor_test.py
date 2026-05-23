@@ -53,10 +53,11 @@ def test_it_raises_on_invalid_player_slot(inactive_side):
         editor.set_player_race(PlayerId.NONE, PlayerRace.TERRAN, inactive_side)
 
 
-def test_it_raises_when_player_slots_missing(inactive_side):
+def test_it_defaults_missing_slots_to_inactive(inactive_side):
     editor = RichSideEditor()
-    with pytest.raises(ValueError):
-        editor.set_all_player_races(
-            {PlayerId.PLAYER_1: PlayerRace.TERRAN},
-            inactive_side,
-        )
+    updated = editor.set_all_player_races(
+        {PlayerId.PLAYER_1: PlayerRace.TERRAN},
+        inactive_side,
+    )
+    assert updated.player_races[0] == PlayerRace.TERRAN
+    assert all(r == PlayerRace.INACTIVE for r in updated.player_races[1:])
