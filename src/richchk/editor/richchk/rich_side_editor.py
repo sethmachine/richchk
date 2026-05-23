@@ -2,6 +2,7 @@
 
 from ...model.richchk.side.player_race import PlayerRace
 from ...model.richchk.side.rich_side_section import RichSideSection
+from ...model.richchk.trig.player_id import PlayerId
 
 _NUM_PLAYERS = 12
 
@@ -9,23 +10,23 @@ _NUM_PLAYERS = 12
 class RichSideEditor:
     def set_player_race(
         self,
-        player_slot: int,
+        player: PlayerId,
         race: PlayerRace,
         side: RichSideSection,
     ) -> RichSideSection:
         """Return a new section with the race for a single player slot replaced.
 
-        :param player_slot: zero-based player slot index (0-11)
+        :param player: the player slot to update (PLAYER_1 through PLAYER_12)
         :param race: the PlayerRace to assign
         :param side: the existing SIDE section
         :return: new RichSideSection with the updated race
         """
-        if player_slot < 0 or player_slot >= _NUM_PLAYERS:
+        if player.id >= _NUM_PLAYERS:
             raise ValueError(
-                f"player_slot must be in range [0, {_NUM_PLAYERS - 1}], got {player_slot}"
+                f"player must be one of PLAYER_1 through PLAYER_12, got {player}"
             )
         updated = list(side.player_races)
-        updated[player_slot] = race
+        updated[player.id] = race
         return RichSideSection(_player_races=updated)
 
     def set_all_player_races(

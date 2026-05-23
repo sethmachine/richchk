@@ -9,22 +9,22 @@ import dataclasses
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
-from .player_controller import PlayerController
+from .player_type import PlayerType
 
 
 @dataclasses.dataclass(frozen=True)
 class RichOwnrSection(RichChkSection):
     """Represent OWNR - StarCraft Player Types.
 
-    :param _player_controllers: list of PlayerController, one per player slot (12 total)
+    :param _player_types: list of PlayerType, one per player slot (12 total)
     """
 
-    _player_controllers: list[PlayerController]
+    _player_types: list[PlayerType]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.OWNR
 
     @property
-    def player_controllers(self) -> list[PlayerController]:
-        return self._player_controllers
+    def player_types(self) -> list[PlayerType]:
+        return self._player_types

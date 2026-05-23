@@ -1,4 +1,4 @@
-"""Player controller types as used in the OWNR section.
+"""Player type (controller) values as used in the OWNR section.
 
 See:
 http://staredit.net/wiki/index.php/Scenario.chk#.22OWNR.22_-_StarCraft_Player_Types
@@ -7,7 +7,7 @@ http://staredit.net/wiki/index.php/Scenario.chk#.22OWNR.22_-_StarCraft_Player_Ty
 from ....model.richchk.richchk_enum import RichChkEnum
 
 
-class PlayerController(RichChkEnum):
+class PlayerType(RichChkEnum):
     INACTIVE = (0x00, "Inactive")
     COMPUTER_GAME = (0x01, "Computer (game)")
     HUMAN_OCCUPIED = (0x02, "Occupied by Human Player")
