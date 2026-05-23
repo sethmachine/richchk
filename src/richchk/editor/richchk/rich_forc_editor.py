@@ -1,6 +1,5 @@
 """Editor for the FORC - Force Settings section."""
 
-from ...model.richchk.forc.force_flags import ForceFlags
 from ...model.richchk.forc.force_id import ForceId
 from ...model.richchk.forc.rich_forc_section import RichForcSection
 from ...model.richchk.forc.rich_force import RichForce
@@ -10,7 +9,7 @@ _NUM_PLAYERS = 8
 
 
 class RichForcEditor:
-    def set_player_force_assignment(
+    def add_player_to_force(
         self,
         player: PlayerId,
         force: ForceId,
@@ -49,27 +48,6 @@ class RichForcEditor:
         """
         updated_forces = list(forc.forces)
         updated_forces[force.id] = rich_force
-        return RichForcSection(
-            _player_force_assignments=forc.player_force_assignments,
-            _forces=updated_forces,
-        )
-
-    def set_force_flags(
-        self,
-        force: ForceId,
-        flags: ForceFlags,
-        forc: RichForcSection,
-    ) -> RichForcSection:
-        """Return a new section with the flags for one force replaced.
-
-        :param force: which force slot to update
-        :param flags: the replacement ForceFlags
-        :param forc: the existing FORC section
-        :return: new RichForcSection with the updated flags
-        """
-        updated_forces = list(forc.forces)
-        old_force = updated_forces[force.id]
-        updated_forces[force.id] = RichForce(_name=old_force.name, _flags=flags)
         return RichForcSection(
             _player_force_assignments=forc.player_force_assignments,
             _forces=updated_forces,
