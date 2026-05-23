@@ -1,7 +1,7 @@
 import pytest
 
 from richchk.model.chk.ownr.decoded_ownr_section import DecodedOwnrSection
-from richchk.model.richchk.ownr.player_controller import PlayerController
+from richchk.model.richchk.ownr.player_type import PlayerType
 from richchk.model.richchk.ownr.rich_ownr_section import RichOwnrSection
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -13,19 +13,19 @@ from ....chk_resources import CHK_SECTION_FILE_PATHS
 
 _NUM_PLAYERS = 12
 
-_EXPECTED_CONTROLLERS = [
-    PlayerController.HUMAN,
-    PlayerController.COMPUTER,
-    PlayerController.RESCUE_PASSIVE,
-    PlayerController.NEUTRAL,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
-    PlayerController.INACTIVE,
+_EXPECTED_PLAYER_TYPES = [
+    PlayerType.HUMAN,
+    PlayerType.COMPUTER,
+    PlayerType.RESCUE_PASSIVE,
+    PlayerType.NEUTRAL,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
+    PlayerType.INACTIVE,
 ]
 
 _EMPTY_STR_LOOKUP = RichStrLookup(
@@ -61,27 +61,27 @@ def encode_context() -> RichChkEncodeContext:
     )
 
 
-def test_it_decodes_expected_player_controllers(real_decoded_ownr, decode_context):
+def test_it_decodes_expected_player_types(real_decoded_ownr, decode_context):
     rich_ownr = RichOwnrTranscoder().decode(real_decoded_ownr, decode_context)
-    assert rich_ownr.player_controllers == _EXPECTED_CONTROLLERS
+    assert rich_ownr.player_types == _EXPECTED_PLAYER_TYPES
 
 
-def test_it_encodes_player_controllers(encode_context):
-    rich_ownr = RichOwnrSection(_player_controllers=_EXPECTED_CONTROLLERS)
+def test_it_encodes_player_types(encode_context):
+    rich_ownr = RichOwnrSection(_player_types=_EXPECTED_PLAYER_TYPES)
     decoded = RichOwnrTranscoder().encode(rich_ownr, encode_context)
     assert decoded.player_controllers == [
-        PlayerController.HUMAN.id,
-        PlayerController.COMPUTER.id,
-        PlayerController.RESCUE_PASSIVE.id,
-        PlayerController.NEUTRAL.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
-        PlayerController.INACTIVE.id,
+        PlayerType.HUMAN.id,
+        PlayerType.COMPUTER.id,
+        PlayerType.RESCUE_PASSIVE.id,
+        PlayerType.NEUTRAL.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
+        PlayerType.INACTIVE.id,
     ]
 
 

@@ -1,46 +1,47 @@
 """Editor for the OWNR - StarCraft Player Types section."""
 
-from ...model.richchk.ownr.player_controller import PlayerController
+from ...model.richchk.ownr.player_type import PlayerType
 from ...model.richchk.ownr.rich_ownr_section import RichOwnrSection
+from ...model.richchk.trig.player_id import PlayerId
 
 _NUM_PLAYERS = 12
 
 
 class RichOwnrEditor:
-    def set_player_controller(
+    def set_player_type(
         self,
-        player_slot: int,
-        controller: PlayerController,
+        player: PlayerId,
+        player_type: PlayerType,
         ownr: RichOwnrSection,
     ) -> RichOwnrSection:
-        """Return a new section with the controller for a single player slot replaced.
+        """Return a new section with the type for a single player slot replaced.
 
-        :param player_slot: zero-based player slot index (0-11)
-        :param controller: the PlayerController to assign
+        :param player: the player slot to update (PLAYER_1 through PLAYER_12)
+        :param player_type: the PlayerType to assign
         :param ownr: the existing OWNR section
-        :return: new RichOwnrSection with the updated controller
+        :return: new RichOwnrSection with the updated type
         """
-        if player_slot < 0 or player_slot >= _NUM_PLAYERS:
+        if player.id >= _NUM_PLAYERS:
             raise ValueError(
-                f"player_slot must be in range [0, {_NUM_PLAYERS - 1}], got {player_slot}"
+                f"player must be one of PLAYER_1 through PLAYER_12, got {player}"
             )
-        updated = list(ownr.player_controllers)
-        updated[player_slot] = controller
-        return RichOwnrSection(_player_controllers=updated)
+        updated = list(ownr.player_types)
+        updated[player.id] = player_type
+        return RichOwnrSection(_player_types=updated)
 
-    def set_all_player_controllers(
+    def set_all_player_types(
         self,
-        controllers: list[PlayerController],
+        player_types: list[PlayerType],
         ownr: RichOwnrSection,
     ) -> RichOwnrSection:
-        """Return a new section with all player controllers replaced.
+        """Return a new section with all player types replaced.
 
-        :param controllers: list of exactly 12 PlayerController values
+        :param player_types: list of exactly 12 PlayerType values
         :param ownr: the existing OWNR section
-        :return: new RichOwnrSection with the updated controllers
+        :return: new RichOwnrSection with the updated types
         """
-        if len(controllers) != _NUM_PLAYERS:
+        if len(player_types) != _NUM_PLAYERS:
             raise ValueError(
-                f"controllers must have exactly {_NUM_PLAYERS} entries, got {len(controllers)}"
+                f"player_types must have exactly {_NUM_PLAYERS} entries, got {len(player_types)}"
             )
-        return RichOwnrSection(_player_controllers=list(controllers))
+        return RichOwnrSection(_player_types=list(player_types))
