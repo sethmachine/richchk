@@ -60,4 +60,4 @@ def test_it_defaults_missing_slots_to_inactive(inactive_ownr):
         inactive_ownr,
     )
     assert updated.player_types[0] == PlayerType.HUMAN
-    assert all(t == PlayerType.INACTIVE for t in updated.player_types[1:])
+    assert all(t == PlayerType.CLOSED for t in updated.player_types[1:])

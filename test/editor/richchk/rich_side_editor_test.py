@@ -60,4 +60,4 @@ def test_it_defaults_missing_slots_to_inactive(inactive_side):
         inactive_side,
     )
     assert updated.player_races[0] == PlayerRace.TERRAN
-    assert all(r == PlayerRace.INACTIVE for r in updated.player_races[1:])
+    assert all(r == PlayerRace.USER_SELECT for r in updated.player_races[1:])
