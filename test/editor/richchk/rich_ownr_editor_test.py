@@ -53,10 +53,11 @@ def test_it_raises_on_invalid_player_slot(inactive_ownr):
         editor.set_player_type(PlayerId.NONE, PlayerType.HUMAN, inactive_ownr)
 
 
-def test_it_raises_when_player_slots_missing(inactive_ownr):
+def test_it_defaults_missing_slots_to_inactive(inactive_ownr):
     editor = RichOwnrEditor()
-    with pytest.raises(ValueError):
-        editor.set_all_player_types(
-            {PlayerId.PLAYER_1: PlayerType.HUMAN},
-            inactive_ownr,
-        )
+    updated = editor.set_all_player_types(
+        {PlayerId.PLAYER_1: PlayerType.HUMAN},
+        inactive_ownr,
+    )
+    assert updated.player_types[0] == PlayerType.HUMAN
+    assert all(t == PlayerType.INACTIVE for t in updated.player_types[1:])

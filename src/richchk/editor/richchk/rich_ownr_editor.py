@@ -50,15 +50,13 @@ class RichOwnrEditor:
     ) -> RichOwnrSection:
         """Return a new section with all player types replaced.
 
-        :param player_types: mapping from each of the 12 player slots to a PlayerType
+        :param player_types: mapping from player slots to PlayerType; slots absent
+            from the dict default to PlayerType.INACTIVE
         :param ownr: the existing OWNR section
         :return: new RichOwnrSection with the updated types
         """
-        missing = [p for p in _PLAYER_SLOTS if p not in player_types]
-        if missing:
-            raise ValueError(
-                f"player_types is missing entries for: {missing}"
-            )
         return RichOwnrSection(
-            _player_types=[player_types[p] for p in _PLAYER_SLOTS]
+            _player_types=[
+                player_types.get(p, PlayerType.INACTIVE) for p in _PLAYER_SLOTS
+            ]
         )

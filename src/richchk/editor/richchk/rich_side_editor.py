@@ -50,15 +50,13 @@ class RichSideEditor:
     ) -> RichSideSection:
         """Return a new section with all player races replaced.
 
-        :param player_races: mapping from each of the 12 player slots to a PlayerRace
+        :param player_races: mapping from player slots to PlayerRace; slots absent
+            from the dict default to PlayerRace.INACTIVE
         :param side: the existing SIDE section
         :return: new RichSideSection with the updated races
         """
-        missing = [p for p in _PLAYER_SLOTS if p not in player_races]
-        if missing:
-            raise ValueError(
-                f"player_races is missing entries for: {missing}"
-            )
         return RichSideSection(
-            _player_races=[player_races[p] for p in _PLAYER_SLOTS]
+            _player_races=[
+                player_races.get(p, PlayerRace.INACTIVE) for p in _PLAYER_SLOTS
+            ]
         )
