@@ -5,6 +5,20 @@ from ...model.richchk.ownr.rich_ownr_section import RichOwnrSection
 from ...model.richchk.trig.player_id import PlayerId
 
 _NUM_PLAYERS = 12
+_PLAYER_SLOTS = [
+    PlayerId.PLAYER_1,
+    PlayerId.PLAYER_2,
+    PlayerId.PLAYER_3,
+    PlayerId.PLAYER_4,
+    PlayerId.PLAYER_5,
+    PlayerId.PLAYER_6,
+    PlayerId.PLAYER_7,
+    PlayerId.PLAYER_8,
+    PlayerId.PLAYER_9,
+    PlayerId.PLAYER_10,
+    PlayerId.PLAYER_11,
+    PlayerId.PLAYER_12,
+]
 
 
 class RichOwnrEditor:
@@ -31,17 +45,20 @@ class RichOwnrEditor:
 
     def set_all_player_types(
         self,
-        player_types: list[PlayerType],
+        player_types: dict[PlayerId, PlayerType],
         ownr: RichOwnrSection,
     ) -> RichOwnrSection:
         """Return a new section with all player types replaced.
 
-        :param player_types: list of exactly 12 PlayerType values
+        :param player_types: mapping from each of the 12 player slots to a PlayerType
         :param ownr: the existing OWNR section
         :return: new RichOwnrSection with the updated types
         """
-        if len(player_types) != _NUM_PLAYERS:
+        missing = [p for p in _PLAYER_SLOTS if p not in player_types]
+        if missing:
             raise ValueError(
-                f"player_types must have exactly {_NUM_PLAYERS} entries, got {len(player_types)}"
+                f"player_types is missing entries for: {missing}"
             )
-        return RichOwnrSection(_player_types=list(player_types))
+        return RichOwnrSection(
+            _player_types=[player_types[p] for p in _PLAYER_SLOTS]
+        )

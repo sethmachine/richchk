@@ -5,6 +5,20 @@ from ...model.richchk.side.rich_side_section import RichSideSection
 from ...model.richchk.trig.player_id import PlayerId
 
 _NUM_PLAYERS = 12
+_PLAYER_SLOTS = [
+    PlayerId.PLAYER_1,
+    PlayerId.PLAYER_2,
+    PlayerId.PLAYER_3,
+    PlayerId.PLAYER_4,
+    PlayerId.PLAYER_5,
+    PlayerId.PLAYER_6,
+    PlayerId.PLAYER_7,
+    PlayerId.PLAYER_8,
+    PlayerId.PLAYER_9,
+    PlayerId.PLAYER_10,
+    PlayerId.PLAYER_11,
+    PlayerId.PLAYER_12,
+]
 
 
 class RichSideEditor:
@@ -31,17 +45,20 @@ class RichSideEditor:
 
     def set_all_player_races(
         self,
-        races: list[PlayerRace],
+        player_races: dict[PlayerId, PlayerRace],
         side: RichSideSection,
     ) -> RichSideSection:
         """Return a new section with all player races replaced.
 
-        :param races: list of exactly 12 PlayerRace values
+        :param player_races: mapping from each of the 12 player slots to a PlayerRace
         :param side: the existing SIDE section
         :return: new RichSideSection with the updated races
         """
-        if len(races) != _NUM_PLAYERS:
+        missing = [p for p in _PLAYER_SLOTS if p not in player_races]
+        if missing:
             raise ValueError(
-                f"races must have exactly {_NUM_PLAYERS} entries, got {len(races)}"
+                f"player_races is missing entries for: {missing}"
             )
-        return RichSideSection(_player_races=list(races))
+        return RichSideSection(
+            _player_races=[player_races[p] for p in _PLAYER_SLOTS]
+        )

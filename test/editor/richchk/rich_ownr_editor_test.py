@@ -29,22 +29,22 @@ def test_it_does_not_mutate_original_section(inactive_ownr):
 
 def test_it_sets_all_player_types(inactive_ownr):
     editor = RichOwnrEditor()
-    new_types = [
-        PlayerType.HUMAN,
-        PlayerType.HUMAN,
-        PlayerType.COMPUTER,
-        PlayerType.COMPUTER,
-        PlayerType.RESCUE_PASSIVE,
-        PlayerType.NEUTRAL,
-        PlayerType.INACTIVE,
-        PlayerType.INACTIVE,
-        PlayerType.INACTIVE,
-        PlayerType.INACTIVE,
-        PlayerType.INACTIVE,
-        PlayerType.INACTIVE,
-    ]
+    new_types = {
+        PlayerId.PLAYER_1: PlayerType.HUMAN,
+        PlayerId.PLAYER_2: PlayerType.HUMAN,
+        PlayerId.PLAYER_3: PlayerType.COMPUTER,
+        PlayerId.PLAYER_4: PlayerType.COMPUTER,
+        PlayerId.PLAYER_5: PlayerType.RESCUE_PASSIVE,
+        PlayerId.PLAYER_6: PlayerType.NEUTRAL,
+        PlayerId.PLAYER_7: PlayerType.INACTIVE,
+        PlayerId.PLAYER_8: PlayerType.INACTIVE,
+        PlayerId.PLAYER_9: PlayerType.INACTIVE,
+        PlayerId.PLAYER_10: PlayerType.INACTIVE,
+        PlayerId.PLAYER_11: PlayerType.INACTIVE,
+        PlayerId.PLAYER_12: PlayerType.INACTIVE,
+    }
     updated = editor.set_all_player_types(new_types, inactive_ownr)
-    assert updated.player_types == new_types
+    assert updated.player_types == list(new_types.values())
 
 
 def test_it_raises_on_invalid_player_slot(inactive_ownr):
@@ -53,7 +53,10 @@ def test_it_raises_on_invalid_player_slot(inactive_ownr):
         editor.set_player_type(PlayerId.NONE, PlayerType.HUMAN, inactive_ownr)
 
 
-def test_it_raises_on_wrong_type_count(inactive_ownr):
+def test_it_raises_when_player_slots_missing(inactive_ownr):
     editor = RichOwnrEditor()
     with pytest.raises(ValueError):
-        editor.set_all_player_types([PlayerType.HUMAN] * 8, inactive_ownr)
+        editor.set_all_player_types(
+            {PlayerId.PLAYER_1: PlayerType.HUMAN},
+            inactive_ownr,
+        )

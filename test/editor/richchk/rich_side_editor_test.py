@@ -29,22 +29,22 @@ def test_it_does_not_mutate_original_section(inactive_side):
 
 def test_it_sets_all_player_races(inactive_side):
     editor = RichSideEditor()
-    new_races = [
-        PlayerRace.TERRAN,
-        PlayerRace.ZERG,
-        PlayerRace.PROTOSS,
-        PlayerRace.RANDOM,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-        PlayerRace.INACTIVE,
-    ]
+    new_races = {
+        PlayerId.PLAYER_1: PlayerRace.TERRAN,
+        PlayerId.PLAYER_2: PlayerRace.ZERG,
+        PlayerId.PLAYER_3: PlayerRace.PROTOSS,
+        PlayerId.PLAYER_4: PlayerRace.RANDOM,
+        PlayerId.PLAYER_5: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_6: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_7: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_8: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_9: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_10: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_11: PlayerRace.INACTIVE,
+        PlayerId.PLAYER_12: PlayerRace.INACTIVE,
+    }
     updated = editor.set_all_player_races(new_races, inactive_side)
-    assert updated.player_races == new_races
+    assert updated.player_races == list(new_races.values())
 
 
 def test_it_raises_on_invalid_player_slot(inactive_side):
@@ -53,7 +53,10 @@ def test_it_raises_on_invalid_player_slot(inactive_side):
         editor.set_player_race(PlayerId.NONE, PlayerRace.TERRAN, inactive_side)
 
 
-def test_it_raises_on_wrong_race_count(inactive_side):
+def test_it_raises_when_player_slots_missing(inactive_side):
     editor = RichSideEditor()
     with pytest.raises(ValueError):
-        editor.set_all_player_races([PlayerRace.TERRAN] * 8, inactive_side)
+        editor.set_all_player_races(
+            {PlayerId.PLAYER_1: PlayerRace.TERRAN},
+            inactive_side,
+        )
