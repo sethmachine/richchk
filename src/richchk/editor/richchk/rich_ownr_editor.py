@@ -51,12 +51,12 @@ class RichOwnrEditor:
         """Return a new section with all player types replaced.
 
         :param player_types: mapping from player slots to PlayerType; slots absent
-            from the dict default to PlayerType.INACTIVE
+            from the dict default to PlayerType.CLOSED
         :param ownr: the existing OWNR section
         :return: new RichOwnrSection with the updated types
         """
         return RichOwnrSection(
             _player_types=[
-                player_types.get(p, PlayerType.INACTIVE) for p in _PLAYER_SLOTS
+                player_types.get(p, PlayerType.CLOSED) for p in _PLAYER_SLOTS
             ]
         )
