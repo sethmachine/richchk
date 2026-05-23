@@ -2,6 +2,7 @@
 
 from ....model.chk.forc.decoded_forc_section import DecodedForcSection
 from ....model.richchk.forc.force_flags import ForceFlags
+from ....model.richchk.forc.force_id import ForceId
 from ....model.richchk.forc.rich_forc_section import RichForcSection
 from ....model.richchk.forc.rich_force import RichForce
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -9,6 +10,9 @@ from ....model.richchk.richchk_encode_context import RichChkEncodeContext
 from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
 from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
+)
+from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
+    RichChkEnumTranscoder,
 )
 
 _NUM_FORCES = 4
@@ -38,8 +42,12 @@ class RichForcTranscoder(
             )
             for i in range(_NUM_FORCES)
         ]
+        player_force_assignments = [
+            RichChkEnumTranscoder.decode_enum(x, ForceId)
+            for x in decoded_chk_section.player_force_assignments
+        ]
         return RichForcSection(
-            _player_force_assignments=decoded_chk_section.player_force_assignments,
+            _player_force_assignments=player_force_assignments,
             _forces=forces,
         )
 
@@ -55,8 +63,12 @@ class RichForcTranscoder(
         force_flags = [
             self._encode_force_flags(force.flags) for force in rich_chk_section.forces
         ]
+        player_force_assignments = [
+            RichChkEnumTranscoder.encode_enum(x)
+            for x in rich_chk_section.player_force_assignments
+        ]
         return DecodedForcSection(
-            _player_force_assignments=rich_chk_section.player_force_assignments,
+            _player_force_assignments=player_force_assignments,
             _force_name_string_ids=force_name_string_ids,
             _force_flags=force_flags,
         )

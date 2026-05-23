@@ -2,6 +2,7 @@ import pytest
 
 from richchk.model.chk.forc.decoded_forc_section import DecodedForcSection
 from richchk.model.richchk.forc.force_flags import ForceFlags
+from richchk.model.richchk.forc.force_id import ForceId
 from richchk.model.richchk.forc.rich_forc_section import RichForcSection
 from richchk.model.richchk.forc.rich_force import RichForce
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -24,7 +25,16 @@ _STR_LOOKUP = RichStrLookup(
     _id_by_string_lookup={_FORCE_0_NAME: 1, _FORCE_1_NAME: 2},
 )
 
-_EXPECTED_PLAYER_FORCE_ASSIGNMENTS = [0, 0, 1, 1, 0, 0, 0, 0]
+_EXPECTED_PLAYER_FORCE_ASSIGNMENTS = [
+    ForceId.FORCE_1,
+    ForceId.FORCE_1,
+    ForceId.FORCE_2,
+    ForceId.FORCE_2,
+    ForceId.FORCE_1,
+    ForceId.FORCE_1,
+    ForceId.FORCE_1,
+    ForceId.FORCE_1,
+]
 _EXPECTED_FORCE_FLAGS = ForceFlags(_random_start=False, _allies=True, _allied_victory=True, _shared_vision=False)
 
 

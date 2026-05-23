@@ -11,6 +11,7 @@ import dataclasses
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
+from .force_id import ForceId
 from .rich_force import RichForce
 
 
@@ -18,12 +19,12 @@ from .rich_force import RichForce
 class RichForcSection(RichChkSection):
     """Represent FORC - Force Settings.
 
-    :param _player_force_assignments: list of force indices (0-3) for each of the 8
-        player slots; index indicates which force that player belongs to
+    :param _player_force_assignments: list of ForceId, one per player slot (8 total);
+        indicates which force each player belongs to
     :param _forces: list of 4 RichForce objects, one per force slot
     """
 
-    _player_force_assignments: list[int]
+    _player_force_assignments: list[ForceId]
     _forces: list[RichForce]
 
     @classmethod
@@ -31,7 +32,7 @@ class RichForcSection(RichChkSection):
         return ChkSectionName.FORC
 
     @property
-    def player_force_assignments(self) -> list[int]:
+    def player_force_assignments(self) -> list[ForceId]:
         return self._player_force_assignments
 
     @property
