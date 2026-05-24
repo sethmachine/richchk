@@ -29,7 +29,7 @@ class RichSideEditor:
         updated[player.id] = race
         return RichSideSection(_player_races=updated)
 
-    def set_all_player_races(
+    def set_player_races(
         self,
         player_races: dict[PlayerId, PlayerRace],
         side: RichSideSection,

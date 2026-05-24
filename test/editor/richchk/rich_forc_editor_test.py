@@ -44,7 +44,7 @@ def test_it_updates_force(empty_forc):
         _name=RichString(_value="Alliance"),
         _flags=ForceFlags(_allies=True, _allied_victory=True),
     )
-    updated = editor.update_force(ForceId.FORCE_1, new_force, empty_forc)
+    updated = editor.set_force(ForceId.FORCE_1, new_force, empty_forc)
     assert updated.forces[0] == new_force
     assert updated.forces[1:] == list(_DEFAULT_FORCES)[1:]
 
@@ -52,9 +52,7 @@ def test_it_updates_force(empty_forc):
 def test_it_sets_force_flags_via_rich_force(empty_forc):
     editor = RichForcEditor()
     new_flags = ForceFlags(_allies=True, _shared_vision=True)
-    updated = editor.update_force(
-        ForceId.FORCE_2, RichForce(_flags=new_flags), empty_forc
-    )
+    updated = editor.set_force(ForceId.FORCE_2, RichForce(_flags=new_flags), empty_forc)
     assert updated.forces[1].flags == new_flags
     assert updated.forces[0].flags == _DEFAULT_FLAGS
 
@@ -62,8 +60,8 @@ def test_it_sets_force_flags_via_rich_force(empty_forc):
 def test_it_preserves_force_name_when_updating_flags(empty_forc):
     editor = RichForcEditor()
     named_force = RichForce(_name=RichString(_value="Team Alpha"))
-    forc_with_name = editor.update_force(ForceId.FORCE_1, named_force, empty_forc)
-    updated = editor.update_force(
+    forc_with_name = editor.set_force(ForceId.FORCE_1, named_force, empty_forc)
+    updated = editor.set_force(
         ForceId.FORCE_1,
         RichForce(
             _name=forc_with_name.forces[0].name, _flags=ForceFlags(_allied_victory=True)

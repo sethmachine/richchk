@@ -35,7 +35,7 @@ def test_it_sets_all_player_types(inactive_ownr):
         PlayerId.PLAYER_3: PlayerType.COMPUTER,
         PlayerId.PLAYER_4: PlayerType.COMPUTER,
     }
-    updated = editor.set_all_player_types(updates, inactive_ownr)
+    updated = editor.set_player_types(updates, inactive_ownr)
     assert updated.player_types[0] == PlayerType.HUMAN
     assert updated.player_types[1] == PlayerType.HUMAN
     assert updated.player_types[2] == PlayerType.COMPUTER
@@ -45,7 +45,7 @@ def test_it_sets_all_player_types(inactive_ownr):
 
 def test_it_preserves_unspecified_slots(inactive_ownr):
     editor = RichOwnrEditor()
-    updated = editor.set_all_player_types(
+    updated = editor.set_player_types(
         {PlayerId.PLAYER_1: PlayerType.HUMAN},
         inactive_ownr,
     )
