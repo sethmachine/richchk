@@ -29,7 +29,7 @@ class RichOwnrEditor:
         updated[player.id] = player_type
         return RichOwnrSection(_player_types=updated)
 
-    def set_all_player_types(
+    def set_player_types(
         self,
         player_types: dict[PlayerId, PlayerType],
         ownr: RichOwnrSection,

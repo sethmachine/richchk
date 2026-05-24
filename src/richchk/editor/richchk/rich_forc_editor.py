@@ -33,7 +33,7 @@ class RichForcEditor:
             _forces=forc.forces,
         )
 
-    def update_force(
+    def set_force(
         self,
         force: ForceId,
         rich_force: RichForce,

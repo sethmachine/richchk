@@ -37,7 +37,7 @@ def test_it_sets_all_player_races(inactive_side):
         PlayerId.PLAYER_3: PlayerRace.PROTOSS,
         PlayerId.PLAYER_4: PlayerRace.RANDOM,
     }
-    updated = editor.set_all_player_races(updates, inactive_side)
+    updated = editor.set_player_races(updates, inactive_side)
     assert updated.player_races[0] == PlayerRace.TERRAN
     assert updated.player_races[1] == PlayerRace.ZERG
     assert updated.player_races[2] == PlayerRace.PROTOSS
@@ -47,7 +47,7 @@ def test_it_sets_all_player_races(inactive_side):
 
 def test_it_preserves_unspecified_slots(inactive_side):
     editor = RichSideEditor()
-    updated = editor.set_all_player_races(
+    updated = editor.set_player_races(
         {PlayerId.PLAYER_1: PlayerRace.TERRAN},
         inactive_side,
     )
