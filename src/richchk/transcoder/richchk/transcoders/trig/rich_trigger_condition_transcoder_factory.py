@@ -26,6 +26,9 @@ class RichTriggerConditionTranscoderFactory:
             ],
         ]
     ] = {}
+    _instances: ClassVar[
+        dict[TriggerConditionId, RichTriggerConditionTranscoder[Any, Any]]
+    ] = {}
 
     @classmethod
     def make_rich_trigger_condition_transcoder(
@@ -33,6 +36,9 @@ class RichTriggerConditionTranscoderFactory:
     ) -> RichTriggerConditionTranscoder[Any, Any]:
         """Factory for making RichTriggerConditionTranscoder for a given trigger
         condition ID."""
+        cached = cls._instances.get(condition_id)
+        if cached is not None:
+            return cached
         try:
             maybe_transcoder: Union[
                 RichTriggerConditionTranscoder[Any, Any],
@@ -40,6 +46,7 @@ class RichTriggerConditionTranscoderFactory:
             ] = cls.transcoders[condition_id]()
             assert isinstance(maybe_transcoder, RichTriggerConditionTranscoder)
             retval: RichTriggerConditionTranscoder[Any, Any] = maybe_transcoder
+            cls._instances[condition_id] = retval
             return retval
         except KeyError as err:
             raise NotImplementedError(f"{condition_id=} doesn't exist") from err

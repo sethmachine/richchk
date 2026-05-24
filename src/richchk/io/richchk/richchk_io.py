@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Optional, Union
+import weakref
+from typing import Any, Optional, Union, cast
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
@@ -44,7 +45,12 @@ from .lookups.uprp.rich_cuwp_lookup_builder import RichCuwpLookupBuilder
 from .lookups.uprp.rich_uprp_rebuilder import RichUprpRebuilder
 from .lookups.upus.decoded_upus_rebuilder import DecodedUpusRebuilder
 from .query.chk_query_util import ChkQueryUtil
+from .rich_chk_object_collector import collect_rich_objects
 from .rich_str_lookup_builder import RichStrLookupBuilder
+
+_encode_cache: dict[
+    Any, Any
+] = {}  # (id(rich_chk), id(wav_lookup)) → (weakref(rich_chk), DecodedChk)
 
 
 class RichChkIo:
@@ -75,22 +81,31 @@ class RichChkIo:
         rich_chk: RichChk,
         wav_metadata_lookup: Optional[RichWavMetadataLookup] = None,
     ) -> DecodedChk:
-        # first need to iterate all relevant RichChk sections
-        # and determine all new strings to add
-        # then construct the new DecodedStrChk, plus
+        cache_key = (id(rich_chk), id(wav_metadata_lookup))
+        cached = _encode_cache.get(cache_key)
+        if cached is not None:
+            ref_obj = cached[0]()
+            if ref_obj is rich_chk:
+                return cast(DecodedChk, cached[1])
+            else:
+                del _encode_cache[cache_key]
+
+        strings, locations, switches, cuwps = collect_rich_objects(rich_chk)
         new_str_section: DecodedStringSection = (
-            DecodedStrSectionRebuilder.rebuild_str_section_from_rich_chk(rich_chk)
+            DecodedStrSectionRebuilder.rebuild_str_section_from_strings(
+                strings, rich_chk
+            )
         )
         (
             new_mrgn_section,
             new_mrgn_lookup,
-        ) = RichMrgnSectionRebuilder.rebuild_rich_mrgn_section_from_rich_chk(rich_chk)
+        ) = RichMrgnSectionRebuilder.rebuild_from_locations(locations, rich_chk)
         assert isinstance(new_mrgn_section, RichMrgnSection)
         (
             new_swnm_section,
             swnm_lookup,
-        ) = RichSwnmRebuilder.rebuild_rich_swnm_from_rich_chk(rich_chk)
-        new_uprp = RichUprpRebuilder.rebuild_rich_uprp_section_from_rich_chk(rich_chk)
+        ) = RichSwnmRebuilder.rebuild_from_switches(switches, rich_chk)
+        new_uprp = RichUprpRebuilder.rebuild_from_cuwps(cuwps, rich_chk)
         new_upus = DecodedUpusRebuilder.rebuild_upus_from_rich_uprp(new_uprp)
         encode_context = self._build_encode_context(
             rich_chk,
@@ -179,7 +194,10 @@ class RichChkIo:
                 "This likely means create unit with properties is being used for 1st time."
             )
             decoded_sections.append(new_upus)
-        return DecodedChk(_decoded_chk_sections=decoded_sections)
+        result = DecodedChk(_decoded_chk_sections=decoded_sections)
+        _wr = weakref.ref(rich_chk, lambda _: _encode_cache.pop(cache_key, None))
+        _encode_cache[cache_key] = (_wr, result)
+        return result
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
         rich_str_lookup = RichStrLookupBuilder().build_lookup(

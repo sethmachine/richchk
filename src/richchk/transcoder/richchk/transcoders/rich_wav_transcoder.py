@@ -10,6 +10,8 @@ u32[512]: 1 long for each WAV. Indicates a string index is used for a WAV path i
 MPQ. If the entry is not used, it will be 0.
 """
 
+from typing import Any, cast
+
 from ....model.chk.wav.decoded_wav_section import DecodedWavSection
 from ....model.chk.wav.wav_constants import MAX_WAV_FILES, UNUSED_WAV_STRING_ID
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -21,6 +23,10 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
+
+_wav_encode_cache: dict[
+    Any, Any
+] = {}  # (id(rich_wav_section), id(str_lookup)) → DecodedWavSection
 
 
 class RichChkWavTranscoder(
@@ -54,6 +60,13 @@ class RichChkWavTranscoder(
         rich_chk_section: RichWavSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedWavSection:
+        cache_key = (
+            id(rich_chk_section),
+            id(rich_chk_encode_context.rich_str_lookup),
+        )
+        cached = _wav_encode_cache.get(cache_key)
+        if cached is not None:
+            return cast(DecodedWavSection, cached)
         string_ids = []
         wav_by_index = {wav.index: wav for wav in rich_chk_section.wavs}
         for wav_index in range(0, MAX_WAV_FILES):
@@ -66,4 +79,6 @@ class RichChkWavTranscoder(
                 )
             else:
                 string_ids.append(UNUSED_WAV_STRING_ID)
-        return DecodedWavSection(_wav_string_ids=string_ids)
+        result = DecodedWavSection(_wav_string_ids=string_ids)
+        _wav_encode_cache[cache_key] = result
+        return result

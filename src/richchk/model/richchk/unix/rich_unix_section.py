@@ -2,7 +2,6 @@
 
 Exactly the same as the UNIS section except this section supports 130 weapons.
 """
-import copy
 import dataclasses
 
 from ...chk_section_name import ChkSectionName
@@ -21,4 +20,4 @@ class RichUnixSection(RichChkSection):
 
     @property
     def unit_settings(self) -> list[UnitSetting]:
-        return copy.deepcopy(self._unit_settings)
+        return self._unit_settings

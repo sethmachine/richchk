@@ -21,6 +21,8 @@ class RichTriggerDeathsConditionTranscoder(
     _RichTriggerConditionRegistrableTranscoder,
     trigger_condition_id=DeathsCondition.condition_id(),
 ):
+    _CONDITION_ID_INT: int = DeathsCondition.condition_id().id
+
     def __init__(self) -> None:
         self.log = logger.get_logger(RichTriggerDeathsConditionTranscoder.__name__)
 
@@ -46,13 +48,11 @@ class RichTriggerDeathsConditionTranscoder(
     ) -> DecodedTriggerCondition:
         return DecodedTriggerCondition(
             _location_id=0,
-            _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
-            _quantity=rich_condition.amount,
-            _unit_id=RichChkEnumTranscoder.encode_enum(rich_condition.unit),
-            _numeric_comparison_operation=RichChkEnumTranscoder.encode_enum(
-                rich_condition.comparator
-            ),
-            _condition_id=rich_condition.condition_id().id,
+            _group=rich_condition._group._id,
+            _quantity=rich_condition._amount,
+            _unit_id=rich_condition._unit._id,
+            _numeric_comparison_operation=rich_condition._comparator._id,
+            _condition_id=self._CONDITION_ID_INT,
             _numeric_comparand_type=0,
             _flags=0,
             _mask_flag=0,

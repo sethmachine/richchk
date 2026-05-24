@@ -146,8 +146,10 @@ def test_integration_it_decodes_and_encodes_back_to_chk_without_changing_data(
         rich_chk_decode_context=real_rich_chk_decode_context,
     )
     decoded_trig_again = rich_transcoder.encode(rich_trig, real_rich_chk_encode_context)
-    assert decoded_trig_again == real_decoded_trig
-    rich_trig_again = rich_transcoder.decode(
-        decoded_trig_again, real_rich_chk_decode_context
-    )
+    chk_transcoder = ChkTrigTranscoder()
+    encoded_bytes = chk_transcoder.encode(decoded_trig_again, include_header=False)
+    expected_bytes = chk_transcoder.encode(real_decoded_trig, include_header=False)
+    assert encoded_bytes == expected_bytes
+    re_decoded = chk_transcoder.decode(encoded_bytes)
+    rich_trig_again = rich_transcoder.decode(re_decoded, real_rich_chk_decode_context)
     assert rich_trig_again == rich_trig

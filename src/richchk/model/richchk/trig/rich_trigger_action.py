@@ -3,13 +3,16 @@
 import dataclasses
 from abc import ABC, abstractmethod
 
-from .actions.flags.trigger_action_flags import TriggerActionFlags
+from .actions.flags.trigger_action_flags import (
+    _DEFAULT_TRIGGER_ACTION_FLAGS,
+    TriggerActionFlags,
+)
 from .trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _RichTriggerActionDefaultsBase(ABC):
-    _flags: TriggerActionFlags = TriggerActionFlags()
+    _flags: TriggerActionFlags = _DEFAULT_TRIGGER_ACTION_FLAGS
 
     @property
     def flags(self) -> TriggerActionFlags:

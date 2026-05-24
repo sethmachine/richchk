@@ -16,7 +16,4 @@ class RichTrigEditor:
         The underlying triggers in the new section are still a shallow copy.  Avoid any
         mutations or side effects.
         """
-        new_triggers = [x for x in trig.triggers]
-        for new_trigger in triggers:
-            new_triggers.append(new_trigger)
-        return RichTrigSection(_triggers=new_triggers)
+        return RichTrigSection(_triggers=list(trig.triggers) + list(triggers))

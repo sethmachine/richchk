@@ -128,7 +128,7 @@ This section can be split. Additional TRIG sections will add more triggers.
 """
 
 import dataclasses
-from typing import Union
+from typing import Any, Union
 
 from ...chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ...chk.trig.decoded_trigger_condition import DecodedTriggerCondition
@@ -137,7 +137,7 @@ from .rich_trigger_action import RichTriggerAction
 from .rich_trigger_condition import RichTriggerCondition
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class RichTrigger:
     """Represents a rich trigger from the TRIG section.
 
@@ -152,7 +152,20 @@ class RichTrigger:
 
     _conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]]
     _actions: list[Union[RichTriggerAction, DecodedTriggerAction]]
-    _players: set[PlayerId]
+    _players: frozenset[PlayerId]
+    _type_sig: tuple[Any, ...] = dataclasses.field(
+        default=(), init=False, compare=False, repr=False, hash=False
+    )
+
+    def __post_init__(self) -> None:
+        if not isinstance(self._players, frozenset):
+            object.__setattr__(self, "_players", frozenset(self._players))
+        object.__setattr__(
+            self,
+            "_type_sig",
+            tuple(type(c) for c in self._conditions)
+            + tuple(type(a) for a in self._actions),
+        )
 
     @property
     def conditions(self) -> list[Union[RichTriggerCondition, DecodedTriggerCondition]]:
@@ -175,7 +188,7 @@ class RichTrigger:
         return self._actions
 
     @property
-    def players(self) -> set[PlayerId]:
+    def players(self) -> frozenset[PlayerId]:
         """The players the trigger executes for.
 
         Following the 16 conditions and 64 actions, every trigger also has this

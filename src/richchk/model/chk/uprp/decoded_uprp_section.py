@@ -65,7 +65,6 @@ Bit 5-15 - Unknown/unused
 u32: Unknown/unused. Padding?
 """
 
-import copy
 import dataclasses
 
 from ...chk_section_name import ChkSectionName
@@ -89,4 +88,4 @@ class DecodedUprpSection(DecodedChkSection):
 
     @property
     def cuwp_slots(self) -> list[DecodedCuwpSlot]:
-        return copy.deepcopy(self._cuwp_slots)
+        return self._cuwp_slots
