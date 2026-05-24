@@ -19,6 +19,8 @@ class ChkSectionName(Enum):
     VCOD = ("VCOD",)
     IOWN = ("IOWN",)
     OWNR = ("OWNR",)
+    SIDE = ("SIDE",)
+    FORC = ("FORC",)
     STR = ("STR ",)
     STRX = ("STRx",)
     UNIS = ("UNIS",)
