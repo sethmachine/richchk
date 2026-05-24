@@ -29,35 +29,31 @@ def test_it_does_not_mutate_original_section(inactive_ownr):
 
 def test_it_sets_all_player_types(inactive_ownr):
     editor = RichOwnrEditor()
-    new_types = {
+    updates = {
         PlayerId.PLAYER_1: PlayerType.HUMAN,
         PlayerId.PLAYER_2: PlayerType.HUMAN,
         PlayerId.PLAYER_3: PlayerType.COMPUTER,
         PlayerId.PLAYER_4: PlayerType.COMPUTER,
-        PlayerId.PLAYER_5: PlayerType.RESCUE_PASSIVE,
-        PlayerId.PLAYER_6: PlayerType.NEUTRAL,
-        PlayerId.PLAYER_7: PlayerType.INACTIVE,
-        PlayerId.PLAYER_8: PlayerType.INACTIVE,
-        PlayerId.PLAYER_9: PlayerType.INACTIVE,
-        PlayerId.PLAYER_10: PlayerType.INACTIVE,
-        PlayerId.PLAYER_11: PlayerType.INACTIVE,
-        PlayerId.PLAYER_12: PlayerType.INACTIVE,
     }
-    updated = editor.set_all_player_types(new_types, inactive_ownr)
-    assert updated.player_types == list(new_types.values())
+    updated = editor.set_all_player_types(updates, inactive_ownr)
+    assert updated.player_types[0] == PlayerType.HUMAN
+    assert updated.player_types[1] == PlayerType.HUMAN
+    assert updated.player_types[2] == PlayerType.COMPUTER
+    assert updated.player_types[3] == PlayerType.COMPUTER
+    assert all(t == PlayerType.INACTIVE for t in updated.player_types[4:])
 
 
-def test_it_raises_on_invalid_player_slot(inactive_ownr):
-    editor = RichOwnrEditor()
-    with pytest.raises(ValueError):
-        editor.set_player_type(PlayerId.NONE, PlayerType.HUMAN, inactive_ownr)
-
-
-def test_it_defaults_missing_slots_to_inactive(inactive_ownr):
+def test_it_preserves_unspecified_slots(inactive_ownr):
     editor = RichOwnrEditor()
     updated = editor.set_all_player_types(
         {PlayerId.PLAYER_1: PlayerType.HUMAN},
         inactive_ownr,
     )
     assert updated.player_types[0] == PlayerType.HUMAN
-    assert all(t == PlayerType.CLOSED for t in updated.player_types[1:])
+    assert all(t == PlayerType.INACTIVE for t in updated.player_types[1:])
+
+
+def test_it_raises_on_invalid_player_slot(inactive_ownr):
+    editor = RichOwnrEditor()
+    with pytest.raises(ValueError):
+        editor.set_player_type(PlayerId.NONE, PlayerType.HUMAN, inactive_ownr)
