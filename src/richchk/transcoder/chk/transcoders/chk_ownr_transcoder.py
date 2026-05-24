@@ -28,6 +28,4 @@ class ChkOwnrTranscoder(
         return DecodedOwnrSection(_player_controllers=player_controllers)
 
     def _encode(self, decoded_chk_section: DecodedOwnrSection) -> bytes:
-        return struct.pack(
-            f"{_NUM_PLAYERS}B", *decoded_chk_section.player_controllers
-        )
+        return struct.pack(f"{_NUM_PLAYERS}B", *decoded_chk_section.player_controllers)

@@ -16,7 +16,9 @@ def inactive_side() -> RichSideSection:
 
 def test_it_sets_single_player_race(inactive_side):
     editor = RichSideEditor()
-    updated = editor.set_player_race(PlayerId.PLAYER_1, PlayerRace.TERRAN, inactive_side)
+    updated = editor.set_player_race(
+        PlayerId.PLAYER_1, PlayerRace.TERRAN, inactive_side
+    )
     assert updated.player_races[0] == PlayerRace.TERRAN
     assert updated.player_races[1:] == list(_ALL_INACTIVE)[1:]
 

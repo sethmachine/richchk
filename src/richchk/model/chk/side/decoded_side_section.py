@@ -4,14 +4,8 @@ Not required. Validation: Must be size of 12 bytes.
 
 u8[12]: One byte per player slot (0-11) designating the player's race.
 
-0x00 - Zerg
-0x01 - Terran
-0x02 - Protoss
-0x03 - Invalid (Independent)
-0x04 - Invalid (Neutral)
-0x05 - User Select
-0x06 - Random (Forced)
-0x07 - Inactive
+0x00 - Zerg 0x01 - Terran 0x02 - Protoss 0x03 - Invalid (Independent) 0x04 - Invalid
+(Neutral) 0x05 - User Select 0x06 - Random (Forced) 0x07 - Inactive
 """
 
 import dataclasses
