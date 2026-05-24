@@ -36,8 +36,8 @@ class RichOwnrEditor:
     ) -> RichOwnrSection:
         """Return a new section with the given player types updated.
 
-        :param player_types: mapping of player slots to update; slots absent from
-            the dict retain their existing type
+        :param player_types: mapping of player slots to update; slots absent from the
+            dict retain their existing type
         :param ownr: the existing OWNR section
         :return: new RichOwnrSection with the updated types
         """

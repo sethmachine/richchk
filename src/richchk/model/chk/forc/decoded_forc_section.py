@@ -2,16 +2,12 @@
 
 Not required. Total size: 20 bytes (or less; missing bytes default to 0).
 
-u8[8]:  Force assignment per player slot (0-7); values 0-3 indicate which force.
-u16[4]: String index of each force's name (4 forces); 0 means default name.
-u8[4]:  Property flags per force.
+u8[8]:  Force assignment per player slot (0-7); values 0-3 indicate which force. u16[4]:
+String index of each force's name (4 forces); 0 means default name. u8[4]:  Property
+flags per force.
 
-Force property flags (per u8):
-  Bit 0 - Random start location
-  Bit 1 - Allies
-  Bit 2 - Allied victory
-  Bit 3 - Shared vision
-  Bits 4-7 - Unused
+Force property flags (per u8):   Bit 0 - Random start location   Bit 1 - Allies   Bit 2
+- Allied victory   Bit 3 - Shared vision   Bits 4-7 - Unused
 """
 
 import dataclasses

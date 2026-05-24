@@ -7,7 +7,9 @@ from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
 from richchk.transcoder.chk.transcoders.chk_ownr_transcoder import ChkOwnrTranscoder
-from richchk.transcoder.richchk.transcoders.rich_ownr_transcoder import RichOwnrTranscoder
+from richchk.transcoder.richchk.transcoders.rich_ownr_transcoder import (
+    RichOwnrTranscoder,
+)
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 
@@ -28,9 +30,7 @@ _EXPECTED_PLAYER_TYPES = [
     PlayerType.INACTIVE,
 ]
 
-_EMPTY_STR_LOOKUP = RichStrLookup(
-    _string_by_id_lookup={}, _id_by_string_lookup={}
-)
+_EMPTY_STR_LOOKUP = RichStrLookup(_string_by_id_lookup={}, _id_by_string_lookup={})
 
 
 @pytest.fixture
@@ -54,8 +54,12 @@ def encode_context() -> RichChkEncodeContext:
 
     return RichChkEncodeContext(
         _rich_str_lookup=_EMPTY_STR_LOOKUP,
-        _rich_mrgn_lookup=RichMrgnLookup(_location_by_id_lookup={}, _id_by_location_lookup={}),
-        _rich_swnm_lookup=RichSwnmLookup(_switch_by_id_lookup={}, _id_by_switch_lookup={}),
+        _rich_mrgn_lookup=RichMrgnLookup(
+            _location_by_id_lookup={}, _id_by_location_lookup={}
+        ),
+        _rich_swnm_lookup=RichSwnmLookup(
+            _switch_by_id_lookup={}, _id_by_switch_lookup={}
+        ),
         _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
         _wav_metadata_lookup=None,
     )

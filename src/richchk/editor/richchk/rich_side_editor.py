@@ -36,8 +36,8 @@ class RichSideEditor:
     ) -> RichSideSection:
         """Return a new section with the given player races updated.
 
-        :param player_races: mapping of player slots to update; slots absent from
-            the dict retain their existing race
+        :param player_races: mapping of player slots to update; slots absent from the
+            dict retain their existing race
         :param side: the existing SIDE section
         :return: new RichSideSection with the updated races
         """

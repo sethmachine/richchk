@@ -3,14 +3,14 @@ import pytest
 from richchk.model.chk.forc.decoded_forc_section import DecodedForcSection
 from richchk.model.richchk.forc.force_flags import ForceFlags
 from richchk.model.richchk.forc.force_id import ForceId
-from richchk.model.richchk.forc.rich_forc_section import RichForcSection
-from richchk.model.richchk.forc.rich_force import RichForce
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
 from richchk.model.richchk.str.rich_string import RichNullString, RichString
 from richchk.transcoder.chk.transcoders.chk_forc_transcoder import ChkForcTranscoder
-from richchk.transcoder.richchk.transcoders.rich_forc_transcoder import RichForcTranscoder
+from richchk.transcoder.richchk.transcoders.rich_forc_transcoder import (
+    RichForcTranscoder,
+)
 
 from ....chk_resources import CHK_SECTION_FILE_PATHS
 
@@ -35,7 +35,9 @@ _EXPECTED_PLAYER_FORCE_ASSIGNMENTS = [
     ForceId.FORCE_1,
     ForceId.FORCE_1,
 ]
-_EXPECTED_FORCE_FLAGS = ForceFlags(_random_start=False, _allies=True, _allied_victory=True, _shared_vision=False)
+_EXPECTED_FORCE_FLAGS = ForceFlags(
+    _random_start=False, _allies=True, _allied_victory=True, _shared_vision=False
+)
 
 
 @pytest.fixture
@@ -59,8 +61,12 @@ def encode_context() -> RichChkEncodeContext:
 
     return RichChkEncodeContext(
         _rich_str_lookup=_STR_LOOKUP,
-        _rich_mrgn_lookup=RichMrgnLookup(_location_by_id_lookup={}, _id_by_location_lookup={}),
-        _rich_swnm_lookup=RichSwnmLookup(_switch_by_id_lookup={}, _id_by_switch_lookup={}),
+        _rich_mrgn_lookup=RichMrgnLookup(
+            _location_by_id_lookup={}, _id_by_location_lookup={}
+        ),
+        _rich_swnm_lookup=RichSwnmLookup(
+            _switch_by_id_lookup={}, _id_by_switch_lookup={}
+        ),
         _rich_cuwp_lookup=RichCuwpLookup(_cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}),
         _wav_metadata_lookup=None,
     )
