@@ -1,5 +1,7 @@
 """Decode and encode the SIDE - Player Races section."""
 
+from typing import Any, cast
+
 from ....model.chk.side.decoded_side_section import DecodedSideSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -12,6 +14,8 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
     RichChkEnumTranscoder,
 )
+
+_side_encode_cache: dict[Any, Any] = {}  # id(rich_side_section) → DecodedSideSection
 
 
 class RichSideTranscoder(
@@ -36,9 +40,15 @@ class RichSideTranscoder(
         rich_chk_section: RichSideSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedSideSection:
-        return DecodedSideSection(
+        cache_key = id(rich_chk_section)
+        cached = _side_encode_cache.get(cache_key)
+        if cached is not None:
+            return cast(DecodedSideSection, cached)
+        result = DecodedSideSection(
             _player_races=[
                 RichChkEnumTranscoder.encode_enum(race)
                 for race in rich_chk_section.player_races
             ]
         )
+        _side_encode_cache[cache_key] = result
+        return result

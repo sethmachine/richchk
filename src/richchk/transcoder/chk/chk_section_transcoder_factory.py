@@ -19,18 +19,23 @@ class ChkSectionTranscoderFactory:
             Type[Union[ChkSectionTranscoder[Any], _RegistrableTranscoder]],
         ]
     ] = {}
+    _instances: ClassVar[dict[ChkSectionName, ChkSectionTranscoder[Any]]] = {}
 
     @classmethod
     def make_chk_section_transcoder(
         cls, chk_section_name: ChkSectionName
     ) -> ChkSectionTranscoder[Any]:
         """Factory for making ChkSectionTranscoder for a given CHK section name."""
+        cached = cls._instances.get(chk_section_name)
+        if cached is not None:
+            return cached
         try:
             maybe_transcoder: Union[
                 ChkSectionTranscoder[Any], _RegistrableTranscoder
             ] = cls.transcoders[chk_section_name]()
             assert isinstance(maybe_transcoder, ChkSectionTranscoder)
             retval: ChkSectionTranscoder[Any] = maybe_transcoder
+            cls._instances[chk_section_name] = retval
             return retval
         except KeyError as err:
             raise NotImplementedError(f"{chk_section_name=} doesn't exist") from err

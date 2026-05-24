@@ -19,6 +19,7 @@ from richchk.model.chk_section_name import ChkSectionName
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.rich_chk_section import RichChkSection
 from richchk.model.richchk.unis.rich_unis_section import RichUnisSection
+from richchk.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
 from richchk.transcoder.richchk.richchk_section_transcoder_factory import (
     RichChkSectionTranscoderFactory,
 )
@@ -142,9 +143,21 @@ def assert_chks_are_equal(decoded_chk1: DecodedChk, decoded_chk2: DecodedChk):
     )
     for index, section in enumerate(decoded_chk1.decoded_chk_sections):
         if isinstance(section, DecodedTrigSection):
+            other = decoded_chk2.decoded_chk_sections[index]
+            trig_tc = ChkTrigTranscoder()
+            s = (
+                trig_tc.decode(section._raw_data)
+                if section._raw_data is not None
+                else section
+            )
+            o = (
+                trig_tc.decode(other._raw_data)
+                if other._raw_data is not None
+                else other
+            )
             unittest.TestCase().assertEqual(
-                section,
-                decoded_chk2.decoded_chk_sections[index],
+                s,
+                o,
                 "Actual trig section does not match expected trig section!",
             )
         else:

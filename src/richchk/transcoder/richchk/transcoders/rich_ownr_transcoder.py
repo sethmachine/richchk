@@ -1,5 +1,7 @@
 """Decode and encode the OWNR - StarCraft Player Types section."""
 
+from typing import Any, cast
+
 from ....model.chk.ownr.decoded_ownr_section import DecodedOwnrSection
 from ....model.richchk.ownr.player_type import PlayerType
 from ....model.richchk.ownr.rich_ownr_section import RichOwnrSection
@@ -12,6 +14,8 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
     RichChkEnumTranscoder,
 )
+
+_ownr_encode_cache: dict[Any, Any] = {}  # id(rich_ownr_section) → DecodedOwnrSection
 
 
 class RichOwnrTranscoder(
@@ -36,9 +40,15 @@ class RichOwnrTranscoder(
         rich_chk_section: RichOwnrSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedOwnrSection:
-        return DecodedOwnrSection(
+        cache_key = id(rich_chk_section)
+        cached = _ownr_encode_cache.get(cache_key)
+        if cached is not None:
+            return cast(DecodedOwnrSection, cached)
+        result = DecodedOwnrSection(
             _player_controllers=[
                 RichChkEnumTranscoder.encode_enum(player_type)
                 for player_type in rich_chk_section.player_types
             ]
         )
+        _ownr_encode_cache[cache_key] = result
+        return result

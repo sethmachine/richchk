@@ -130,6 +130,7 @@ will add more triggers.
 """
 
 import dataclasses
+from typing import Optional, Union
 
 from ...chk_section_name import ChkSectionName
 from ..decoded_chk_section import DecodedChkSection
@@ -142,9 +143,14 @@ class DecodedTrigSection(DecodedChkSection):
 
     :param _triggers: contains all the triggers in this TRIG section. There can be
         multiple TRIG sections.
+    :param _raw_data: pre-encoded bytes from fused encoding path; when set,
+        ChkTrigTranscoder skips re-encoding and uses these bytes directly.
     """
 
     _triggers: list[DecodedTrigger]
+    _raw_data: Optional[Union[bytes, bytearray]] = dataclasses.field(
+        default=None, compare=False, hash=False, repr=False
+    )
 
     @classmethod
     def section_name(cls) -> ChkSectionName:

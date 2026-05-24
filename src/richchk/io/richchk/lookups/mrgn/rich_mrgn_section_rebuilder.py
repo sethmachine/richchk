@@ -9,6 +9,8 @@ allocated to "Anywhere".
 """
 
 import dataclasses
+import weakref
+from typing import Any
 
 from .....editor.richchk.rich_mrgn_editor import RichMrgnEditor
 from .....model.richchk.mrgn.rich_location import RichLocation
@@ -17,6 +19,10 @@ from .....model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
 from ....richchk.query.chk_query_util import ChkQueryUtil
+
+_rebuild_cache: dict[
+    Any, Any
+] = {}  # (id(rich_mrgn), frozenset_loc_ids) → (weakref(rich_mrgn), section, lookup)
 
 
 class RichMrgnSectionRebuilder:
@@ -32,6 +38,25 @@ class RichMrgnSectionRebuilder:
         ] = RichMrgnSectionRebuilder.find_all_rich_locations_in_rich_chk(rich_chk)
         editor = RichMrgnEditor()
         return editor.add_locations(all_rich_locations, rich_mrgn)
+
+    @staticmethod
+    def rebuild_from_locations(
+        locations: set[RichLocation], rich_chk: RichChk
+    ) -> tuple[RichMrgnSection, RichMrgnLookup]:
+        rich_mrgn = ChkQueryUtil.find_only_rich_section_in_chk(
+            RichMrgnSection, rich_chk
+        )
+        loc_key = frozenset(id(loc) for loc in locations)
+        cache_key = (id(rich_mrgn), loc_key)
+        cached = _rebuild_cache.get(cache_key)
+        if cached is not None and cached[0]() is rich_mrgn:
+            return cached[1], cached[2]
+        result_section, result_lookup = RichMrgnEditor().add_locations(
+            locations, rich_mrgn
+        )
+        _wr = weakref.ref(rich_mrgn, lambda _: _rebuild_cache.pop(cache_key, None))
+        _rebuild_cache[cache_key] = (_wr, result_section, result_lookup)
+        return result_section, result_lookup
 
     @staticmethod
     def find_all_rich_locations_in_rich_chk(rich_chk: RichChk) -> set[RichLocation]:
@@ -63,7 +88,7 @@ class RichMrgnSectionRebuilder:
                     RichMrgnSectionRebuilder._walk_object_for_rich_locations(key),
                     RichMrgnSectionRebuilder._walk_object_for_rich_locations(value),
                 )
-        elif dataclasses.is_dataclass(obj):
+        elif dataclasses.is_dataclass(obj) and not isinstance(obj, type):
             for field in dataclasses.fields(obj):
                 field_value = getattr(obj, field.name)
                 locations = locations.union(

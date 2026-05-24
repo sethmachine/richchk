@@ -31,6 +31,7 @@ u16[130]: Upgrade bonus weapon damage, in weapon ID order
 """
 
 from decimal import Decimal
+from typing import Any, cast
 
 from ....model.chk.unis.unis_constants import NUM_UNITS
 from ....model.chk.unix.decoded_unix_section import DecodedUnixSection
@@ -50,6 +51,10 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 from ....util import logger
 from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
 from .helpers.unit_hitpoints_transcoder import UnitHitpointsTranscoder
+
+_unix_encode_cache: dict[
+    Any, Any
+] = {}  # (id(rich_unix_section), id(str_lookup)) → DecodedUnixSection
 
 
 class RichChkUnixTranscoder(
@@ -161,6 +166,13 @@ class RichChkUnixTranscoder(
         rich_chk_section: RichUnixSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedUnixSection:
+        cache_key = (
+            id(rich_chk_section),
+            id(rich_chk_encode_context.rich_str_lookup),
+        )
+        cached = _unix_encode_cache.get(cache_key)
+        if cached is not None:
+            return cast(DecodedUnixSection, cached)
         unit_default_settings_flags = [1] * NUM_UNITS
         hitpoints = [0] * NUM_UNITS
         shieldpoints = [0] * NUM_UNITS
@@ -200,7 +212,7 @@ class RichChkUnixTranscoder(
                 base_weapon_damages[weapon.weapon_id.id] = weapon.base_damage
                 base_weapon_upgrades[weapon.weapon_id.id] = weapon.upgrade_damage
 
-        return DecodedUnixSection(
+        result = DecodedUnixSection(
             _unit_default_settings_flags=unit_default_settings_flags,
             _unit_hitpoints=hitpoints,
             _unit_shieldpoints=shieldpoints,
@@ -212,3 +224,5 @@ class RichChkUnixTranscoder(
             _unit_base_weapon_damages=base_weapon_damages,
             _unit_upgrade_weapon_damages=base_weapon_upgrades,
         )
+        _unix_encode_cache[cache_key] = result
+        return result

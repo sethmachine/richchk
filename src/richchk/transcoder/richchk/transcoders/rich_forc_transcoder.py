@@ -1,5 +1,7 @@
 """Decode and encode the FORC - Force Settings section."""
 
+from typing import Any, cast
+
 from ....model.chk.forc.decoded_forc_section import DecodedForcSection
 from ....model.richchk.forc.force_flags import ForceFlags
 from ....model.richchk.forc.force_id import ForceId
@@ -14,6 +16,10 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
     RichChkEnumTranscoder,
 )
+
+_forc_encode_cache: dict[
+    Any, Any
+] = {}  # (id(rich_forc_section), id(str_lookup)) → DecodedForcSection
 
 _NUM_FORCES = 4
 
@@ -56,6 +62,10 @@ class RichForcTranscoder(
         rich_chk_section: RichForcSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedForcSection:
+        cache_key = (id(rich_chk_section), id(rich_chk_encode_context.rich_str_lookup))
+        cached = _forc_encode_cache.get(cache_key)
+        if cached is not None:
+            return cast(DecodedForcSection, cached)
         force_name_string_ids = [
             rich_chk_encode_context.rich_str_lookup.get_id_by_string(force.name)
             for force in rich_chk_section.forces
@@ -67,11 +77,13 @@ class RichForcTranscoder(
             RichChkEnumTranscoder.encode_enum(x)
             for x in rich_chk_section.player_force_assignments
         ]
-        return DecodedForcSection(
+        result = DecodedForcSection(
             _player_force_assignments=player_force_assignments,
             _force_name_string_ids=force_name_string_ids,
             _force_flags=force_flags,
         )
+        _forc_encode_cache[cache_key] = result
+        return result
 
     @classmethod
     def _decode_force_flags(cls, flags_byte: int) -> ForceFlags:

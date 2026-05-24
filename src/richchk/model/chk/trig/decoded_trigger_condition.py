@@ -40,7 +40,7 @@ u16: MaskFlag: set to "SC" (0x53, 0x43) when using the bitmask for EUDs, 0 other
 import dataclasses
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(slots=True)
 class DecodedTriggerCondition:
     """Represent a single decoded condition from TRIG section.
 
