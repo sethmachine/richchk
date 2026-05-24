@@ -5,20 +5,6 @@ from ...model.richchk.side.rich_side_section import RichSideSection
 from ...model.richchk.trig.player_id import PlayerId
 
 _NUM_PLAYERS = 12
-_PLAYER_SLOTS = [
-    PlayerId.PLAYER_1,
-    PlayerId.PLAYER_2,
-    PlayerId.PLAYER_3,
-    PlayerId.PLAYER_4,
-    PlayerId.PLAYER_5,
-    PlayerId.PLAYER_6,
-    PlayerId.PLAYER_7,
-    PlayerId.PLAYER_8,
-    PlayerId.PLAYER_9,
-    PlayerId.PLAYER_10,
-    PlayerId.PLAYER_11,
-    PlayerId.PLAYER_12,
-]
 
 
 class RichSideEditor:
@@ -48,15 +34,14 @@ class RichSideEditor:
         player_races: dict[PlayerId, PlayerRace],
         side: RichSideSection,
     ) -> RichSideSection:
-        """Return a new section with all player races replaced.
+        """Return a new section with the given player races updated.
 
-        :param player_races: mapping from player slots to PlayerRace; slots absent
-            from the dict default to PlayerRace.USER_SELECT
+        :param player_races: mapping of player slots to update; slots absent from
+            the dict retain their existing race
         :param side: the existing SIDE section
         :return: new RichSideSection with the updated races
         """
-        return RichSideSection(
-            _player_races=[
-                player_races.get(p, PlayerRace.USER_SELECT) for p in _PLAYER_SLOTS
-            ]
-        )
+        updated = list(side.player_races)
+        for player, race in player_races.items():
+            updated[player.id] = race
+        return RichSideSection(_player_races=updated)
