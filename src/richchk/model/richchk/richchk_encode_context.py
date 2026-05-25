@@ -19,6 +19,11 @@ class RichChkEncodeContext:
     _rich_cuwp_lookup: RichCuwpLookup
     # this is only present when a RichChk is edited via StacraftMpqIo
     _wav_metadata_lookup: Optional[RichWavMetadataLookup] = None
+    _optimize: bool = True
+
+    @property
+    def optimize(self) -> bool:
+        return self._optimize
 
     @property
     def rich_str_lookup(self) -> RichStrLookup:

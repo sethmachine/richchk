@@ -1,3 +1,4 @@
+import collections
 import logging
 import weakref
 from typing import Any, Optional, Union, cast
@@ -21,6 +22,7 @@ from ...model.richchk.richchk_encode_context import RichChkEncodeContext
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
+from ...model.richchk.trig.rich_trig_section import RichTrigSection
 from ...model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from ...model.richchk.uprp.rich_uprp_section import RichUprpSection
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
@@ -31,6 +33,9 @@ from ...transcoder.richchk.richchk_section_transcoder_factory import (
 from ...transcoder.richchk.transcoders.rich_swnm_transcoder import RichChkSwnmTranscoder
 from ...transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
+)
+from ...transcoder.richchk.transcoders.richchk_trig_transcoder import (
+    RichChkTrigTranscoder,
 )
 from ...transcoder.richchk.transcoders.richchk_uprp_transcoder import (
     RichChkUprpTranscoder,
@@ -51,11 +56,18 @@ from .rich_str_lookup_builder import RichStrLookupBuilder
 _encode_cache: dict[
     Any, Any
 ] = {}  # (id(rich_chk), id(wav_lookup)) → (weakref(rich_chk), DecodedChk)
+_secondary_encode_cache: collections.OrderedDict[
+    Any, Any
+] = (
+    collections.OrderedDict()
+)  # (tuple(non_trig_ids), trig_key, id(wav_lookup)) → DecodedChk
+_SECONDARY_CACHE_MAX_ENTRIES = 32
 
 
 class RichChkIo:
-    def __init__(self) -> None:
+    def __init__(self, optimize: bool = True) -> None:
         self.log: logging.Logger = logger.get_logger(RichChkIo.__name__)
+        self._optimize = optimize
 
     def decode_chk(self, chk: DecodedChk) -> RichChk:
         decode_context = self._build_decode_context(chk)
@@ -89,6 +101,32 @@ class RichChkIo:
                 return cast(DecodedChk, cached[1])
             else:
                 del _encode_cache[cache_key]
+
+        secondary_key: Any = None
+        if self._optimize:
+            trig_sec: Optional[RichTrigSection] = None
+            non_trig_ids: list[int] = []
+            for _sec in rich_chk.chk_sections:
+                if isinstance(_sec, RichTrigSection):
+                    trig_sec = _sec
+                else:
+                    non_trig_ids.append(id(_sec))
+            if trig_sec is not None:
+                _tc = RichChkTrigTranscoder()
+                _trig_key = _tc.get_secondary_cache_key(trig_sec)
+                if _trig_key is not None:
+                    secondary_key = (
+                        tuple(non_trig_ids),
+                        _trig_key,
+                        id(wav_metadata_lookup),
+                    )
+                    _secondary_cached = _secondary_encode_cache.get(secondary_key)
+                    if _secondary_cached is not None:
+                        _wr = weakref.ref(
+                            rich_chk, lambda _: _encode_cache.pop(cache_key, None)
+                        )
+                        _encode_cache[cache_key] = (_wr, _secondary_cached)
+                        return cast(DecodedChk, _secondary_cached)
 
         strings, locations, switches, cuwps = collect_rich_objects(rich_chk)
         new_str_section: DecodedStringSection = (
@@ -197,6 +235,10 @@ class RichChkIo:
         result = DecodedChk(_decoded_chk_sections=decoded_sections)
         _wr = weakref.ref(rich_chk, lambda _: _encode_cache.pop(cache_key, None))
         _encode_cache[cache_key] = (_wr, result)
+        if secondary_key is not None:
+            if len(_secondary_encode_cache) >= _SECONDARY_CACHE_MAX_ENTRIES:
+                _secondary_encode_cache.popitem(last=False)
+            _secondary_encode_cache[secondary_key] = result
         return result
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
@@ -274,4 +316,5 @@ class RichChkIo:
                 new_uprp_section
             ),
             _wav_metadata_lookup=wav_metadata_lookup,
+            _optimize=self._optimize,
         )
