@@ -137,7 +137,7 @@ from .rich_trigger_action import RichTriggerAction
 from .rich_trigger_condition import RichTriggerCondition
 
 
-@dataclasses.dataclass(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True, slots=True, init=False)
 class RichTrigger:
     """Represents a rich trigger from the TRIG section.
 
@@ -154,17 +154,24 @@ class RichTrigger:
     _actions: list[Union[RichTriggerAction, DecodedTriggerAction]]
     _players: frozenset[PlayerId]
     _type_sig: tuple[Any, ...] = dataclasses.field(
-        default=(), init=False, compare=False, repr=False, hash=False
+        default=(), compare=False, repr=False, hash=False
     )
 
-    def __post_init__(self) -> None:
-        if not isinstance(self._players, frozenset):
-            object.__setattr__(self, "_players", frozenset(self._players))
+    def __init__(
+        self,
+        _conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]],
+        _actions: list[Union[RichTriggerAction, DecodedTriggerAction]],
+        _players: Union[set[PlayerId], frozenset[PlayerId]],
+    ) -> None:
+        object.__setattr__(self, "_conditions", _conditions)
+        object.__setattr__(self, "_actions", _actions)
         object.__setattr__(
             self,
-            "_type_sig",
-            tuple(type(c) for c in self._conditions)
-            + tuple(type(a) for a in self._actions),
+            "_players",
+            _players if isinstance(_players, frozenset) else frozenset(_players),
+        )
+        object.__setattr__(
+            self, "_type_sig", tuple(map(type, (*_conditions, *_actions)))
         )
 
     @property

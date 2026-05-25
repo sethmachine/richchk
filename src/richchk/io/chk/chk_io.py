@@ -47,12 +47,6 @@ _chk_bytes_cache: dict[Any, Any] = {}  # id(decoded_chk) → (weakref(decoded_ch
 _section_bytes_cache: dict[
     Any, Any
 ] = {}  # id(decoded_chk_section) → (header_bytes, section_bytes)
-_non_trig_bytes_cache: dict[
-    Any, Any
-] = {}  # (trig_idx, tuple(non_trig_ids)) → (prefix_bytes, suffix_bytes)
-_full_chk_bytes_cache: dict[
-    Any, Any
-] = {}  # (non_trig_key, id(trig_data)) → bytes — skips 12MB join when TRIG bytes stable
 
 
 class _ByteStream(Protocol):
@@ -98,63 +92,12 @@ class ChkIo:
         _encode_header = ChkSectionTranscoder.encode_chk_section_header
         _sec_cache = _section_bytes_cache
 
-        # Single pass: find TRIG position + build key from stable non-TRIG section ids
-        trig_idx: int = -1
-        trig_count: int = 0
-        non_trig_ids: list[int] = []
-        for i, s in enumerate(sections):
-            if (
-                isinstance(s, DecodedUnknownSection)
-                or s.section_name() != ChkSectionName.TRIG
-            ):
-                non_trig_ids.append(id(s))
-            else:
-                trig_count += 1
-                if trig_count == 1:
-                    trig_idx = i
-        non_trig_key = (trig_idx, tuple(non_trig_ids))
-
-        if trig_count == 1:
-            non_trig_entry = _non_trig_bytes_cache.get(non_trig_key)
-            if non_trig_entry is not None:
-                # Fast path: non-TRIG bytes are cached; only encode TRIG section
-                prefix_bytes, suffix_bytes = non_trig_entry
-                trig_section = sections[trig_idx]
-                _trig_transcoder: ChkSectionTranscoder[
-                    Any
-                ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
-                    ChkSectionName.TRIG
-                )
-                trig_data = _trig_transcoder._encode(trig_section)
-                full_key = (non_trig_key, id(trig_data))
-                full_cached = _full_chk_bytes_cache.get(full_key)
-                if full_cached is not None:
-                    _wr = weakref.ref(
-                        decoded_chk, lambda _: _chk_bytes_cache.pop(cache_key, None)
-                    )
-                    _chk_bytes_cache[cache_key] = (_wr, full_cached)
-                    return cast(bytes, full_cached)
-                trig_header = _encode_header(ChkSectionName.TRIG, len(trig_data))
-                result = b"".join([prefix_bytes, trig_header, trig_data, suffix_bytes])
-                _full_chk_bytes_cache[full_key] = result
-                _wr = weakref.ref(
-                    decoded_chk, lambda _: _chk_bytes_cache.pop(cache_key, None)
-                )
-                _chk_bytes_cache[cache_key] = (_wr, result)
-                return result
-
-        # Full encode loop
         parts: list[bytes] = []
-        pre_end_idx: int = 0
-        post_start_idx: int = 0
-
-        for section_idx, decoded_chk_section in enumerate(sections):
+        for decoded_chk_section in sections:
             if isinstance(decoded_chk_section, DecodedUnknownSection):
                 parts.append(self._encode_unknown_chk_section(decoded_chk_section))
             else:
                 is_trig = decoded_chk_section.section_name() == ChkSectionName.TRIG
-                if is_trig and section_idx == trig_idx:
-                    pre_end_idx = len(parts)
                 sec_id = id(decoded_chk_section)
                 cached_pair = _sec_cache.get(sec_id)
                 if cached_pair is not None:
@@ -179,17 +122,8 @@ class ChkIo:
                         _sec_cache[sec_id] = (header, section_bytes)
                     parts.append(header)
                     parts.append(section_data)
-                if is_trig and section_idx == trig_idx:
-                    post_start_idx = len(parts)
 
         result = b"".join(parts)
-
-        # Cache prefix/suffix bytes for single-TRIG maps so future calls use fast path
-        if trig_count == 1 and trig_idx >= 0:
-            prefix_bytes = b"".join(parts[:pre_end_idx])
-            suffix_bytes = b"".join(parts[post_start_idx:])
-            _non_trig_bytes_cache[non_trig_key] = (prefix_bytes, suffix_bytes)
-
         _wr = weakref.ref(decoded_chk, lambda _: _chk_bytes_cache.pop(cache_key, None))
         _chk_bytes_cache[cache_key] = (_wr, result)
         return result
