@@ -1,5 +1,6 @@
 """Batch/fused encoder for homogeneous TRIG trigger batches."""
 import array
+import collections
 import struct
 import sys
 from typing import Any, ClassVar, Optional, cast
@@ -80,8 +81,9 @@ class BatchedTrigEncodeOptimizer:
         dict[Any, Any]
     ] = {}  # (id(nz_pairs), n) → [(pos, buf)] pre-built strided write buffers
     _fused_bytes_cache: ClassVar[
-        dict[Any, Any]
-    ] = {}  # (id(nz_pairs), n, hash(amounts_bytes)) → bytes
+        collections.OrderedDict[Any, Any]
+    ] = collections.OrderedDict()  # (id(nz_pairs), n, hash(amounts_bytes)) → bytes
+    _FUSED_BYTES_CACHE_MAX: ClassVar[int] = 16
     _player_execution_cache: ClassVar[dict[Any, Any]] = {}
 
     def encode(
@@ -99,9 +101,9 @@ class BatchedTrigEncodeOptimizer:
         """Returns a stable key for the secondary encode cache, or None if not
         applicable.
 
-        The key (id(nz_pairs), n, cond0_amounts_hash) is stable across fresh
-        RichTrigSection objects that share the same structural fingerprint and
-        condition[0] amounts pattern.  Only valid for single-cond-patch sections.
+        The key is stable across fresh RichTrigSection objects that share the same
+        structural fingerprint and amounts pattern.  Handles 1-cond-patch and
+        1-cond+1-act-patch cases.
         """
         triggers = rich_chk_section.triggers
         if not triggers or rich_chk_section.cond0_amounts_bytes is None:
@@ -109,19 +111,29 @@ class BatchedTrigEncodeOptimizer:
         trig_id = id(triggers)
         template_info = self._template_cache.get(trig_id)
         if template_info is None:
-            template_info = self._build_template_info(triggers)
-            self._template_cache[trig_id] = template_info
+            return None
         if template_info is False:
             return None
         nz_pairs, _, cond_patches, act_patches = template_info
-        if len(cond_patches) == 1 and not act_patches:
-            cond_idx, _ = cond_patches[0]
-            if cond_idx == 0:
-                return (
-                    id(nz_pairs),
-                    len(triggers),
-                    rich_chk_section.cond0_amounts_hash,
+        if len(cond_patches) != 1:
+            return None
+        cond_idx, _ = cond_patches[0]
+        if cond_idx != 0:
+            return None
+        n = len(triggers)
+        nz_id = id(nz_pairs)
+        if not act_patches:
+            return (nz_id, n, rich_chk_section.cond0_amounts_hash)
+        if len(act_patches) == 1:
+            act_idx, _ = act_patches[0]
+            if act_idx == 0 and rich_chk_section.act0_amounts_bytes is not None:
+                combined = hash(
+                    (
+                        rich_chk_section.cond0_amounts_hash,
+                        rich_chk_section.act0_amounts_hash,
+                    )
                 )
+                return (nz_id, n, combined)
         return None
 
     @staticmethod
@@ -360,9 +372,12 @@ class BatchedTrigEncodeOptimizer:
                     data[cond_off_rel + 1 :: trig_sz] = ab[1::4]
                     data[cond_off_rel + 2 :: trig_sz] = ab[2::4]
                     data[cond_off_rel + 3 :: trig_sz] = ab[3::4]
-                    result_b = bytes(data)
-                    self._fused_bytes_cache[bytes_key] = result_b
-                    return result_b
+                    fc = self._fused_bytes_cache
+                    if len(fc) < self._FUSED_BYTES_CACHE_MAX:
+                        result_b = bytes(data)
+                        fc[bytes_key] = result_b
+                        return result_b
+                    return data
                 # Zero-fill + strided writes: faster than template * n for sparse templates
                 # because bytearray(N) uses calloc (near-zero cost for reused pages) while
                 # template * n does a full 12 MB copy of mostly-zero content.
