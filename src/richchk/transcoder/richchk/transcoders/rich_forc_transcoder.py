@@ -1,5 +1,6 @@
 """Decode and encode the FORC - Force Settings section."""
 
+import weakref
 from typing import Any, cast
 
 from ....model.chk.forc.decoded_forc_section import DecodedForcSection
@@ -19,7 +20,9 @@ from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
 
 _forc_encode_cache: dict[
     Any, Any
-] = {}  # (id(rich_forc_section), id(str_lookup)) → DecodedForcSection
+] = (
+    {}
+)  # (id(rich_forc_section), id(str_lookup)) → (weakref(section), DecodedForcSection)
 
 _NUM_FORCES = 4
 
@@ -64,8 +67,8 @@ class RichForcTranscoder(
     ) -> DecodedForcSection:
         cache_key = (id(rich_chk_section), id(rich_chk_encode_context.rich_str_lookup))
         cached = _forc_encode_cache.get(cache_key)
-        if cached is not None:
-            return cast(DecodedForcSection, cached)
+        if cached is not None and cached[0]() is rich_chk_section:
+            return cast(DecodedForcSection, cached[1])
         force_name_string_ids = [
             rich_chk_encode_context.rich_str_lookup.get_id_by_string(force.name)
             for force in rich_chk_section.forces
@@ -82,7 +85,12 @@ class RichForcTranscoder(
             _force_name_string_ids=force_name_string_ids,
             _force_flags=force_flags,
         )
-        _forc_encode_cache[cache_key] = result
+        _forc_encode_cache[cache_key] = (
+            weakref.ref(
+                rich_chk_section, lambda _: _forc_encode_cache.pop(cache_key, None)
+            ),
+            result,
+        )
         return result
 
     @classmethod
