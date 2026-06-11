@@ -1,7 +1,9 @@
 """Rebuild a new DecodedStrSection from a RichChk."""
 
 import dataclasses
+import weakref
 from collections import OrderedDict
+from typing import Any, cast
 
 from ...editor.chk.decoded_str_section_editor import DecodedStrSectionEditor
 from ...editor.chk.decoded_strx_section_editor import DecodedStrxSectionEditor
@@ -12,6 +14,12 @@ from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
 from ...model.richchk.str.rich_string import RichNullString, RichString
 from .query.chk_query_util import ChkQueryUtil
+
+_str_rebuild_cache: dict[
+    Any, Any
+] = (
+    {}
+)  # (id(orig_section), frozenset_string_ids) → (weakref(orig_section), rebuilt_section)
 
 
 class DecodedStrSectionRebuilder:
@@ -24,6 +32,25 @@ class DecodedStrSectionRebuilder:
         return DecodedStrSectionRebuilder._add_strings_to_string_section(
             [x.value for x in rich_strings], decoded_str
         )
+
+    @staticmethod
+    def rebuild_str_section_from_strings(
+        strings: "OrderedDict[RichString, int]", rich_chk: RichChk
+    ) -> DecodedStringSection:
+        decoded_str = ChkQueryUtil.find_string_section_in_chk(rich_chk)
+        str_id_key = frozenset(id(s) for s in strings)
+        cache_key = (id(decoded_str), str_id_key)
+        cached = _str_rebuild_cache.get(cache_key)
+        if cached is not None and cached[0]() is decoded_str:
+            return cast(DecodedStringSection, cached[1])
+        result = DecodedStrSectionRebuilder._add_strings_to_string_section(
+            [x.value for x in strings.keys()], decoded_str
+        )
+        _wr = weakref.ref(
+            decoded_str, lambda _: _str_rebuild_cache.pop(cache_key, None)
+        )
+        _str_rebuild_cache[cache_key] = (_wr, result)
+        return result
 
     @staticmethod
     def _add_strings_to_string_section(
@@ -72,7 +99,7 @@ class DecodedStrSectionRebuilder:
                     value
                 ):
                     strings[y] = 0
-        elif dataclasses.is_dataclass(obj):
+        elif dataclasses.is_dataclass(obj) and not isinstance(obj, type):
             for field in dataclasses.fields(obj):
                 field_value = getattr(obj, field.name)
                 for key in DecodedStrSectionRebuilder._walk_object_for_rich_strings(

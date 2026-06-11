@@ -69,6 +69,9 @@ Bit 5-15 - Unknown/unused
 u32: Unknown/unused. Padding?
 """
 
+import weakref
+from typing import Any, cast
+
 from ....model.chk.uprp.decoded_cuwp_slot import DecodedCuwpSlot
 from ....model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from ....model.chk.uprp.uprp_constants import MAX_CUWP_SLOTS
@@ -90,12 +93,29 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 from ....util import logger
 from .helpers.cuwp_flags_transcoder import CuwpFlagsTranscoder
 
+_uprp_encode_cache: dict[
+    Any, Any
+] = {}  # id(rich_uprp_section) → (weakref(section), DecodedUprpSection)
+
 
 class RichChkUprpTranscoder(
     RichChkSectionTranscoder[RichUprpSection, DecodedUprpSection],
     _RichChkRegistrableTranscoder,
     chk_section_name=DecodedUprpSection.section_name(),
 ):
+    _EMPTY_CUWP_SLOT: DecodedCuwpSlot = DecodedCuwpSlot(
+        _valid_special_properties_flags=0,
+        _valid_unit_properties_flags=0,
+        _owner_player=0,
+        _hitpoints_percentage=0,
+        _shieldpoints_percentage=0,
+        _energypoints_percentage=0,
+        _resource_amount=0,
+        _units_in_hangar=0,
+        _flags=0,
+        _padding=0,
+    )
+
     def __init__(self) -> None:
         self.log = logger.get_logger(RichChkUprpTranscoder.__name__)
 
@@ -169,6 +189,10 @@ class RichChkUprpTranscoder(
         rich_chk_section: RichUprpSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedUprpSection:
+        cache_key = id(rich_chk_section)
+        cached = _uprp_encode_cache.get(cache_key)
+        if cached is not None and cached[0]() is rich_chk_section:
+            return cast(DecodedUprpSection, cached[1])
         decoded_cuwp_slots: list[DecodedCuwpSlot] = []
         assert all((cuwp.index is not None for cuwp in rich_chk_section.cuwp_slots))
         cuwp_by_index = {
@@ -182,7 +206,14 @@ class RichChkUprpTranscoder(
                 decoded_cuwp_slots.append(self._generate_unused_cuwp_slot())
             else:
                 decoded_cuwp_slots.append(self._encode_cuwp_slot(maybe_cuwp))
-        return DecodedUprpSection(_cuwp_slots=decoded_cuwp_slots)
+        result = DecodedUprpSection(_cuwp_slots=decoded_cuwp_slots)
+        _uprp_encode_cache[cache_key] = (
+            weakref.ref(
+                rich_chk_section, lambda _: _uprp_encode_cache.pop(cache_key, None)
+            ),
+            result,
+        )
+        return result
 
     def _encode_cuwp_slot(self, cuwp_slot: RichCuwpSlot) -> DecodedCuwpSlot:
         return DecodedCuwpSlot(
@@ -214,16 +245,4 @@ class RichChkUprpTranscoder(
 
     @classmethod
     def _generate_unused_cuwp_slot(cls) -> DecodedCuwpSlot:
-        """Generate filler CUWP data to fill in any CUWP slots."""
-        return DecodedCuwpSlot(
-            _valid_special_properties_flags=0,
-            _valid_unit_properties_flags=0,
-            _owner_player=0,
-            _hitpoints_percentage=0,
-            _shieldpoints_percentage=0,
-            _energypoints_percentage=0,
-            _resource_amount=0,
-            _units_in_hangar=0,
-            _flags=0,
-            _padding=0,
-        )
+        return cls._EMPTY_CUWP_SLOT

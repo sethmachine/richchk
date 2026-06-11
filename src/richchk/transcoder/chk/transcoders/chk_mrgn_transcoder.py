@@ -49,6 +49,9 @@ from ....model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
 from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
 from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
+_LOCATION_STRUCT = struct.Struct("IIIIHH")
+_LOCATION_SIZE = _LOCATION_STRUCT.size
+
 
 class ChkMrgnTranscoder(
     ChkSectionTranscoder[DecodedMrgnSection],
@@ -80,12 +83,21 @@ class ChkMrgnTranscoder(
         return DecodedMrgnSection(_locations=locations)
 
     def _encode(self, decoded_chk_section: DecodedMrgnSection) -> bytes:
-        data: bytes = b""
-        for location in decoded_chk_section.locations:
-            data += struct.pack("I", location.left_x1)
-            data += struct.pack("I", location.top_y1)
-            data += struct.pack("I", location.right_x2)
-            data += struct.pack("I", location.bottom_y2)
-            data += struct.pack("H", location.string_id)
-            data += struct.pack("H", location.elevation_flags)
-        return data
+        locations = decoded_chk_section.locations
+        n = len(locations)
+        buf = bytearray(n * _LOCATION_SIZE)
+        pack_into = _LOCATION_STRUCT.pack_into
+        offset = 0
+        for loc in locations:
+            pack_into(
+                buf,
+                offset,
+                loc.left_x1,
+                loc.top_y1,
+                loc.right_x2,
+                loc.bottom_y2,
+                loc.string_id,
+                loc.elevation_flags,
+            )
+            offset += _LOCATION_SIZE
+        return bytes(buf)

@@ -27,11 +27,7 @@ class DecodedStrxSectionEditor:
             self.log.warning(
                 "No new strings to add.  Not performing any modifications."
             )
-            return DecodedStrxSection(
-                _number_of_strings=decoded_strx_section.number_of_strings,
-                _string_offsets=decoded_strx_section.strings_offsets,
-                _strings=decoded_strx_section.strings,
-            )
+            return decoded_strx_section
         return self._add_strings_to_strx(unique_strings_to_add, decoded_strx_section)
 
     def _make_strings_to_add_unique(

@@ -17,6 +17,9 @@ LOGDIR = os.path.join(SCRIPT_PATH, "logs")
 BASE_LOG = os.path.join(LOGDIR, "richchk.log")
 _DEFAULT_LOG_LEVEl = logging.INFO
 
+_logger_cache: dict[str, logging.Logger] = {}
+_log_level_cache: dict[str, int] = {}
+
 
 class Logger(object):
     def __init__(
@@ -67,12 +70,16 @@ def get_logger(
     _use_default_log_level: bool = False,
 ) -> logging.Logger:
     """Define absolute paths for logfile and logdir for outside usage!"""
-    return Logger(
-        name,
-        log_file=logfile,
-        log_dir=logdir,
-        _use_default_log_level=_use_default_log_level,
-    ).get()
+    env_val = os.getenv(RICHCHK_CONFIG_ENV_VAR, "")
+    cache_key = f"{name}:{_use_default_log_level}:{env_val}"
+    if cache_key not in _logger_cache:
+        _logger_cache[cache_key] = Logger(
+            name,
+            log_file=logfile,
+            log_dir=logdir,
+            _use_default_log_level=_use_default_log_level,
+        ).get()
+    return _logger_cache[cache_key]
 
 
 def _determine_log_level_or_default() -> int:
@@ -88,8 +95,11 @@ def _determine_log_level_or_default() -> int:
 
     :return:
     """
-    innerlog = get_logger("RichChkLoggingConfig", _use_default_log_level=True)
     maybe_config_file = os.getenv(RICHCHK_CONFIG_ENV_VAR)
+    cache_key = maybe_config_file or ""
+    if cache_key in _log_level_cache:
+        return _log_level_cache[cache_key]
+    innerlog = get_logger("RichChkLoggingConfig", _use_default_log_level=True)
     if maybe_config_file and os.path.exists(maybe_config_file):
         # Read config file
         with open(maybe_config_file, "r") as f:
@@ -101,6 +111,7 @@ def _determine_log_level_or_default() -> int:
         innerlog.debug(
             f"Using non-default log level {log_level} specified in {maybe_config_file}"
         )
+        _log_level_cache[cache_key] = logging_level
         return logging_level
     elif maybe_config_file and not os.path.exists(maybe_config_file):
         innerlog.error(
@@ -108,4 +119,5 @@ def _determine_log_level_or_default() -> int:
             f"by environment variable {RICHCHK_CONFIG_ENV_VAR} ; using default logging level.  "
             f"File {maybe_config_file} does not exist!"
         )
+    _log_level_cache[cache_key] = _DEFAULT_LOG_LEVEl
     return _DEFAULT_LOG_LEVEl

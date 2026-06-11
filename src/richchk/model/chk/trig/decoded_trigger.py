@@ -134,7 +134,7 @@ from .decoded_trigger_action import DecodedTriggerAction
 from .decoded_trigger_condition import DecodedTriggerCondition
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(slots=True)
 class DecodedTrigger:
     """Represents a decoded trigger from the TRIG section.
 

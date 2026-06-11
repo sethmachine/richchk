@@ -128,7 +128,7 @@ This section can be split. Additional TRIG sections will add more triggers.
 """
 
 import dataclasses
-from typing import Union
+from typing import Any, Union
 
 from ...chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ...chk.trig.decoded_trigger_condition import DecodedTriggerCondition
@@ -137,7 +137,7 @@ from .rich_trigger_action import RichTriggerAction
 from .rich_trigger_condition import RichTriggerCondition
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True, init=False)
 class RichTrigger:
     """Represents a rich trigger from the TRIG section.
 
@@ -152,7 +152,27 @@ class RichTrigger:
 
     _conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]]
     _actions: list[Union[RichTriggerAction, DecodedTriggerAction]]
-    _players: set[PlayerId]
+    _players: frozenset[PlayerId]
+    _type_sig: tuple[Any, ...] = dataclasses.field(
+        default=(), compare=False, repr=False, hash=False
+    )
+
+    def __init__(
+        self,
+        _conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]],
+        _actions: list[Union[RichTriggerAction, DecodedTriggerAction]],
+        _players: Union[set[PlayerId], frozenset[PlayerId]],
+    ) -> None:
+        object.__setattr__(self, "_conditions", _conditions)
+        object.__setattr__(self, "_actions", _actions)
+        object.__setattr__(
+            self,
+            "_players",
+            _players if isinstance(_players, frozenset) else frozenset(_players),
+        )
+        object.__setattr__(
+            self, "_type_sig", tuple(map(type, (*_conditions, *_actions)))
+        )
 
     @property
     def conditions(self) -> list[Union[RichTriggerCondition, DecodedTriggerCondition]]:
@@ -175,7 +195,7 @@ class RichTrigger:
         return self._actions
 
     @property
-    def players(self) -> set[PlayerId]:
+    def players(self) -> frozenset[PlayerId]:
         """The players the trigger executes for.
 
         Following the 16 conditions and 64 actions, every trigger also has this
