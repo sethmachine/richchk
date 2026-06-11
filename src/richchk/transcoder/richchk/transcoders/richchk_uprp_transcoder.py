@@ -69,6 +69,7 @@ Bit 5-15 - Unknown/unused
 u32: Unknown/unused. Padding?
 """
 
+import weakref
 from typing import Any, cast
 
 from ....model.chk.uprp.decoded_cuwp_slot import DecodedCuwpSlot
@@ -92,7 +93,9 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 from ....util import logger
 from .helpers.cuwp_flags_transcoder import CuwpFlagsTranscoder
 
-_uprp_encode_cache: dict[Any, Any] = {}  # id(rich_uprp_section) → DecodedUprpSection
+_uprp_encode_cache: dict[
+    Any, Any
+] = {}  # id(rich_uprp_section) → (weakref(section), DecodedUprpSection)
 
 
 class RichChkUprpTranscoder(
@@ -188,8 +191,8 @@ class RichChkUprpTranscoder(
     ) -> DecodedUprpSection:
         cache_key = id(rich_chk_section)
         cached = _uprp_encode_cache.get(cache_key)
-        if cached is not None:
-            return cast(DecodedUprpSection, cached)
+        if cached is not None and cached[0]() is rich_chk_section:
+            return cast(DecodedUprpSection, cached[1])
         decoded_cuwp_slots: list[DecodedCuwpSlot] = []
         assert all((cuwp.index is not None for cuwp in rich_chk_section.cuwp_slots))
         cuwp_by_index = {
@@ -204,7 +207,12 @@ class RichChkUprpTranscoder(
             else:
                 decoded_cuwp_slots.append(self._encode_cuwp_slot(maybe_cuwp))
         result = DecodedUprpSection(_cuwp_slots=decoded_cuwp_slots)
-        _uprp_encode_cache[cache_key] = result
+        _uprp_encode_cache[cache_key] = (
+            weakref.ref(
+                rich_chk_section, lambda _: _uprp_encode_cache.pop(cache_key, None)
+            ),
+            result,
+        )
         return result
 
     def _encode_cuwp_slot(self, cuwp_slot: RichCuwpSlot) -> DecodedCuwpSlot:
