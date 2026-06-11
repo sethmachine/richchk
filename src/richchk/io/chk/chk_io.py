@@ -29,8 +29,9 @@ that does not successfully validate will be ignored
 import logging
 import os
 import struct
+import weakref
 from io import BytesIO
-from typing import Any, Protocol
+from typing import Any, Protocol, Union, cast
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
@@ -42,6 +43,17 @@ from ...util import logger
 
 _CHK_SECTION_NAME_NUM_BYTES: int = 4
 _CHK_SECTION_TOTAL_BYTES_NUM_BYTES: int = 4
+_chk_bytes_cache: dict[Any, Any] = {}  # id(decoded_chk) → (weakref(decoded_chk), bytes)
+_section_bytes_cache: dict[
+    Any, Any
+] = {}  # id(decoded_chk_section) → (weakref(section), header_bytes, section_bytes)
+
+
+def _make_sec_cleanup(k: int) -> Any:
+    def _cb(_ref: Any) -> None:
+        _section_bytes_cache.pop(k, None)
+
+    return _cb
 
 
 class _ByteStream(Protocol):
@@ -78,18 +90,56 @@ class ChkIo:
             f.write(self.encode_chk_to_bytes(decoded_chk))
 
     def encode_chk_to_bytes(self, decoded_chk: DecodedChk) -> bytes:
-        data = b""
-        for decoded_chk_section in decoded_chk.decoded_chk_sections:
+        cache_key = id(decoded_chk)
+        cached = _chk_bytes_cache.get(cache_key)
+        if cached is not None and cached[0]() is decoded_chk:
+            return cast(bytes, cached[1])
+
+        sections = decoded_chk.decoded_chk_sections
+        _encode_header = ChkSectionTranscoder.encode_chk_section_header
+        _sec_cache = _section_bytes_cache
+
+        parts: list[Union[bytes, bytearray]] = []
+        for decoded_chk_section in sections:
             if isinstance(decoded_chk_section, DecodedUnknownSection):
-                data += self._encode_unknown_chk_section(decoded_chk_section)
+                parts.append(self._encode_unknown_chk_section(decoded_chk_section))
             else:
-                transcoder: ChkSectionTranscoder[
-                    Any
-                ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
-                    decoded_chk_section.section_name()
-                )
-                data += transcoder.encode(decoded_chk_section)
-        return data
+                is_trig = decoded_chk_section.section_name() == ChkSectionName.TRIG
+                sec_id = id(decoded_chk_section)
+                cached_entry = _sec_cache.get(sec_id)
+                if (
+                    cached_entry is not None
+                    and cached_entry[0]() is decoded_chk_section
+                ):
+                    parts.append(cached_entry[1])
+                    parts.append(cached_entry[2])
+                else:
+                    transcoder: ChkSectionTranscoder[
+                        Any
+                    ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
+                        decoded_chk_section.section_name()
+                    )
+                    section_data = transcoder._encode(decoded_chk_section)
+                    header = _encode_header(
+                        decoded_chk_section.section_name(), len(section_data)
+                    )
+                    if not is_trig:
+                        section_bytes = (
+                            bytes(section_data)
+                            if not isinstance(section_data, bytes)
+                            else section_data
+                        )
+                        _wr_sec = weakref.ref(
+                            decoded_chk_section, _make_sec_cleanup(sec_id)
+                        )
+                        _sec_cache[sec_id] = (_wr_sec, header, section_bytes)
+                    parts.append(header)
+                    parts.append(section_data)
+
+        result = b"".join(parts)
+        _wr = weakref.ref(decoded_chk, lambda _: _chk_bytes_cache.pop(cache_key, None))
+        _chk_bytes_cache[cache_key] = (_wr, result)
+        return result
 
     def _decode_chk_byte_stream(self, chk_byte_stream: _ByteStream) -> DecodedChk:
         decoded_chk_sections: list[DecodedChkSection] = []

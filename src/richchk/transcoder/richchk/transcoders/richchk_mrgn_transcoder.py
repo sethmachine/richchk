@@ -42,7 +42,8 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 """
 
 import dataclasses
-from typing import Optional
+import weakref
+from typing import Any, cast
 
 from ....model.chk.mrgn.decoded_location import DecodedLocation
 from ....model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
@@ -55,6 +56,13 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
+
+_UNUSED_DECODED_LOCATION = DecodedLocation(
+    _left_x1=0, _top_y1=0, _right_x2=0, _bottom_y2=0, _string_id=0, _elevation_flags=0
+)
+_mrgn_encode_cache: dict[
+    Any, Any
+] = {}  # (id(mrgn_section), id(str_lookup)) → (weakref(section), DecodedMrgnSection)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -131,29 +139,26 @@ class RichChkMrgnTranscoder(
     def _decode_elevation_flags(
         cls, decoded_location: DecodedLocation
     ) -> _LocationElevationFlags:
-        elevation_flags_bit_string = "{:016b}".format(decoded_location.elevation_flags)
-        # Starcraft bit string is read right to left, so the first bit
-        # is the last position in the bit string, etc.
         # bit of 1 means the elevation is disabled, 0 is enabled
+        f = decoded_location.elevation_flags
         return _LocationElevationFlags(
-            low_elevation=not bool(int(elevation_flags_bit_string[-1])),
-            medium_elevation=not bool(int(elevation_flags_bit_string[-2])),
-            high_elevation=not bool(int(elevation_flags_bit_string[-3])),
-            low_air=not bool(int(elevation_flags_bit_string[-4])),
-            medium_air=not bool(int(elevation_flags_bit_string[-5])),
-            high_air=not bool(int(elevation_flags_bit_string[-6])),
+            low_elevation=not (f & 0x01),
+            medium_elevation=not (f & 0x02),
+            high_elevation=not (f & 0x04),
+            low_air=not (f & 0x08),
+            medium_air=not (f & 0x10),
+            high_air=not (f & 0x20),
         )
 
     @classmethod
     def _encode_elevation_flags(cls, rich_location: RichLocation) -> int:
-        return int(
-            f"{int((not rich_location.high_air))}"
-            f"{int((not rich_location.medium_air))}"
-            f"{int((not rich_location.low_air))}"
-            f"{int((not rich_location.high_elevation))}"
-            f"{int((not rich_location.medium_elevation))}"
-            f"{int((not rich_location.low_elevation))}",
-            base=2,
+        return (
+            (not rich_location.low_elevation)
+            | ((not rich_location.medium_elevation) << 1)
+            | ((not rich_location.high_elevation) << 2)
+            | ((not rich_location.low_air) << 3)
+            | ((not rich_location.medium_air) << 4)
+            | ((not rich_location.high_air) << 5)
         )
 
     def encode(
@@ -161,24 +166,31 @@ class RichChkMrgnTranscoder(
         rich_chk_section: RichMrgnSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedMrgnSection:
+        cache_key = (id(rich_chk_section), id(rich_chk_encode_context.rich_str_lookup))
+        cached = _mrgn_encode_cache.get(cache_key)
+        if cached is not None and cached[0]() is rich_chk_section:
+            return cast(DecodedMrgnSection, cached[1])
         # TODO: need to build the location index map before hand!  assign locations without indices an index
         # can be done in the RichChkEncodeContext generation step
         # subtract 1 to get zero index used for array storage
         location_by_index = {
             x.index - 1: x for x in rich_chk_section.locations if x.index is not None
         }
-        decoded_locations: list[DecodedLocation] = []
-        for location_index_in_decoded_mrgn in range(0, self._MAX_LOCATIONS):
-            maybe_location: Optional[RichLocation] = location_by_index.get(
-                location_index_in_decoded_mrgn, None
-            )
-            if not maybe_location:
-                decoded_locations.append(self._generate_unused_decoded_location())
-            else:
-                decoded_locations.append(
-                    self._encode_rich_location(maybe_location, rich_chk_encode_context)
-                )
-        return DecodedMrgnSection(_locations=decoded_locations)
+        _empty = _UNUSED_DECODED_LOCATION
+        _enc = self._encode_rich_location
+        _ctx = rich_chk_encode_context
+        decoded_locations: list[DecodedLocation] = [
+            _enc(location_by_index[i], _ctx) if i in location_by_index else _empty
+            for i in range(self._MAX_LOCATIONS)
+        ]
+        result = DecodedMrgnSection(_locations=decoded_locations)
+        _mrgn_encode_cache[cache_key] = (
+            weakref.ref(
+                rich_chk_section, lambda _: _mrgn_encode_cache.pop(cache_key, None)
+            ),
+            result,
+        )
+        return result
 
     @classmethod
     def _encode_rich_location(
@@ -198,11 +210,4 @@ class RichChkMrgnTranscoder(
     @classmethod
     def _generate_unused_decoded_location(cls) -> DecodedLocation:
         """Generate filler location data to fill in any unused locations."""
-        return DecodedLocation(
-            _left_x1=0,
-            _top_y1=0,
-            _right_x2=0,
-            _bottom_y2=0,
-            _string_id=0,
-            _elevation_flags=0,
-        )
+        return _UNUSED_DECODED_LOCATION

@@ -2,6 +2,9 @@
 
 VER must be valued 206 (STARCRAFT_REMASTERED_BROODWAR) in order to use STRx section.
 """
+import weakref
+from typing import Any, cast
+
 from ....model.chk.ver.decoded_ver_section import DecodedVerSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -13,6 +16,10 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 from ....util import logger
 from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+
+_ver_encode_cache: dict[
+    Any, Any
+] = {}  # id(rich_ver_section) → (weakref(section), DecodedVerSection)
 
 
 class RichVerTranscoder(
@@ -39,6 +46,17 @@ class RichVerTranscoder(
         rich_chk_section: RichVerSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedVerSection:
-        return DecodedVerSection(
+        cache_key = id(rich_chk_section)
+        cached = _ver_encode_cache.get(cache_key)
+        if cached is not None and cached[0]() is rich_chk_section:
+            return cast(DecodedVerSection, cached[1])
+        result = DecodedVerSection(
             _version=RichChkEnumTranscoder.encode_enum(rich_chk_section.version)
         )
+        _ver_encode_cache[cache_key] = (
+            weakref.ref(
+                rich_chk_section, lambda _: _ver_encode_cache.pop(cache_key, None)
+            ),
+            result,
+        )
+        return result

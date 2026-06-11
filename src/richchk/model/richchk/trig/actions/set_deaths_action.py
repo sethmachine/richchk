@@ -2,6 +2,10 @@ import dataclasses
 from abc import ABC
 
 from ...unis.unit_id import UnitId
+from ..actions.flags.trigger_action_flags import (
+    _DEFAULT_TRIGGER_ACTION_FLAGS,
+    TriggerActionFlags,
+)
 from ..enums.amount_modifier import AmountModifier
 from ..player_id import PlayerId
 from ..rich_trigger_action import RichTriggerAction, _RichTriggerActionDefaultsBase
@@ -36,6 +40,22 @@ class _SetDeathsActionBase(RichTriggerAction, ABC):
         return self._amount_modifier
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, init=False)
 class SetDeathsAction(_RichTriggerActionDefaultsBase, _SetDeathsActionBase):
-    pass
+    def __init__(
+        self,
+        _group: PlayerId,
+        _unit: UnitId,
+        _amount: int,
+        _amount_modifier: AmountModifier,
+        _flags: TriggerActionFlags = _DEFAULT_TRIGGER_ACTION_FLAGS,
+    ) -> None:
+        self.__dict__.update(
+            {
+                "_group": _group,
+                "_unit": _unit,
+                "_amount": _amount,
+                "_amount_modifier": _amount_modifier,
+                "_flags": _flags,
+            }
+        )

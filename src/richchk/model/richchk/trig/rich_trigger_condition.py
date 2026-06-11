@@ -3,13 +3,16 @@
 import dataclasses
 from abc import ABC, abstractmethod
 
-from .conditions.flags.trigger_condition_flags import TriggerConditionFlags
+from .conditions.flags.trigger_condition_flags import (
+    _DEFAULT_TRIGGER_CONDITION_FLAGS,
+    TriggerConditionFlags,
+)
 from .trigger_condition_id import TriggerConditionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _RichTriggerConditionDefaultsBase(ABC):
-    _flags: TriggerConditionFlags = TriggerConditionFlags()
+    _flags: TriggerConditionFlags = _DEFAULT_TRIGGER_CONDITION_FLAGS
 
     @property
     def flags(self) -> TriggerConditionFlags:

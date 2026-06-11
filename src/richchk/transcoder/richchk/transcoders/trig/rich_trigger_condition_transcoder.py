@@ -1,17 +1,20 @@
 """Represents an abstract class for decoding trigger actions into rich trigger
 actions."""
 
+import dataclasses
 from abc import abstractmethod
 from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from .....model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from .....model.richchk.richchk_decode_context import RichChkDecodeContext
 from .....model.richchk.richchk_encode_context import RichChkEncodeContext
+from .....model.richchk.trig.conditions.flags.trigger_condition_flags import (
+    _DEFAULT_TRIGGER_CONDITION_FLAGS,
+)
 from .....model.richchk.trig.rich_trigger_condition import RichTriggerCondition
 from .....transcoder.richchk.transcoders.helpers.trigger_condition_flags_transcoder import (
     TriggerConditionFlagsTranscoder,
 )
-from .....util.dataclasses_util import build_dataclass_with_fields
 
 _T = TypeVar(
     "_T",
@@ -29,15 +32,14 @@ class RichTriggerConditionTranscoder(Protocol[_T, _U]):
     def decode(
         self, decoded_condition: _U, rich_chk_decode_context: RichChkDecodeContext
     ) -> RichTriggerCondition:
-        return build_dataclass_with_fields(
-            self._decode(
-                decoded_condition,
-                rich_chk_decode_context,
-            ),
-            _flags=TriggerConditionFlagsTranscoder.decode_flags(
-                decoded_condition.flags
-            ),
-        )
+        flags_int = decoded_condition.flags
+        rich = self._decode(decoded_condition, rich_chk_decode_context)
+        if flags_int == 0:
+            return rich
+        return dataclasses.replace(
+            rich,
+            _flags=TriggerConditionFlagsTranscoder.decode_flags(flags_int),
+        )  # type: ignore[call-arg]
 
     @abstractmethod
     def _decode(
@@ -50,10 +52,14 @@ class RichTriggerConditionTranscoder(Protocol[_T, _U]):
     def encode(
         self, rich_condition: _T, rich_chk_encode_context: RichChkEncodeContext
     ) -> _U:
-        return build_dataclass_with_fields(
-            self._encode(rich_condition, rich_chk_encode_context),
-            _flags=TriggerConditionFlagsTranscoder.encode_flags(rich_condition.flags),
-        )
+        decoded = self._encode(rich_condition, rich_chk_encode_context)
+        # Identity check: almost all conditions use the shared default flags singleton.
+        if rich_condition.flags is _DEFAULT_TRIGGER_CONDITION_FLAGS:
+            return decoded
+        flags_int = TriggerConditionFlagsTranscoder.encode_flags(rich_condition.flags)
+        if flags_int == 0:
+            return decoded
+        return dataclasses.replace(decoded, _flags=flags_int)
 
     @abstractmethod
     def _encode(

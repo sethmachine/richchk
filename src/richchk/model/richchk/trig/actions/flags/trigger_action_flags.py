@@ -25,3 +25,6 @@ class TriggerActionFlags:
     always_display: bool = False
     unit_properties_is_used: bool = False
     unit_type_is_used: bool = False
+
+
+_DEFAULT_TRIGGER_ACTION_FLAGS = TriggerActionFlags()

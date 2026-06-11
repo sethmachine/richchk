@@ -49,7 +49,7 @@ otherwise
 import dataclasses
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(slots=True)
 class DecodedTriggerAction:
     """Represent a decoded Action from the TRIG section.
 

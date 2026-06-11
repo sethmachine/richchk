@@ -129,11 +129,16 @@ encountered with Action byte as 0 This section can be split. Additional TRIG sec
 will add more triggers.
 """
 
+import array
 import dataclasses
+import sys
+from typing import Any, Optional, cast
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
 from .rich_trigger import RichTrigger
+
+_IS_BIG_ENDIAN: bool = sys.byteorder == "big"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -141,6 +146,51 @@ class RichTrigSection(RichChkSection):
     """Represent TRIG section for all trigger data."""
 
     _triggers: list[RichTrigger]
+    _cond0_amounts_bytes: Optional[bytes] = dataclasses.field(
+        default=None, init=False, compare=False, repr=False, hash=False
+    )
+    _cond0_amounts_hash: int = dataclasses.field(
+        default=0, init=False, compare=False, repr=False, hash=False
+    )
+    _act0_amounts_bytes: Optional[bytes] = dataclasses.field(
+        default=None, init=False, compare=False, repr=False, hash=False
+    )
+    _act0_amounts_hash: int = dataclasses.field(
+        default=0, init=False, compare=False, repr=False, hash=False
+    )
+
+    def __post_init__(self) -> None:
+        ab: Optional[bytes] = None
+        ah: int = 0
+        act_ab: Optional[bytes] = None
+        act_ah: int = 0
+        if self._triggers:
+            try:
+                amt = array.array(
+                    "I",
+                    [cast(Any, t._conditions[0])._amount for t in self._triggers],
+                )
+                if _IS_BIG_ENDIAN:
+                    amt.byteswap()
+                ab = amt.tobytes()
+                ah = hash(ab)
+            except (IndexError, AttributeError, TypeError):
+                pass
+            try:
+                act_amt = array.array(
+                    "I",
+                    [cast(Any, t._actions[0])._amount for t in self._triggers],
+                )
+                if _IS_BIG_ENDIAN:
+                    act_amt.byteswap()
+                act_ab = act_amt.tobytes()
+                act_ah = hash(act_ab)
+            except (IndexError, AttributeError, TypeError):
+                pass
+        object.__setattr__(self, "_cond0_amounts_bytes", ab)
+        object.__setattr__(self, "_cond0_amounts_hash", ah)
+        object.__setattr__(self, "_act0_amounts_bytes", act_ab)
+        object.__setattr__(self, "_act0_amounts_hash", act_ah)
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
@@ -149,3 +199,19 @@ class RichTrigSection(RichChkSection):
     @property
     def triggers(self) -> list[RichTrigger]:
         return self._triggers
+
+    @property
+    def cond0_amounts_bytes(self) -> Optional[bytes]:
+        return self._cond0_amounts_bytes
+
+    @property
+    def cond0_amounts_hash(self) -> int:
+        return self._cond0_amounts_hash
+
+    @property
+    def act0_amounts_bytes(self) -> Optional[bytes]:
+        return self._act0_amounts_bytes
+
+    @property
+    def act0_amounts_hash(self) -> int:
+        return self._act0_amounts_hash

@@ -5,7 +5,8 @@ There is a maximum of 256 switches.
 """
 
 import dataclasses
-from typing import Tuple
+import weakref
+from typing import Any, Tuple
 
 from .....model.chk.swnm.swnm_constants import MAX_SWITCHES
 from .....model.richchk.rich_chk import RichChk
@@ -17,16 +18,44 @@ from .....model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from .....util import logger
 from ....richchk.query.chk_query_util import ChkQueryUtil
 
+_swnm_rebuild_cache: dict[
+    Any, Any
+] = (
+    {}
+)  # (id(swnm_section), frozenset_switch_ids) → (weakref(swnm_section), section, lookup)
+
 
 class RichSwnmRebuilder:
     _LOG = logger.get_logger("RichSwnmRebuilder")
 
     @classmethod
+    def rebuild_from_switches(
+        cls, used_switches: set[RichSwitch], rich_chk: RichChk
+    ) -> Tuple[RichSwnmSection, RichSwnmLookup]:
+        """Rebuild SWNM from a pre-collected switch set (skips the internal walk)."""
+        swnm = cls._find_or_create_rich_swnm(rich_chk)
+        sw_key = frozenset(id(sw) for sw in used_switches)
+        cache_key = (id(swnm), sw_key)
+        cached = _swnm_rebuild_cache.get(cache_key)
+        if cached is not None and cached[0]() is swnm:
+            return cached[1], cached[2]
+        result_section, result_lookup = cls._rebuild_swnm_impl(used_switches, rich_chk)
+        _wr = weakref.ref(swnm, lambda _: _swnm_rebuild_cache.pop(cache_key, None))
+        _swnm_rebuild_cache[cache_key] = (_wr, result_section, result_lookup)
+        return result_section, result_lookup
+
+    @classmethod
     def rebuild_rich_swnm_from_rich_chk(
         cls, rich_chk: RichChk
     ) -> Tuple[RichSwnmSection, RichSwnmLookup]:
-        swnm = cls._find_or_create_rich_swnm(rich_chk)
         used_switches = cls._find_all_switches_in_rich_chk(rich_chk)
+        return cls._rebuild_swnm_impl(used_switches, rich_chk)
+
+    @classmethod
+    def _rebuild_swnm_impl(
+        cls, used_switches: set[RichSwitch], rich_chk: RichChk
+    ) -> Tuple[RichSwnmSection, RichSwnmLookup]:
+        swnm = cls._find_or_create_rich_swnm(rich_chk)
         switches_in_swnm_with_names = {
             x
             for x in swnm.switches
@@ -93,7 +122,7 @@ class RichSwnmRebuilder:
                     RichSwnmRebuilder._walk_object_for_rich_switch(key),
                     RichSwnmRebuilder._walk_object_for_rich_switch(value),
                 )
-        elif dataclasses.is_dataclass(obj):
+        elif dataclasses.is_dataclass(obj) and not isinstance(obj, type):
             for field in dataclasses.fields(obj):
                 field_value = getattr(obj, field.name)
                 switches = switches.union(

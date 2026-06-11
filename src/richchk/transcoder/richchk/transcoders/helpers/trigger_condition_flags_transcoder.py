@@ -54,11 +54,10 @@ class TriggerConditionFlagsTranscoder:
 
     @classmethod
     def encode_flags(cls, encoded_flags: TriggerConditionFlags) -> int:
-        return int(
-            f"{int(encoded_flags.unit_type_is_used)}"
-            f"{int(encoded_flags.unit_properties_is_used)}"
-            f"{int(encoded_flags.always_display)}"
-            f"{int(encoded_flags.disabled)}"
-            f"{int(encoded_flags.unknown)}",
-            base=2,
+        return (
+            int(encoded_flags.unknown)
+            | (int(encoded_flags.disabled) << 1)
+            | (int(encoded_flags.always_display) << 2)
+            | (int(encoded_flags.unit_properties_is_used) << 3)
+            | (int(encoded_flags.unit_type_is_used) << 4)
         )

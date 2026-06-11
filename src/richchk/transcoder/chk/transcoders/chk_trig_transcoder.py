@@ -130,6 +130,7 @@ will add more triggers.
 """
 import struct
 from io import BytesIO
+from typing import Any, ClassVar
 
 from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
 from ....model.chk.trig.decoded_trig_section import DecodedTrigSection
@@ -179,6 +180,10 @@ class ChkTrigTranscoder(
         _CONDITION_FORMAT * _NUM_CONDITIONS_PER_TRIGGER
     )  # 16 conditions
     _ALL_ACTIONS_FORMAT = _ACTION_FORMAT * _NUM_ACTIONS_PER_TRIGGER  # 64 actions
+
+    # Cache: id(DecodedPlayerExecution) → pre-packed 32-byte bytes.
+    # PE objects are permanent (held in _player_execution_cache), so id() is stable.
+    _pe_bytes_cache: ClassVar[dict[Any, Any]] = {}
 
     def decode(self, chk_section_binary_data: bytes) -> DecodedTrigSection:
         num_triggers = len(chk_section_binary_data) // self._NUM_BYTES_PER_TRIGGER
@@ -280,6 +285,15 @@ class ChkTrigTranscoder(
         )
 
     def _encode(self, decoded_chk_section: DecodedTrigSection) -> bytes:
+        if decoded_chk_section._raw_data is not None:
+            return decoded_chk_section._raw_data
+        if decoded_chk_section._lazy_spec is not None:
+            cache_box = decoded_chk_section._cache_box
+            if cache_box:
+                return cache_box[0]
+            result = decoded_chk_section._lazy_spec.materialize()
+            cache_box.append(result)
+            return result
         # Pre-calculate total size needed
         total_size = len(decoded_chk_section.triggers) * self._NUM_BYTES_PER_TRIGGER
         data = bytearray(total_size)
@@ -296,57 +310,76 @@ class ChkTrigTranscoder(
     def _encode_trigger_into(
         cls, trigger: DecodedTrigger, data: bytearray, base_offset: int
     ) -> None:
-        offset = base_offset
-
-        # Pack all conditions at once
-        all_condition_values = []
-        for condition in trigger.conditions:
-            all_condition_values.extend(
-                [
-                    condition.location_id,
-                    condition.group,
-                    condition.quantity,
-                    condition.unit_id,
-                    condition.numeric_comparison_operation,
-                    condition.condition_id,
-                    condition.numeric_comparand_type,
-                    condition.flags,
-                    condition.mask_flag,
-                ]
+        # The bytearray is pre-zeroed, and empty conditions/actions are all-zeros.
+        # Real slots always precede empty slots, so we break on the first empty slot.
+        # Access private attributes directly to bypass property descriptor overhead.
+        # Use manual offset increment to avoid enumerate() and index multiplication.
+        cond_offset = base_offset
+        for condition in trigger._conditions:
+            cid = condition._condition_id
+            if not cid:
+                break
+            struct.pack_into(
+                cls._CONDITION_FORMAT,
+                data,
+                cond_offset,
+                condition._location_id,
+                condition._group,
+                condition._quantity,
+                condition._unit_id,
+                condition._numeric_comparison_operation,
+                cid,
+                condition._numeric_comparand_type,
+                condition._flags,
+                condition._mask_flag,
             )
-        struct.pack_into(
-            cls._ALL_CONDITIONS_FORMAT, data, offset, *all_condition_values
-        )
-        offset += cls._NUM_BYTES_PER_CONDITION * cls._NUM_CONDITIONS_PER_TRIGGER
+            cond_offset += cls._NUM_BYTES_PER_CONDITION
 
-        # Pack all actions at once
-        all_action_values = []
-        for action in trigger.actions:
-            all_action_values.extend(
-                [
-                    action.location_id,
-                    action.text_string_id,
-                    action.wav_string_id,
-                    action.time,
-                    action.first_group,
-                    action.second_group,
-                    action.action_argument_type,
-                    action.action_id,
-                    action.quantifier_or_switch_or_order,
-                    action.flags,
-                    action.padding,
-                    action.mask_flag,
-                ]
+        act_base = (
+            base_offset + cls._NUM_BYTES_PER_CONDITION * cls._NUM_CONDITIONS_PER_TRIGGER
+        )
+        act_offset = act_base
+        for action in trigger._actions:
+            aid = action._action_id
+            if not aid:
+                break
+            struct.pack_into(
+                cls._ACTION_FORMAT,
+                data,
+                act_offset,
+                action._location_id,
+                action._text_string_id,
+                action._wav_string_id,
+                action._time,
+                action._first_group,
+                action._second_group,
+                action._action_argument_type,
+                aid,
+                action._quantifier_or_switch_or_order,
+                action._flags,
+                action._padding,
+                action._mask_flag,
             )
-        struct.pack_into(cls._ALL_ACTIONS_FORMAT, data, offset, *all_action_values)
-        offset += cls._NUM_BYTES_PER_ACTION * cls._NUM_ACTIONS_PER_TRIGGER
+            act_offset += cls._NUM_BYTES_PER_ACTION
 
-        # Pack player execution
-        struct.pack_into(
-            cls._PLAYER_EXECUTION_FORMAT,
-            data,
-            offset,
-            trigger.player_execution.execution_flags,
-            *trigger.player_execution.player_flags,
-            trigger.player_execution.current_action_index,
+        pe_base = act_base + cls._NUM_BYTES_PER_ACTION * cls._NUM_ACTIONS_PER_TRIGGER
+        pe = trigger._player_execution
+        pe_key = (
+            pe._execution_flags,
+            tuple(pe._player_flags),
+            pe._current_action_index,
         )
+        pe_bytes = cls._pe_bytes_cache.get(pe_key)
+        if pe_bytes is None:
+            buf = bytearray(cls._NUM_BYTES_PER_PLAYER_EXECUTION)
+            struct.pack_into(
+                cls._PLAYER_EXECUTION_FORMAT,
+                buf,
+                0,
+                pe._execution_flags,
+                *pe._player_flags,
+                pe._current_action_index,
+            )
+            pe_bytes = bytes(buf)
+            cls._pe_bytes_cache[pe_key] = pe_bytes
+        data[pe_base : pe_base + cls._NUM_BYTES_PER_PLAYER_EXECUTION] = pe_bytes

@@ -24,14 +24,8 @@ class DecodedStrSectionEditor:
             strings_to_add, decoded_str_section
         )
         if not unique_strings_to_add:
-            self.log.warning(
-                "No new strings to add.  Not performing any modifications."
-            )
-            return DecodedStrSection(
-                _number_of_strings=decoded_str_section.number_of_strings,
-                _string_offsets=decoded_str_section.strings_offsets,
-                _strings=decoded_str_section.strings,
-            )
+            self.log.debug("No new strings to add.  Not performing any modifications.")
+            return decoded_str_section
         return self._add_strings_to_str(unique_strings_to_add, decoded_str_section)
 
     def _make_strings_to_add_unique(
@@ -42,7 +36,7 @@ class DecodedStrSectionEditor:
         already_existing_strings = set(decoded_str_section.strings)
         for string_to_add in strings_to_add:
             if string_to_add in already_existing_strings:
-                self.log.warning(
+                self.log.debug(
                     f'The string "{string_to_add}" already exists in the STR section (not adding).'
                 )
             else:

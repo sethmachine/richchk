@@ -1,13 +1,19 @@
 """Decode the TRIG - Triggers section."""
-from typing import Optional, Union
+from typing import Any, ClassVar, Optional, Union, cast
 
 from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
-from ....model.chk.trig.decoded_trig_section import DecodedTrigSection
+from ....model.chk.trig.decoded_trig_section import DecodedTrigSection, TrigLazySpec
 from ....model.chk.trig.decoded_trigger import DecodedTrigger
 from ....model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ....model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
+from ....model.richchk.trig.actions.flags.trigger_action_flags import (
+    _DEFAULT_TRIGGER_ACTION_FLAGS,
+)
+from ....model.richchk.trig.conditions.flags.trigger_condition_flags import (
+    _DEFAULT_TRIGGER_CONDITION_FLAGS,
+)
 from ....model.richchk.trig.conditions.no_condition_condition import (
     NoConditionCondition,
 )
@@ -24,6 +30,7 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 from ....util import logger
 from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from .trig.batched_trig_encode_optimizer import BatchedTrigEncodeOptimizer
 from .trig.rich_trigger_action_transcoder_factory import (
     RichTriggerActionTranscoderFactory,
 )
@@ -38,8 +45,35 @@ class RichChkTrigTranscoder(
     chk_section_name=DecodedTrigSection.section_name(),
 ):
 
-    _NUM_CONDITIONS_PER_TRIGGER = 16
-    _NUM_ACTIONS_PER_TRIGGER = 64
+    _action_type_cache: ClassVar[dict[Any, Any]] = {}
+    _condition_type_cache: ClassVar[dict[Any, Any]] = {}
+    _optimizer: ClassVar[BatchedTrigEncodeOptimizer] = BatchedTrigEncodeOptimizer()
+
+    _EMPTY_ACTION: DecodedTriggerAction = DecodedTriggerAction(
+        _location_id=0,
+        _text_string_id=0,
+        _wav_string_id=0,
+        _time=0,
+        _first_group=0,
+        _second_group=0,
+        _action_argument_type=0,
+        _action_id=TriggerActionId.NO_ACTION.id,
+        _quantifier_or_switch_or_order=0,
+        _flags=0,
+        _padding=0,
+        _mask_flag=0,
+    )
+    _EMPTY_CONDITION: DecodedTriggerCondition = DecodedTriggerCondition(
+        _location_id=0,
+        _group=0,
+        _quantity=0,
+        _unit_id=0,
+        _numeric_comparison_operation=0,
+        _condition_id=NoConditionCondition.condition_id().id,
+        _numeric_comparand_type=0,
+        _flags=0,
+        _mask_flag=0,
+    )
 
     def __init__(self) -> None:
         self.log = logger.get_logger(RichChkTrigTranscoder.__name__)
@@ -154,8 +188,8 @@ class RichChkTrigTranscoder(
 
     def _decode_player_execution(
         self, player_execution: DecodedPlayerExecution
-    ) -> set[PlayerId]:
-        players = set()
+    ) -> frozenset[PlayerId]:
+        players: set[PlayerId] = set()
         if player_execution.execution_flags != 0:
             msg = (
                 f"Unexpected value for trigger execution flags. "
@@ -178,18 +212,22 @@ class RichChkTrigTranscoder(
             player_id = RichChkEnumTranscoder.decode_enum(maybe_player_id, PlayerId)
             if is_used:
                 players.add(player_id)
-        return players
+        return frozenset(players)
 
     def encode(
         self,
         rich_chk_section: RichTrigSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTrigSection:
-        decoded_triggers = [
-            self._encode_trigger(trigger, rich_chk_encode_context)
-            for trigger in rich_chk_section.triggers
-        ]
-        return DecodedTrigSection(_triggers=decoded_triggers)
+        raw = self._optimizer.encode(rich_chk_section, rich_chk_encode_context)
+        if isinstance(raw, TrigLazySpec):
+            return DecodedTrigSection(_triggers=[], _lazy_spec=raw)
+        return DecodedTrigSection(_triggers=[], _raw_data=raw)
+
+    def get_secondary_cache_key(
+        self, rich_chk_section: RichTrigSection
+    ) -> Optional[tuple[Any, ...]]:
+        return self._optimizer.get_secondary_cache_key(rich_chk_section)
 
     def _encode_trigger(
         self, rich_trigger: RichTrigger, rich_chk_encode_context: RichChkEncodeContext
@@ -209,19 +247,23 @@ class RichChkTrigTranscoder(
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> list[DecodedTriggerCondition]:
         decoded_conditions = []
+        cache = RichChkTrigTranscoder._condition_type_cache
         for condition in rich_conditions:
-            if isinstance(condition, DecodedTriggerCondition):
+            condition_type = type(condition)
+            if condition_type is DecodedTriggerCondition:
                 decoded_conditions.append(condition)
-            else:
+                continue
+            rich_condition = cast(RichTriggerCondition, condition)
+            transcoder = cache.get(condition_type)
+            if transcoder is None:
+                cid = rich_condition.condition_id()
                 if RichTriggerConditionTranscoderFactory.supports_transcoding_condition(
-                    condition.condition_id()
+                    cid
                 ):
                     transcoder = RichTriggerConditionTranscoderFactory.make_rich_trigger_condition_transcoder(
-                        condition.condition_id()
+                        cid
                     )
-                    decoded_conditions.append(
-                        transcoder.encode(condition, rich_chk_encode_context)
-                    )
+                    cache[condition_type] = transcoder
                 else:
                     msg = (
                         f"Unhandled RichTriggerCondition that can't be "
@@ -229,22 +271,18 @@ class RichChkTrigTranscoder(
                     )
                     self.log.error(msg)
                     raise ValueError(msg)
-        while len(decoded_conditions) < self._NUM_CONDITIONS_PER_TRIGGER:
-            decoded_conditions.append(self._generate_empty_condition())
-        return decoded_conditions
+            if rich_condition.flags is _DEFAULT_TRIGGER_CONDITION_FLAGS:
+                decoded_conditions.append(
+                    transcoder._encode(rich_condition, rich_chk_encode_context)
+                )
+            else:
+                decoded_conditions.append(
+                    transcoder.encode(rich_condition, rich_chk_encode_context)
+                )
+        return cast(list[DecodedTriggerCondition], decoded_conditions)
 
     def _generate_empty_condition(self) -> DecodedTriggerCondition:
-        return DecodedTriggerCondition(
-            _location_id=0,
-            _group=0,
-            _quantity=0,
-            _unit_id=0,
-            _numeric_comparison_operation=0,
-            _condition_id=NoConditionCondition.condition_id().id,
-            _numeric_comparand_type=0,
-            _flags=0,
-            _mask_flag=0,
-        )
+        return self._EMPTY_CONDITION
 
     def _encode_actions(
         self,
@@ -252,19 +290,23 @@ class RichChkTrigTranscoder(
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> list[DecodedTriggerAction]:
         decoded_actions = []
+        cache = RichChkTrigTranscoder._action_type_cache
         for action in rich_actions:
-            if isinstance(action, DecodedTriggerAction):
+            action_type = type(action)
+            if action_type is DecodedTriggerAction:
                 decoded_actions.append(action)
-            else:
+                continue
+            rich_action = cast(RichTriggerAction, action)
+            transcoder = cache.get(action_type)
+            if transcoder is None:
+                aid = rich_action.action_id()
                 if RichTriggerActionTranscoderFactory.supports_transcoding_trig_action(
-                    action.action_id()
+                    aid
                 ):
                     transcoder = RichTriggerActionTranscoderFactory.make_rich_trigger_action_transcoder(
-                        action.action_id()
+                        aid
                     )
-                    decoded_actions.append(
-                        transcoder.encode(action, rich_chk_encode_context)
-                    )
+                    cache[action_type] = transcoder
                 else:
                     msg = (
                         f"Unhandled RichTriggerAction that can't be "
@@ -272,35 +314,33 @@ class RichChkTrigTranscoder(
                     )
                     self.log.error(msg)
                     raise ValueError(msg)
-        while len(decoded_actions) < self._NUM_ACTIONS_PER_TRIGGER:
-            decoded_actions.append(self._generate_empty_action())
-        return decoded_actions
+            if rich_action.flags is _DEFAULT_TRIGGER_ACTION_FLAGS:
+                decoded_actions.append(
+                    transcoder._encode(rich_action, rich_chk_encode_context)
+                )
+            else:
+                decoded_actions.append(
+                    transcoder.encode(rich_action, rich_chk_encode_context)
+                )
+        return cast(list[DecodedTriggerAction], decoded_actions)
 
     def _generate_empty_action(self) -> DecodedTriggerAction:
-        return DecodedTriggerAction(
-            _location_id=0,
-            _text_string_id=0,
-            _wav_string_id=0,
-            _time=0,
-            _first_group=0,
-            _second_group=0,
-            _action_argument_type=0,
-            _action_id=TriggerActionId.NO_ACTION.id,
-            _quantifier_or_switch_or_order=0,
-            _flags=0,
-            _padding=0,
-            _mask_flag=0,
-        )
+        return self._EMPTY_ACTION
+
+    _player_execution_cache: dict[Any, Any] = {}
 
     def _encode_player_execution(
-        self, players: set[PlayerId]
+        self, players: Union[set[PlayerId], frozenset[PlayerId]]
     ) -> DecodedPlayerExecution:
-        player_flags = []
-        for player_id in PlayerId:
-            if player_id in players:
-                player_flags.append(1)
-            else:
-                player_flags.append(0)
-        return DecodedPlayerExecution(
+        key = frozenset(players)
+        cached = self._player_execution_cache.get(key)
+        if cached is not None:
+            return cast(DecodedPlayerExecution, cached)
+        player_flags = [0] * 27
+        for player_id in players:
+            player_flags[player_id.id] = 1
+        result = DecodedPlayerExecution(
             _execution_flags=0, _player_flags=player_flags, _current_action_index=0
         )
+        self._player_execution_cache[key] = result
+        return result
