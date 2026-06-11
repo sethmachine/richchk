@@ -130,11 +130,67 @@ will add more triggers.
 """
 
 import dataclasses
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from ...chk_section_name import ChkSectionName
 from ..decoded_chk_section import DecodedChkSection
 from .decoded_trigger import DecodedTrigger
+
+
+class TrigLazySpec:
+    """Parameters for lazy TRIG encoding.
+
+    Stores everything needed to build the TRIG bytearray on demand, without allocating
+    the 12 MB buffer until ChkTrigTranscoder._encode() is called.
+    """
+
+    __slots__ = (
+        "n",
+        "trig_sz",
+        "nz_bufs",
+        "cond_off_rel",
+        "ab",
+        "act_off_rel",
+        "act_ab",
+    )
+
+    def __init__(
+        self,
+        n: int,
+        trig_sz: int,
+        nz_bufs: list[Any],
+        cond_off_rel: int,
+        ab: bytes,
+        act_off_rel: int,
+        act_ab: Optional[bytes],
+    ) -> None:
+        self.n = n
+        self.trig_sz = trig_sz
+        self.nz_bufs = nz_bufs
+        self.cond_off_rel = cond_off_rel
+        self.ab = ab
+        self.act_off_rel = act_off_rel
+        self.act_ab = act_ab
+
+    def materialize(self) -> bytes:
+        n, trig_sz = self.n, self.trig_sz
+        data = bytearray(n * trig_sz)
+        for pos, buf in self.nz_bufs:
+            data[pos::trig_sz] = buf
+        ab = self.ab
+        off = self.cond_off_rel
+        data[off::trig_sz] = ab[0::4]
+        data[off + 1 :: trig_sz] = ab[1::4]
+        data[off + 2 :: trig_sz] = ab[2::4]
+        data[off + 3 :: trig_sz] = ab[3::4]
+        act_ab = self.act_ab
+        if act_ab is not None:
+            aoff = self.act_off_rel
+            data[aoff::trig_sz] = act_ab[0::4]
+            data[aoff + 1 :: trig_sz] = act_ab[1::4]
+            data[aoff + 2 :: trig_sz] = act_ab[2::4]
+            data[aoff + 3 :: trig_sz] = act_ab[3::4]
+        return bytes(data)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -145,11 +201,21 @@ class DecodedTrigSection(DecodedChkSection):
         multiple TRIG sections.
     :param _raw_data: pre-encoded bytes from fused encoding path; when set,
         ChkTrigTranscoder skips re-encoding and uses these bytes directly.
+    :param _lazy_spec: lazy encoding spec; when set, ChkTrigTranscoder materializes on
+        first call and memoizes in _cache_box to avoid repeated allocation.
+    :param _cache_box: mutable one-element list used as a write-once cache for the
+        materialized bytearray from _lazy_spec. Mutable inside a frozen dataclass.
     """
 
     _triggers: list[DecodedTrigger]
     _raw_data: Optional[Union[bytes, bytearray]] = dataclasses.field(
         default=None, compare=False, hash=False, repr=False
+    )
+    _lazy_spec: Optional[TrigLazySpec] = dataclasses.field(
+        default=None, compare=False, hash=False, repr=False
+    )
+    _cache_box: list[bytes] = dataclasses.field(
+        default_factory=list, compare=False, hash=False, repr=False
     )
 
     @classmethod

@@ -31,7 +31,7 @@ import os
 import struct
 import weakref
 from io import BytesIO
-from typing import Any, Protocol, cast
+from typing import Any, Protocol, Union, cast
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
@@ -46,7 +46,14 @@ _CHK_SECTION_TOTAL_BYTES_NUM_BYTES: int = 4
 _chk_bytes_cache: dict[Any, Any] = {}  # id(decoded_chk) → (weakref(decoded_chk), bytes)
 _section_bytes_cache: dict[
     Any, Any
-] = {}  # id(decoded_chk_section) → (header_bytes, section_bytes)
+] = {}  # id(decoded_chk_section) → (weakref(section), header_bytes, section_bytes)
+
+
+def _make_sec_cleanup(k: int) -> Any:
+    def _cb(_ref: Any) -> None:
+        _section_bytes_cache.pop(k, None)
+
+    return _cb
 
 
 class _ByteStream(Protocol):
@@ -92,17 +99,20 @@ class ChkIo:
         _encode_header = ChkSectionTranscoder.encode_chk_section_header
         _sec_cache = _section_bytes_cache
 
-        parts: list[bytes] = []
+        parts: list[Union[bytes, bytearray]] = []
         for decoded_chk_section in sections:
             if isinstance(decoded_chk_section, DecodedUnknownSection):
                 parts.append(self._encode_unknown_chk_section(decoded_chk_section))
             else:
                 is_trig = decoded_chk_section.section_name() == ChkSectionName.TRIG
                 sec_id = id(decoded_chk_section)
-                cached_pair = _sec_cache.get(sec_id)
-                if cached_pair is not None:
-                    parts.append(cached_pair[0])
-                    parts.append(cached_pair[1])
+                cached_entry = _sec_cache.get(sec_id)
+                if (
+                    cached_entry is not None
+                    and cached_entry[0]() is decoded_chk_section
+                ):
+                    parts.append(cached_entry[1])
+                    parts.append(cached_entry[2])
                 else:
                     transcoder: ChkSectionTranscoder[
                         Any
@@ -113,13 +123,16 @@ class ChkIo:
                     header = _encode_header(
                         decoded_chk_section.section_name(), len(section_data)
                     )
-                    section_bytes = (
-                        bytes(section_data)
-                        if not isinstance(section_data, bytes)
-                        else section_data
-                    )
                     if not is_trig:
-                        _sec_cache[sec_id] = (header, section_bytes)
+                        section_bytes = (
+                            bytes(section_data)
+                            if not isinstance(section_data, bytes)
+                            else section_data
+                        )
+                        _wr_sec = weakref.ref(
+                            decoded_chk_section, _make_sec_cleanup(sec_id)
+                        )
+                        _sec_cache[sec_id] = (_wr_sec, header, section_bytes)
                     parts.append(header)
                     parts.append(section_data)
 
