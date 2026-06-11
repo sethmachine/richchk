@@ -2,7 +2,7 @@
 from typing import Any, ClassVar, Optional, Union, cast
 
 from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
-from ....model.chk.trig.decoded_trig_section import DecodedTrigSection
+from ....model.chk.trig.decoded_trig_section import DecodedTrigSection, TrigLazySpec
 from ....model.chk.trig.decoded_trigger import DecodedTrigger
 from ....model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ....model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
@@ -219,8 +219,10 @@ class RichChkTrigTranscoder(
         rich_chk_section: RichTrigSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTrigSection:
-        raw_bytes = self._optimizer.encode(rich_chk_section, rich_chk_encode_context)
-        return DecodedTrigSection(_triggers=[], _raw_data=raw_bytes)
+        raw = self._optimizer.encode(rich_chk_section, rich_chk_encode_context)
+        if isinstance(raw, TrigLazySpec):
+            return DecodedTrigSection(_triggers=[], _lazy_spec=raw)
+        return DecodedTrigSection(_triggers=[], _raw_data=raw)
 
     def get_secondary_cache_key(
         self, rich_chk_section: RichTrigSection

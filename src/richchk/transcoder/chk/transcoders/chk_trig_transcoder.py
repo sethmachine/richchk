@@ -287,6 +287,13 @@ class ChkTrigTranscoder(
     def _encode(self, decoded_chk_section: DecodedTrigSection) -> bytes:
         if decoded_chk_section._raw_data is not None:
             return decoded_chk_section._raw_data
+        if decoded_chk_section._lazy_spec is not None:
+            cache_box = decoded_chk_section._cache_box
+            if cache_box:
+                return cache_box[0]
+            result = decoded_chk_section._lazy_spec.materialize()
+            cache_box.append(result)
+            return result
         # Pre-calculate total size needed
         total_size = len(decoded_chk_section.triggers) * self._NUM_BYTES_PER_TRIGGER
         data = bytearray(total_size)
