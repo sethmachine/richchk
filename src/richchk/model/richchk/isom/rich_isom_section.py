@@ -17,12 +17,12 @@ class RichIsomSection(RichChkSection):
     :param _data: flat array of u16 isometric terrain values
     """
 
-    _data: tuple[int, ...]
+    _data: list[int]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.ISOM
 
     @property
-    def data(self) -> tuple[int, ...]:
+    def data(self) -> list[int]:
         return self._data

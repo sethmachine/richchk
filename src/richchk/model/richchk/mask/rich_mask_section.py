@@ -17,12 +17,12 @@ class RichMaskSection(RichChkSection):
     :param _fog_data: flat array of u8 fog values, one per map tile
     """
 
-    _fog_data: tuple[int, ...]
+    _fog_data: list[int]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.MASK
 
     @property
-    def fog_data(self) -> tuple[int, ...]:
+    def fog_data(self) -> list[int]:
         return self._fog_data

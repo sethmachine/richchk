@@ -9,21 +9,21 @@ height (from the DIM section).
 u16[width * height]: Tile values
 """
 import dataclasses
-from typing import Tuple
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
+from .rich_tile import RichTile
 
 
 @dataclasses.dataclass(frozen=True)
 class RichMtxmSection(RichChkSection):
 
-    _tiles: Tuple[int, ...]
+    _tiles: list[RichTile]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.MTXM
 
     @property
-    def tiles(self) -> Tuple[int, ...]:
+    def tiles(self) -> list[RichTile]:
         return self._tiles

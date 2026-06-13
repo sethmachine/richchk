@@ -30,7 +30,7 @@ class RichMaskTranscoder(
         decoded_chk_section: DecodedMaskSection,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichMaskSection:
-        return RichMaskSection(_fog_data=decoded_chk_section.fog_data)
+        return RichMaskSection(_fog_data=list(decoded_chk_section.fog_data))
 
     def encode(
         self,
@@ -41,7 +41,7 @@ class RichMaskTranscoder(
         cached = _mask_encode_cache.get(cache_key)
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedMaskSection, cached[1])
-        result = DecodedMaskSection(_fog_data=rich_chk_section.fog_data)
+        result = DecodedMaskSection(_fog_data=tuple(rich_chk_section.fog_data))
         _mask_encode_cache[cache_key] = (
             weakref.ref(
                 rich_chk_section, lambda _: _mask_encode_cache.pop(cache_key, None)

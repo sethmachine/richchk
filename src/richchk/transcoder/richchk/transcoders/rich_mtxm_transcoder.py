@@ -4,6 +4,7 @@ from typing import Any, cast
 
 from ....model.chk.mtxm.decoded_mtxm_section import DecodedMtxmSection
 from ....model.richchk.mtxm.rich_mtxm_section import RichMtxmSection
+from ....model.richchk.mtxm.rich_tile import RichTile
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
 from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
@@ -31,7 +32,7 @@ class RichMtxmTranscoder(
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichMtxmSection:
         return RichMtxmSection(
-            _tiles=decoded_chk_section.tiles,
+            _tiles=[RichTile(_id=t) for t in decoded_chk_section.tiles],
         )
 
     def encode(
@@ -44,7 +45,7 @@ class RichMtxmTranscoder(
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedMtxmSection, cached[1])
         result = DecodedMtxmSection(
-            _tiles=rich_chk_section.tiles,
+            _tiles=tuple(t.id for t in rich_chk_section.tiles),
         )
         _mtxm_encode_cache[cache_key] = (
             weakref.ref(

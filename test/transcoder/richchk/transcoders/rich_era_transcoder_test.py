@@ -1,7 +1,7 @@
 import pytest
 
 from richchk.model.chk.era.decoded_era_section import DecodedEraSection
-from richchk.model.richchk.era.tileset import Tileset
+from richchk.model.richchk.era.tileset import StarCraftTileset
 from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -54,7 +54,7 @@ def test_it_decodes_expected_tileset(real_decoded_era, rich_decode_context):
         real_decoded_era,
         rich_chk_decode_context=rich_decode_context,
     )
-    assert rich_era.tileset == Tileset.JUNGLE
+    assert rich_era.tileset == StarCraftTileset.JUNGLE
 
 
 def test_integration_it_decodes_and_encodes_back_without_changing_data(

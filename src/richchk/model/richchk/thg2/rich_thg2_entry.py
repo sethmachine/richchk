@@ -7,7 +7,7 @@ import dataclasses
 
 
 @dataclasses.dataclass(frozen=True)
-class RichThg2Entry:
+class RichSprite:
     """Represent a single rich sprite entry.
 
     :param _sprite_id: sprite type identifier
