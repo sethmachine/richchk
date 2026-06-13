@@ -9,11 +9,16 @@ maps.
 
 u16[width * height]: Tile values
 """
+from __future__ import annotations
+
 import dataclasses
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
+
+if TYPE_CHECKING:
+    from ..mtxm.rich_mtxm_section import RichMtxmSection
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,3 +33,7 @@ class RichTileSection(RichChkSection):
     @property
     def tiles(self) -> Tuple[int, ...]:
         return self._tiles
+
+    @classmethod
+    def from_mtxm(cls, mtxm: "RichMtxmSection") -> "RichTileSection":
+        return cls(_tiles=mtxm.tiles)
