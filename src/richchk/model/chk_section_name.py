@@ -31,6 +31,14 @@ class ChkSectionName(Enum):
     UPUS = ("UPUS",)
     SWNM = ("SWNM",)
     WAV = ("WAV ",)
+    ERA = ("ERA ",)
+    DIM = ("DIM ",)
+    MTXM = ("MTXM",)
+    TILE = ("TILE",)
+    ISOM = ("ISOM",)
+    DD2 = ("DD2 ",)
+    THG2 = ("THG2",)
+    MASK = ("MASK",)
     # special case for unhandled/unknown CHK section
     # this does not correspond to any real CHK section name
     UNKNOWN = ("UNKNOWN",)
