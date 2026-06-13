@@ -4,7 +4,7 @@ from typing import Any, cast
 
 from ....model.chk.era.decoded_era_section import DecodedEraSection
 from ....model.richchk.era.rich_era_section import RichEraSection
-from ....model.richchk.era.tileset import Tileset
+from ....model.richchk.era.tileset import StarCraftTileset
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
 from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTranscoder
@@ -34,7 +34,7 @@ class RichEraTranscoder(
     ) -> RichEraSection:
         return RichEraSection(
             _tileset=RichChkEnumTranscoder.decode_enum(
-                decoded_chk_section.tileset, Tileset
+                decoded_chk_section.tileset, StarCraftTileset
             )
         )
 

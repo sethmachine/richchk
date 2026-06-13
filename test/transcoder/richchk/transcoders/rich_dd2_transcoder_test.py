@@ -53,7 +53,7 @@ def test_it_decodes_empty_dd2_section(real_decoded_dd2, rich_decode_context):
         real_decoded_dd2,
         rich_chk_decode_context=rich_decode_context,
     )
-    assert len(rich_dd2.entries) == 0
+    assert len(rich_dd2.doodads) == 0
 
 
 def test_integration_it_decodes_and_encodes_back_without_changing_data(

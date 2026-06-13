@@ -3,6 +3,7 @@ import weakref
 from typing import Any, cast
 
 from ....model.chk.tile.decoded_tile_section import DecodedTileSection
+from ....model.richchk.mtxm.rich_tile import RichTile
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
 from ....model.richchk.tile.rich_tile_section import RichTileSection
@@ -31,7 +32,7 @@ class RichTileTranscoder(
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichTileSection:
         return RichTileSection(
-            _tiles=decoded_chk_section.tiles,
+            _tiles=[RichTile(_id=t) for t in decoded_chk_section.tiles],
         )
 
     def encode(
@@ -44,7 +45,7 @@ class RichTileTranscoder(
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedTileSection, cached[1])
         result = DecodedTileSection(
-            _tiles=rich_chk_section.tiles,
+            _tiles=tuple(t.id for t in rich_chk_section.tiles),
         )
         _tile_encode_cache[cache_key] = (
             weakref.ref(

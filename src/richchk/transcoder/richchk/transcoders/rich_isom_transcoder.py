@@ -30,7 +30,7 @@ class RichIsomTranscoder(
         decoded_chk_section: DecodedIsomSection,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichIsomSection:
-        return RichIsomSection(_data=decoded_chk_section.data)
+        return RichIsomSection(_data=list(decoded_chk_section.data))
 
     def encode(
         self,
@@ -41,7 +41,7 @@ class RichIsomTranscoder(
         cached = _isom_encode_cache.get(cache_key)
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedIsomSection, cached[1])
-        result = DecodedIsomSection(_data=rich_chk_section.data)
+        result = DecodedIsomSection(_data=tuple(rich_chk_section.data))
         _isom_encode_cache[cache_key] = (
             weakref.ref(
                 rich_chk_section, lambda _: _isom_encode_cache.pop(cache_key, None)

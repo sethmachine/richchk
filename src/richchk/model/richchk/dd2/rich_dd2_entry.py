@@ -7,7 +7,7 @@ import dataclasses
 
 
 @dataclasses.dataclass(frozen=True)
-class RichDd2Entry:
+class RichDoodad:
     """Represent a single rich doodad entry.
 
     :param _doodad_id: doodad type identifier

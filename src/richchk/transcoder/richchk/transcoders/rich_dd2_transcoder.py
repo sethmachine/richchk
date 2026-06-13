@@ -8,7 +8,7 @@ from typing import Any, cast
 
 from ....model.chk.dd2.decoded_dd2_entry import DecodedDd2Entry
 from ....model.chk.dd2.decoded_dd2_section import DecodedDd2Section
-from ....model.richchk.dd2.rich_dd2_entry import RichDd2Entry
+from ....model.richchk.dd2.rich_dd2_entry import RichDoodad
 from ....model.richchk.dd2.rich_dd2_section import RichDd2Section
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -32,8 +32,8 @@ class RichDd2Transcoder(
         decoded_chk_section: DecodedDd2Section,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichDd2Section:
-        rich_entries = tuple(
-            RichDd2Entry(
+        rich_doodads = [
+            RichDoodad(
                 _doodad_id=entry.doodad_id,
                 _x=entry.x,
                 _y=entry.y,
@@ -41,8 +41,8 @@ class RichDd2Transcoder(
                 _enabled=bool(entry.enabled),
             )
             for entry in decoded_chk_section.entries
-        )
-        return RichDd2Section(_entries=rich_entries)
+        ]
+        return RichDd2Section(_doodads=rich_doodads)
 
     def encode(
         self,
@@ -55,13 +55,13 @@ class RichDd2Transcoder(
             return cast(DecodedDd2Section, cached[1])
         decoded_entries = tuple(
             DecodedDd2Entry(
-                _doodad_id=entry.doodad_id,
-                _x=entry.x,
-                _y=entry.y,
-                _owner=entry.owner,
-                _enabled=1 if entry.enabled else 0,
+                _doodad_id=doodad.doodad_id,
+                _x=doodad.x,
+                _y=doodad.y,
+                _owner=doodad.owner,
+                _enabled=1 if doodad.enabled else 0,
             )
-            for entry in rich_chk_section.entries
+            for doodad in rich_chk_section.doodads
         )
         result = DecodedDd2Section(_entries=decoded_entries)
         _dd2_encode_cache[cache_key] = (

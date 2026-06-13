@@ -26,18 +26,18 @@ import dataclasses
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
-from .tileset import Tileset
+from .tileset import StarCraftTileset
 
 
 @dataclasses.dataclass(frozen=True)
 class RichEraSection(RichChkSection):
 
-    _tileset: Tileset
+    _tileset: StarCraftTileset
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.ERA
 
     @property
-    def tileset(self) -> Tileset:
+    def tileset(self) -> StarCraftTileset:
         return self._tileset

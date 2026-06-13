@@ -12,9 +12,10 @@ u16[width * height]: Tile values
 from __future__ import annotations
 
 import dataclasses
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from ...chk_section_name import ChkSectionName
+from ..mtxm.rich_tile import RichTile
 from ..rich_chk_section import RichChkSection
 
 if TYPE_CHECKING:
@@ -24,14 +25,14 @@ if TYPE_CHECKING:
 @dataclasses.dataclass(frozen=True)
 class RichTileSection(RichChkSection):
 
-    _tiles: Tuple[int, ...]
+    _tiles: list[RichTile]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.TILE
 
     @property
-    def tiles(self) -> Tuple[int, ...]:
+    def tiles(self) -> list[RichTile]:
         return self._tiles
 
     @classmethod
