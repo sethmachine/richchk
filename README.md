@@ -19,12 +19,19 @@ RichChk is not a full replacement for traditional GUI editors (e.g. ScmDraft 2) 
 
 ## Installation
 
-Python 3.11 is required.  Other versions of Python may work but are not tested.  Complete the following steps on a terminal or command line program.
+Python 3.11 is required.  Other versions of Python may work but are not tested.
 
-* Clone master branch: `git clone https://github.com/sethmachine/richchk`
-* Enter the root directory of the repo, e.g. `cd richchk/`
-* Run `pip install . --upgrade`
-* Verify `richchk` is installed: `python -c "import richchk; print(richchk.__file__)"`
+Install from PyPI:
+
+```bash
+pip install richchk
+```
+
+To verify the installation:
+
+```bash
+python -c "import richchk; print(richchk.__file__)"
+```
 
 ### StormLib
 
@@ -97,6 +104,39 @@ In summary:
 
 TBD
 
+
+
+## Releasing a new version
+
+Releases are published to [PyPI](https://pypi.org/project/richchk/) automatically when a version tag is pushed to `master`.
+
+**Prerequisites** (one-time setup):
+
+```bash
+pip install bump-my-version
+```
+
+**Release steps:**
+
+1. Merge all changes to `master` and pull the latest:
+   ```bash
+   git checkout master && git pull
+   ```
+
+2. Bump the version (choose one):
+   ```bash
+   bump-my-version bump patch   # 0.1.0 → 0.1.1  (bug fixes)
+   bump-my-version bump minor   # 0.1.0 → 0.2.0  (new features)
+   bump-my-version bump major   # 0.1.0 → 1.0.0  (breaking changes)
+   ```
+   This updates the version in `pyproject.toml`, creates a git commit, and creates a git tag (e.g. `v0.1.1`).
+
+3. Push the commit and tag:
+   ```bash
+   git push --follow-tags
+   ```
+
+The GitHub Actions workflow publishes to TestPyPI first, then PyPI.  Both are triggered by the tag push — no manual upload needed.
 
 
 ## Contributions
