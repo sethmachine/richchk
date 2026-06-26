@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 from ...io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
+from ...transcoder.chk.strings_common import _STRING_ENCODING
 from ...transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 from ...util import logger
 
@@ -76,13 +77,17 @@ class DecodedStrxSectionEditor:
                     highest_string,
                 ) = self._find_initial_highest_offset_and_string(decoded_strx_section)
                 new_offset = (
-                    (highest_offset + total_offset_increase) + len(highest_string) + 1
+                    (highest_offset + total_offset_increase)
+                    + len(highest_string.encode(_STRING_ENCODING))
+                    + 1
                 )
             else:
                 # if they are defined, we use the previous string offset we just added
                 # new_offset = string_offsets[-1] + len(strings_[-1]) + 1
                 # +1 is there to skip the null terminator
-                new_offset = highest_offset + len(highest_string) + 1
+                new_offset = (
+                    highest_offset + len(highest_string.encode(_STRING_ENCODING)) + 1
+                )
             new_string_offsets.append(new_offset)
             # set up the next string being added, if any
             highest_offset = new_offset
