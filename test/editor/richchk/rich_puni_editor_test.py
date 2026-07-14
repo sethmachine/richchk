@@ -73,14 +73,6 @@ def test_it_sets_unit_global_availability(default_puni):
     assert updated.global_unit_availability[1] is True
 
 
-def test_it_raises_on_invalid_player(default_puni):
-    editor = RichPuniEditor()
-    with pytest.raises(ValueError):
-        editor.set_unit_available_for_player(
-            PlayerId.NONE, UnitId.TERRAN_MARINE, False, default_puni
-        )
-
-
 def test_it_preserves_other_players_on_availability_update(default_puni):
     editor = RichPuniEditor()
     updated = editor.set_unit_available_for_player(

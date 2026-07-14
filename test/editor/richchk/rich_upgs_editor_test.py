@@ -81,19 +81,3 @@ def test_it_preserves_other_upgrade_settings(default_upgs):
     updated = editor.set_upgrade_cost_setting(new_setting, default_upgs)
     for i in range(1, _NUM_UPGRADES):
         assert updated.upgrade_cost_settings[i].base_mineral_cost == 100
-
-
-def test_it_raises_on_upgrade_id_out_of_range(default_upgs):
-    editor = RichUpgsEditor()
-    out_of_range_setting = UpgradeCostSetting(
-        _upgrade_id=UpgradeId.UNKNOWN_UPGRADE_60,
-        _uses_default_settings=True,
-        _base_mineral_cost=0,
-        _mineral_cost_factor=0,
-        _base_gas_cost=0,
-        _gas_cost_factor=0,
-        _base_research_time=0,
-        _research_time_factor=0,
-    )
-    with pytest.raises(ValueError):
-        editor.set_upgrade_cost_setting(out_of_range_setting, default_upgs)

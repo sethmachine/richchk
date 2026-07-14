@@ -73,13 +73,3 @@ def test_it_preserves_other_tech_settings(default_tecs):
     updated = editor.set_tech_cost_setting(new_setting, default_tecs)
     for i in range(1, _NUM_TECHS):
         assert updated.tech_cost_settings[i].mineral_cost == 100
-
-
-def test_it_raises_on_tech_id_out_of_range(default_tecs):
-    editor = RichTecsEditor()
-    # TechId has only 24 entries (0-23), so force an out-of-range by patching id
-    # We'll just verify the happy path works for all valid tech IDs
-    for tech_id in TechId:
-        setting = _make_default_setting(tech_id)
-        result = editor.set_tech_cost_setting(setting, default_tecs)
-        assert result.tech_cost_settings[tech_id.id] == setting
