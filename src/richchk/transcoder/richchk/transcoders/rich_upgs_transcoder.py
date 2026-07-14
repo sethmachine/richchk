@@ -13,11 +13,8 @@ from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTran
 from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
-from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
-    RichChkEnumTranscoder,
-)
 
-_NUM_UPGRADES = 46
+_CLASSIC_UPGRADES = [u for u in UpgradeId if u.id < 46]
 
 _upgs_encode_cache: dict[
     Any, Any
@@ -34,23 +31,25 @@ class RichUpgsTranscoder(
         decoded_chk_section: DecodedUpgsSection,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichUpgsSection:
-        settings = []
-        for i in range(_NUM_UPGRADES):
-            upgrade_id = RichChkEnumTranscoder.decode_enum(i, UpgradeId)
-            settings.append(
-                UpgradeCostSetting(
-                    _upgrade_id=upgrade_id,
-                    _uses_default_settings=bool(
-                        decoded_chk_section.uses_default_settings[i]
-                    ),
-                    _base_mineral_cost=decoded_chk_section.base_mineral_cost[i],
-                    _mineral_cost_factor=decoded_chk_section.mineral_cost_factor[i],
-                    _base_gas_cost=decoded_chk_section.base_gas_cost[i],
-                    _gas_cost_factor=decoded_chk_section.gas_cost_factor[i],
-                    _base_research_time=decoded_chk_section.base_research_time[i],
-                    _research_time_factor=decoded_chk_section.research_time_factor[i],
-                )
+        settings = {
+            upgrade: UpgradeCostSetting(
+                _upgrade_id=upgrade,
+                _uses_default_settings=bool(
+                    decoded_chk_section.uses_default_settings[upgrade.id]
+                ),
+                _base_mineral_cost=decoded_chk_section.base_mineral_cost[upgrade.id],
+                _mineral_cost_factor=decoded_chk_section.mineral_cost_factor[
+                    upgrade.id
+                ],
+                _base_gas_cost=decoded_chk_section.base_gas_cost[upgrade.id],
+                _gas_cost_factor=decoded_chk_section.gas_cost_factor[upgrade.id],
+                _base_research_time=decoded_chk_section.base_research_time[upgrade.id],
+                _research_time_factor=decoded_chk_section.research_time_factor[
+                    upgrade.id
+                ],
             )
+            for upgrade in _CLASSIC_UPGRADES
+        }
         return RichUpgsSection(_upgrade_cost_settings=settings)
 
     def encode(
@@ -62,7 +61,9 @@ class RichUpgsTranscoder(
         cached = _upgs_encode_cache.get(cache_key)
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedUpgsSection, cached[1])
-        settings = rich_chk_section.upgrade_cost_settings
+        settings = [
+            rich_chk_section.upgrade_cost_settings[u] for u in _CLASSIC_UPGRADES
+        ]
         result = DecodedUpgsSection(
             _uses_default_settings=[int(s.uses_default_settings) for s in settings],
             _base_mineral_cost=[s.base_mineral_cost for s in settings],

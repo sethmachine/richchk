@@ -21,8 +21,8 @@ class RichPupxEditor:
         :param pupx: the existing PUPx section
         :return: new RichPupxSection with the updated max level
         """
-        updated = [row.copy() for row in pupx.player_max_levels]
-        updated[player.id][upgrade.id] = level
+        updated = {p: dict(upgrades) for p, upgrades in pupx.player_max_levels.items()}
+        updated[player][upgrade] = level
         return RichPupxSection(
             _player_max_levels=updated,
             _player_start_levels=pupx.player_start_levels,
@@ -46,8 +46,10 @@ class RichPupxEditor:
         :param pupx: the existing PUPx section
         :return: new RichPupxSection with the updated start level
         """
-        updated = [row.copy() for row in pupx.player_start_levels]
-        updated[player.id][upgrade.id] = level
+        updated = {
+            p: dict(upgrades) for p, upgrades in pupx.player_start_levels.items()
+        }
+        updated[player][upgrade] = level
         return RichPupxSection(
             _player_max_levels=pupx.player_max_levels,
             _player_start_levels=updated,
@@ -71,8 +73,10 @@ class RichPupxEditor:
         :param pupx: the existing PUPx section
         :return: new RichPupxSection with the updated flag
         """
-        updated = [row.copy() for row in pupx.player_uses_defaults]
-        updated[player.id][upgrade.id] = uses_default
+        updated = {
+            p: dict(upgrades) for p, upgrades in pupx.player_uses_defaults.items()
+        }
+        updated[player][upgrade] = uses_default
         return RichPupxSection(
             _player_max_levels=pupx.player_max_levels,
             _player_start_levels=pupx.player_start_levels,

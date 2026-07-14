@@ -5,8 +5,8 @@ from richchk.model.richchk.trig.player_id import PlayerId
 from richchk.model.richchk.upgr.rich_upgr_section import RichUpgrSection
 from richchk.model.richchk.upgrades.upgrade_id import UpgradeId
 
-_NUM_PLAYERS = 12
-_NUM_UPGRADES = 46
+_GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
+_CLASSIC_UPGRADES = [u for u in UpgradeId if u.id < 46]
 
 
 def _make_upgr(
@@ -17,15 +17,17 @@ def _make_upgr(
     player_defaults: bool = True,
 ) -> RichUpgrSection:
     return RichUpgrSection(
-        _player_max_levels=[[player_max] * _NUM_UPGRADES for _ in range(_NUM_PLAYERS)],
-        _player_start_levels=[
-            [player_start] * _NUM_UPGRADES for _ in range(_NUM_PLAYERS)
-        ],
-        _global_max_levels=[global_max] * _NUM_UPGRADES,
-        _global_start_levels=[global_start] * _NUM_UPGRADES,
-        _player_uses_defaults=[
-            [player_defaults] * _NUM_UPGRADES for _ in range(_NUM_PLAYERS)
-        ],
+        _player_max_levels={
+            p: {u: player_max for u in _CLASSIC_UPGRADES} for p in _GAME_PLAYERS
+        },
+        _player_start_levels={
+            p: {u: player_start for u in _CLASSIC_UPGRADES} for p in _GAME_PLAYERS
+        },
+        _global_max_levels={u: global_max for u in _CLASSIC_UPGRADES},
+        _global_start_levels={u: global_start for u in _CLASSIC_UPGRADES},
+        _player_uses_defaults={
+            p: {u: player_defaults for u in _CLASSIC_UPGRADES} for p in _GAME_PLAYERS
+        },
     )
 
 
@@ -39,8 +41,14 @@ def test_it_sets_player_max_level(default_upgr):
     updated = editor.set_player_max_level(
         PlayerId.PLAYER_1, UpgradeId.TERRAN_INFANTRY_ARMOR, 2, default_upgr
     )
-    assert updated.player_max_levels[0][0] == 2
-    assert updated.player_max_levels[0][1] == 3
+    assert (
+        updated.player_max_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        == 2
+    )
+    assert (
+        updated.player_max_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_VEHICLE_PLATING]
+        == 3
+    )
 
 
 def test_it_does_not_mutate_original_on_max_level(default_upgr):
@@ -48,7 +56,12 @@ def test_it_does_not_mutate_original_on_max_level(default_upgr):
     editor.set_player_max_level(
         PlayerId.PLAYER_1, UpgradeId.TERRAN_INFANTRY_ARMOR, 2, default_upgr
     )
-    assert default_upgr.player_max_levels[0][0] == 3
+    assert (
+        default_upgr.player_max_levels[PlayerId.PLAYER_1][
+            UpgradeId.TERRAN_INFANTRY_ARMOR
+        ]
+        == 3
+    )
 
 
 def test_it_sets_player_start_level(default_upgr):
@@ -56,8 +69,14 @@ def test_it_sets_player_start_level(default_upgr):
     updated = editor.set_player_start_level(
         PlayerId.PLAYER_2, UpgradeId.TERRAN_VEHICLE_PLATING, 1, default_upgr
     )
-    assert updated.player_start_levels[1][1] == 1
-    assert updated.player_start_levels[0][0] == 0
+    assert (
+        updated.player_start_levels[PlayerId.PLAYER_2][UpgradeId.TERRAN_VEHICLE_PLATING]
+        == 1
+    )
+    assert (
+        updated.player_start_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        == 0
+    )
 
 
 def test_it_sets_player_uses_default(default_upgr):
@@ -65,8 +84,16 @@ def test_it_sets_player_uses_default(default_upgr):
     updated = editor.set_player_uses_default(
         PlayerId.PLAYER_1, UpgradeId.TERRAN_INFANTRY_ARMOR, False, default_upgr
     )
-    assert updated.player_uses_defaults[0][0] is False
-    assert updated.player_uses_defaults[0][1] is True
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        is False
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][
+            UpgradeId.TERRAN_VEHICLE_PLATING
+        ]
+        is True
+    )
 
 
 def test_it_preserves_other_players_on_max_level_update(default_upgr):
@@ -74,5 +101,7 @@ def test_it_preserves_other_players_on_max_level_update(default_upgr):
     updated = editor.set_player_max_level(
         PlayerId.PLAYER_1, UpgradeId.TERRAN_INFANTRY_ARMOR, 0, default_upgr
     )
-    for p in range(1, _NUM_PLAYERS):
-        assert all(v == 3 for v in updated.player_max_levels[p])
+    for player in _GAME_PLAYERS:
+        if player == PlayerId.PLAYER_1:
+            continue
+        assert all(v == 3 for v in updated.player_max_levels[player].values())

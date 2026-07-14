@@ -7,49 +7,48 @@ import dataclasses
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
-
-_NUM_PLAYERS = 12
-_NUM_TECHS = 24
+from ..techs.tech_id import TechId
+from ..trig.player_id import PlayerId
 
 
 @dataclasses.dataclass(frozen=True)
 class RichPtecSection(RichChkSection):
     """Represent PTEC - Classic Tech Restrictions.
 
-    :param _player_tech_availability: list[list[bool]] shape [12][24]
-    :param _player_tech_researched: list[list[bool]] shape [12][24]
-    :param _global_tech_availability: list[bool] length 24
-    :param _global_tech_researched: list[bool] length 24
-    :param _player_uses_defaults: list[list[bool]] shape [12][24]; True=use global
+    :param _player_tech_availability: dict[PlayerId, dict[TechId, bool]]
+    :param _player_tech_researched: dict[PlayerId, dict[TechId, bool]]
+    :param _global_tech_availability: dict[TechId, bool]
+    :param _global_tech_researched: dict[TechId, bool]
+    :param _player_uses_defaults: dict[PlayerId, dict[TechId, bool]]; True=use global
         default
     """
 
-    _player_tech_availability: list[list[bool]]
-    _player_tech_researched: list[list[bool]]
-    _global_tech_availability: list[bool]
-    _global_tech_researched: list[bool]
-    _player_uses_defaults: list[list[bool]]
+    _player_tech_availability: dict[PlayerId, dict[TechId, bool]]
+    _player_tech_researched: dict[PlayerId, dict[TechId, bool]]
+    _global_tech_availability: dict[TechId, bool]
+    _global_tech_researched: dict[TechId, bool]
+    _player_uses_defaults: dict[PlayerId, dict[TechId, bool]]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.PTEC
 
     @property
-    def player_tech_availability(self) -> list[list[bool]]:
+    def player_tech_availability(self) -> dict[PlayerId, dict[TechId, bool]]:
         return self._player_tech_availability
 
     @property
-    def player_tech_researched(self) -> list[list[bool]]:
+    def player_tech_researched(self) -> dict[PlayerId, dict[TechId, bool]]:
         return self._player_tech_researched
 
     @property
-    def global_tech_availability(self) -> list[bool]:
+    def global_tech_availability(self) -> dict[TechId, bool]:
         return self._global_tech_availability
 
     @property
-    def global_tech_researched(self) -> list[bool]:
+    def global_tech_researched(self) -> dict[TechId, bool]:
         return self._global_tech_researched
 
     @property
-    def player_uses_defaults(self) -> list[list[bool]]:
+    def player_uses_defaults(self) -> dict[PlayerId, dict[TechId, bool]]:
         return self._player_uses_defaults

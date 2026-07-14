@@ -4,6 +4,8 @@ from richchk.model.chk.puni.decoded_puni_section import DecodedPuniSection
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.trig.player_id import PlayerId
+from richchk.model.richchk.unis.unit_id import UnitId
 from richchk.transcoder.richchk.transcoders.rich_puni_transcoder import (
     RichPuniTranscoder,
 )
@@ -51,26 +53,28 @@ def encode_context() -> RichChkEncodeContext:
     )
 
 
-def test_it_decodes_player_unit_availability_as_2d(decode_context):
+def test_it_decodes_player_unit_availability_as_dict(decode_context):
     decoded = _make_decoded_puni(player_availability=1)
     rich = RichPuniTranscoder().decode(decoded, decode_context)
     assert len(rich.player_unit_availability) == _NUM_PLAYERS
-    assert len(rich.player_unit_availability[0]) == _NUM_UNITS
-    assert rich.player_unit_availability[0][0] is True
+    assert len(rich.player_unit_availability[PlayerId.PLAYER_1]) == _NUM_UNITS
+    assert (
+        rich.player_unit_availability[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE] is True
+    )
 
 
 def test_it_decodes_global_unit_availability(decode_context):
     decoded = _make_decoded_puni(global_availability=0)
     rich = RichPuniTranscoder().decode(decoded, decode_context)
     assert len(rich.global_unit_availability) == _NUM_UNITS
-    assert rich.global_unit_availability[0] is False
+    assert rich.global_unit_availability[UnitId.TERRAN_MARINE] is False
 
 
 def test_it_decodes_player_uses_defaults(decode_context):
     decoded = _make_decoded_puni(player_defaults=1)
     rich = RichPuniTranscoder().decode(decoded, decode_context)
     assert len(rich.player_uses_defaults) == _NUM_PLAYERS
-    assert rich.player_uses_defaults[0][0] is True
+    assert rich.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE] is True
 
 
 def test_it_encodes_and_round_trips(decode_context, encode_context):

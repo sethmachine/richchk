@@ -17,6 +17,6 @@ class RichTecsEditor:
         :param tecs: the existing TECS section
         :return: new RichTecsSection with the updated setting
         """
-        updated = list(tecs.tech_cost_settings)
-        updated[setting.tech_id.id] = setting
+        updated = dict(tecs.tech_cost_settings)
+        updated[setting.tech_id] = setting
         return RichTecsSection(_tech_cost_settings=updated)

@@ -21,8 +21,8 @@ class RichUpgrEditor:
         :param upgr: the existing UPGR section
         :return: new RichUpgrSection with the updated max level
         """
-        updated = [row.copy() for row in upgr.player_max_levels]
-        updated[player.id][upgrade.id] = level
+        updated = {p: dict(upgrades) for p, upgrades in upgr.player_max_levels.items()}
+        updated[player][upgrade] = level
         return RichUpgrSection(
             _player_max_levels=updated,
             _player_start_levels=upgr.player_start_levels,
@@ -46,8 +46,10 @@ class RichUpgrEditor:
         :param upgr: the existing UPGR section
         :return: new RichUpgrSection with the updated start level
         """
-        updated = [row.copy() for row in upgr.player_start_levels]
-        updated[player.id][upgrade.id] = level
+        updated = {
+            p: dict(upgrades) for p, upgrades in upgr.player_start_levels.items()
+        }
+        updated[player][upgrade] = level
         return RichUpgrSection(
             _player_max_levels=upgr.player_max_levels,
             _player_start_levels=updated,
@@ -71,8 +73,10 @@ class RichUpgrEditor:
         :param upgr: the existing UPGR section
         :return: new RichUpgrSection with the updated flag
         """
-        updated = [row.copy() for row in upgr.player_uses_defaults]
-        updated[player.id][upgrade.id] = uses_default
+        updated = {
+            p: dict(upgrades) for p, upgrades in upgr.player_uses_defaults.items()
+        }
+        updated[player][upgrade] = uses_default
         return RichUpgrSection(
             _player_max_levels=upgr.player_max_levels,
             _player_start_levels=upgr.player_start_levels,

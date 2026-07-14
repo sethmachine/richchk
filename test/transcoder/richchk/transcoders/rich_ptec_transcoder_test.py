@@ -4,6 +4,8 @@ from richchk.model.chk.ptec.decoded_ptec_section import DecodedPtecSection
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.techs.tech_id import TechId
+from richchk.model.richchk.trig.player_id import PlayerId
 from richchk.transcoder.richchk.transcoders.rich_ptec_transcoder import (
     RichPtecTranscoder,
 )
@@ -55,24 +57,24 @@ def encode_context() -> RichChkEncodeContext:
     )
 
 
-def test_it_decodes_player_tech_availability_as_2d(decode_context):
+def test_it_decodes_player_tech_availability_as_dict(decode_context):
     decoded = _make_decoded_ptec(player_avail=1)
     rich = RichPtecTranscoder().decode(decoded, decode_context)
     assert len(rich.player_tech_availability) == _NUM_PLAYERS
-    assert len(rich.player_tech_availability[0]) == _NUM_TECHS
-    assert rich.player_tech_availability[0][0] is True
+    assert len(rich.player_tech_availability[PlayerId.PLAYER_1]) == _NUM_TECHS
+    assert rich.player_tech_availability[PlayerId.PLAYER_1][TechId.STIM_PACKS] is True
 
 
 def test_it_decodes_global_tech_availability(decode_context):
     decoded = _make_decoded_ptec(global_avail=0)
     rich = RichPtecTranscoder().decode(decoded, decode_context)
-    assert rich.global_tech_availability[0] is False
+    assert rich.global_tech_availability[TechId.STIM_PACKS] is False
 
 
 def test_it_decodes_player_tech_researched(decode_context):
     decoded = _make_decoded_ptec(player_researched=1)
     rich = RichPtecTranscoder().decode(decoded, decode_context)
-    assert rich.player_tech_researched[0][0] is True
+    assert rich.player_tech_researched[PlayerId.PLAYER_1][TechId.STIM_PACKS] is True
 
 
 def test_it_encodes_and_round_trips(decode_context, encode_context):
