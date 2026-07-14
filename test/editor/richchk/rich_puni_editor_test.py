@@ -44,6 +44,17 @@ def test_it_sets_unit_available_for_player(default_puni):
     )
 
 
+def test_it_sets_uses_defaults_false_on_player_availability_override(default_puni):
+    editor = RichPuniEditor()
+    updated = editor.set_unit_available_for_player(
+        PlayerId.PLAYER_1, UnitId.TERRAN_MARINE, False, default_puni
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE] is False
+    )
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_GHOST] is True
+
+
 def test_it_does_not_mutate_original_on_player_availability(default_puni):
     editor = RichPuniEditor()
     editor.set_unit_available_for_player(
@@ -51,6 +62,10 @@ def test_it_does_not_mutate_original_on_player_availability(default_puni):
     )
     assert (
         default_puni.player_unit_availability[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE]
+        is True
+    )
+    assert (
+        default_puni.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE]
         is True
     )
 
@@ -93,3 +108,56 @@ def test_it_preserves_other_players_on_availability_update(default_puni):
         if player == PlayerId.PLAYER_1:
             continue
         assert all(updated.player_unit_availability[player].values())
+
+
+def test_apply_player_unit_availability_merges_partial_dict(default_puni):
+    editor = RichPuniEditor()
+    updates = {
+        PlayerId.PLAYER_1: {UnitId.TERRAN_MARINE: False, UnitId.TERRAN_GHOST: False},
+        PlayerId.PLAYER_2: {UnitId.PROTOSS_ZEALOT: False},
+    }
+    updated = editor.apply_player_unit_availability(updates, default_puni)
+    assert (
+        updated.player_unit_availability[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE]
+        is False
+    )
+    assert (
+        updated.player_unit_availability[PlayerId.PLAYER_1][UnitId.TERRAN_GHOST]
+        is False
+    )
+    assert (
+        updated.player_unit_availability[PlayerId.PLAYER_2][UnitId.PROTOSS_ZEALOT]
+        is False
+    )
+    assert (
+        updated.player_unit_availability[PlayerId.PLAYER_1][UnitId.ZERG_ZERGLING]
+        is True
+    )
+    assert (
+        updated.player_unit_availability[PlayerId.PLAYER_3][UnitId.TERRAN_MARINE]
+        is True
+    )
+
+
+def test_apply_player_unit_availability_sets_uses_defaults_false(default_puni):
+    editor = RichPuniEditor()
+    updates = {PlayerId.PLAYER_1: {UnitId.TERRAN_MARINE: False}}
+    updated = editor.apply_player_unit_availability(updates, default_puni)
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE] is False
+    )
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_GHOST] is True
+
+
+def test_apply_player_unit_availability_does_not_mutate_original(default_puni):
+    editor = RichPuniEditor()
+    updates = {PlayerId.PLAYER_1: {UnitId.TERRAN_MARINE: False}}
+    editor.apply_player_unit_availability(updates, default_puni)
+    assert (
+        default_puni.player_unit_availability[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE]
+        is True
+    )
+    assert (
+        default_puni.player_uses_defaults[PlayerId.PLAYER_1][UnitId.TERRAN_MARINE]
+        is True
+    )

@@ -23,10 +23,14 @@ class RichPuniEditor:
         """
         updated = {p: dict(units) for p, units in puni.player_unit_availability.items()}
         updated[player][unit] = available
+        updated_defaults = {
+            p: dict(units) for p, units in puni.player_uses_defaults.items()
+        }
+        updated_defaults[player][unit] = False
         return RichPuniSection(
             _player_unit_availability=updated,
             _global_unit_availability=puni.global_unit_availability,
-            _player_uses_defaults=puni.player_uses_defaults,
+            _player_uses_defaults=updated_defaults,
         )
 
     def set_player_uses_default(
@@ -50,6 +54,37 @@ class RichPuniEditor:
             _player_unit_availability=puni.player_unit_availability,
             _global_unit_availability=puni.global_unit_availability,
             _player_uses_defaults=updated,
+        )
+
+    def apply_player_unit_availability(
+        self,
+        updates: dict[PlayerId, dict[UnitId, bool]],
+        puni: RichPuniSection,
+    ) -> RichPuniSection:
+        """Return a new section with per-player availability merged from a partial dict.
+
+        Only the (player, unit) pairs present in `updates` are changed; all others are
+        left as-is.  For each pair that appears in `updates`, player_uses_defaults is
+        also set to False so the per-player value is actually consulted at runtime.
+
+        :param updates: sparse mapping of player -> {unit -> available}
+        :param puni: the existing PUNI section
+        :return: new RichPuniSection with the merged overrides applied
+        """
+        new_availability = {
+            p: dict(units) for p, units in puni.player_unit_availability.items()
+        }
+        new_defaults = {
+            p: dict(units) for p, units in puni.player_uses_defaults.items()
+        }
+        for player, unit_map in updates.items():
+            for unit, available in unit_map.items():
+                new_availability[player][unit] = available
+                new_defaults[player][unit] = False
+        return RichPuniSection(
+            _player_unit_availability=new_availability,
+            _global_unit_availability=puni.global_unit_availability,
+            _player_uses_defaults=new_defaults,
         )
 
     def set_unit_global_availability(
