@@ -87,3 +87,62 @@ def test_it_preserves_other_upgrade_settings(default_upgs):
         if upgrade == UpgradeId.TERRAN_INFANTRY_ARMOR:
             continue
         assert updated.upgrade_cost_settings[upgrade].base_mineral_cost == 100
+
+
+def test_apply_upgrade_cost_settings_merges_partial_dict(default_upgs):
+    editor = RichUpgsEditor()
+    new_armor = UpgradeCostSetting(
+        _upgrade_id=UpgradeId.TERRAN_INFANTRY_ARMOR,
+        _uses_default_settings=False,
+        _base_mineral_cost=200,
+        _mineral_cost_factor=150,
+        _base_gas_cost=0,
+        _gas_cost_factor=0,
+        _base_research_time=3600,
+        _research_time_factor=0,
+    )
+    new_plating = UpgradeCostSetting(
+        _upgrade_id=UpgradeId.TERRAN_VEHICLE_PLATING,
+        _uses_default_settings=False,
+        _base_mineral_cost=300,
+        _mineral_cost_factor=200,
+        _base_gas_cost=0,
+        _gas_cost_factor=0,
+        _base_research_time=3600,
+        _research_time_factor=0,
+    )
+    updates = {
+        UpgradeId.TERRAN_INFANTRY_ARMOR: new_armor,
+        UpgradeId.TERRAN_VEHICLE_PLATING: new_plating,
+    }
+    updated = editor.apply_upgrade_cost_settings(updates, default_upgs)
+    assert updated.upgrade_cost_settings[UpgradeId.TERRAN_INFANTRY_ARMOR] == new_armor
+    assert (
+        updated.upgrade_cost_settings[UpgradeId.TERRAN_VEHICLE_PLATING] == new_plating
+    )
+    assert (
+        updated.upgrade_cost_settings[UpgradeId.ZERG_CARAPACE].base_mineral_cost == 100
+    )
+
+
+def test_apply_upgrade_cost_settings_does_not_mutate_original(default_upgs):
+    editor = RichUpgsEditor()
+    new_armor = UpgradeCostSetting(
+        _upgrade_id=UpgradeId.TERRAN_INFANTRY_ARMOR,
+        _uses_default_settings=False,
+        _base_mineral_cost=200,
+        _mineral_cost_factor=150,
+        _base_gas_cost=0,
+        _gas_cost_factor=0,
+        _base_research_time=3600,
+        _research_time_factor=0,
+    )
+    editor.apply_upgrade_cost_settings(
+        {UpgradeId.TERRAN_INFANTRY_ARMOR: new_armor}, default_upgs
+    )
+    assert (
+        default_upgs.upgrade_cost_settings[
+            UpgradeId.TERRAN_INFANTRY_ARMOR
+        ].base_mineral_cost
+        == 100
+    )

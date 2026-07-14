@@ -23,12 +23,16 @@ class RichPtecEditor:
         """
         updated = {p: dict(techs) for p, techs in ptec.player_tech_availability.items()}
         updated[player][tech] = available
+        updated_defaults = {
+            p: dict(techs) for p, techs in ptec.player_uses_defaults.items()
+        }
+        updated_defaults[player][tech] = False
         return RichPtecSection(
             _player_tech_availability=updated,
             _player_tech_researched=ptec.player_tech_researched,
             _global_tech_availability=ptec.global_tech_availability,
             _global_tech_researched=ptec.global_tech_researched,
-            _player_uses_defaults=ptec.player_uses_defaults,
+            _player_uses_defaults=updated_defaults,
         )
 
     def set_tech_researched_for_player(
@@ -48,12 +52,16 @@ class RichPtecEditor:
         """
         updated = {p: dict(techs) for p, techs in ptec.player_tech_researched.items()}
         updated[player][tech] = is_researched
+        updated_defaults = {
+            p: dict(techs) for p, techs in ptec.player_uses_defaults.items()
+        }
+        updated_defaults[player][tech] = False
         return RichPtecSection(
             _player_tech_availability=ptec.player_tech_availability,
             _player_tech_researched=updated,
             _global_tech_availability=ptec.global_tech_availability,
             _global_tech_researched=ptec.global_tech_researched,
-            _player_uses_defaults=ptec.player_uses_defaults,
+            _player_uses_defaults=updated_defaults,
         )
 
     def set_player_uses_default(
@@ -79,4 +87,72 @@ class RichPtecEditor:
             _global_tech_availability=ptec.global_tech_availability,
             _global_tech_researched=ptec.global_tech_researched,
             _player_uses_defaults=updated,
+        )
+
+    def apply_player_tech_availability(
+        self,
+        updates: dict[PlayerId, dict[TechId, bool]],
+        ptec: RichPtecSection,
+    ) -> RichPtecSection:
+        """Return a new section with per-player tech availability merged from a partial
+        dict.
+
+        Only the (player, tech) pairs present in `updates` are changed; all others are
+        left as-is.  player_uses_defaults is set to False for each pair so the per-
+        player value is consulted at runtime.
+
+        :param updates: sparse mapping of player -> {tech -> available}
+        :param ptec: the existing PTEC section
+        :return: new RichPtecSection with the merged overrides applied
+        """
+        new_availability = {
+            p: dict(techs) for p, techs in ptec.player_tech_availability.items()
+        }
+        new_defaults = {
+            p: dict(techs) for p, techs in ptec.player_uses_defaults.items()
+        }
+        for player, tech_map in updates.items():
+            for tech, available in tech_map.items():
+                new_availability[player][tech] = available
+                new_defaults[player][tech] = False
+        return RichPtecSection(
+            _player_tech_availability=new_availability,
+            _player_tech_researched=ptec.player_tech_researched,
+            _global_tech_availability=ptec.global_tech_availability,
+            _global_tech_researched=ptec.global_tech_researched,
+            _player_uses_defaults=new_defaults,
+        )
+
+    def apply_player_tech_researched(
+        self,
+        updates: dict[PlayerId, dict[TechId, bool]],
+        ptec: RichPtecSection,
+    ) -> RichPtecSection:
+        """Return a new section with per-player tech researched state merged from a
+        partial dict.
+
+        Only the (player, tech) pairs present in `updates` are changed; all others are
+        left as-is.  player_uses_defaults is set to False for each pair so the per-
+        player value is consulted at runtime.
+
+        :param updates: sparse mapping of player -> {tech -> is_researched}
+        :param ptec: the existing PTEC section
+        :return: new RichPtecSection with the merged overrides applied
+        """
+        new_researched = {
+            p: dict(techs) for p, techs in ptec.player_tech_researched.items()
+        }
+        new_defaults = {
+            p: dict(techs) for p, techs in ptec.player_uses_defaults.items()
+        }
+        for player, tech_map in updates.items():
+            for tech, is_researched in tech_map.items():
+                new_researched[player][tech] = is_researched
+                new_defaults[player][tech] = False
+        return RichPtecSection(
+            _player_tech_availability=ptec.player_tech_availability,
+            _player_tech_researched=new_researched,
+            _global_tech_availability=ptec.global_tech_availability,
+            _global_tech_researched=ptec.global_tech_researched,
+            _player_uses_defaults=new_defaults,
         )

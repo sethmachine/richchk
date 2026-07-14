@@ -96,6 +96,40 @@ def test_it_sets_player_uses_default(default_upgr):
     )
 
 
+def test_it_sets_uses_defaults_false_on_max_level_override(default_upgr):
+    editor = RichUpgrEditor()
+    updated = editor.set_player_max_level(
+        PlayerId.PLAYER_1, UpgradeId.TERRAN_INFANTRY_ARMOR, 2, default_upgr
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        is False
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][
+            UpgradeId.TERRAN_VEHICLE_PLATING
+        ]
+        is True
+    )
+
+
+def test_it_sets_uses_defaults_false_on_start_level_override(default_upgr):
+    editor = RichUpgrEditor()
+    updated = editor.set_player_start_level(
+        PlayerId.PLAYER_1, UpgradeId.TERRAN_INFANTRY_ARMOR, 1, default_upgr
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        is False
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][
+            UpgradeId.TERRAN_VEHICLE_PLATING
+        ]
+        is True
+    )
+
+
 def test_it_preserves_other_players_on_max_level_update(default_upgr):
     editor = RichUpgrEditor()
     updated = editor.set_player_max_level(
@@ -105,3 +139,64 @@ def test_it_preserves_other_players_on_max_level_update(default_upgr):
         if player == PlayerId.PLAYER_1:
             continue
         assert all(v == 3 for v in updated.player_max_levels[player].values())
+
+
+def test_apply_player_max_levels_merges_partial_dict(default_upgr):
+    editor = RichUpgrEditor()
+    updates = {
+        PlayerId.PLAYER_1: {
+            UpgradeId.TERRAN_INFANTRY_ARMOR: 1,
+            UpgradeId.TERRAN_VEHICLE_PLATING: 2,
+        },
+        PlayerId.PLAYER_2: {UpgradeId.TERRAN_INFANTRY_ARMOR: 0},
+    }
+    updated = editor.apply_player_max_levels(updates, default_upgr)
+    assert (
+        updated.player_max_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        == 1
+    )
+    assert (
+        updated.player_max_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_VEHICLE_PLATING]
+        == 2
+    )
+    assert (
+        updated.player_max_levels[PlayerId.PLAYER_2][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        == 0
+    )
+    assert updated.player_max_levels[PlayerId.PLAYER_1][UpgradeId.ZERG_CARAPACE] == 3
+    assert (
+        updated.player_max_levels[PlayerId.PLAYER_3][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        == 3
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        is False
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.ZERG_CARAPACE] is True
+    )
+
+
+def test_apply_player_start_levels_merges_partial_dict(default_upgr):
+    editor = RichUpgrEditor()
+    updates = {
+        PlayerId.PLAYER_1: {UpgradeId.TERRAN_INFANTRY_ARMOR: 1},
+        PlayerId.PLAYER_2: {UpgradeId.TERRAN_VEHICLE_PLATING: 2},
+    }
+    updated = editor.apply_player_start_levels(updates, default_upgr)
+    assert (
+        updated.player_start_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        == 1
+    )
+    assert (
+        updated.player_start_levels[PlayerId.PLAYER_2][UpgradeId.TERRAN_VEHICLE_PLATING]
+        == 2
+    )
+    assert updated.player_start_levels[PlayerId.PLAYER_1][UpgradeId.ZERG_CARAPACE] == 0
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        is False
+    )
+    assert (
+        updated.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.ZERG_CARAPACE] is True
+    )

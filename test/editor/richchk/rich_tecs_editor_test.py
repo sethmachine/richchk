@@ -72,3 +72,42 @@ def test_it_preserves_other_tech_settings(default_tecs):
         if tech == TechId.STIM_PACKS:
             continue
         assert updated.tech_cost_settings[tech].mineral_cost == 100
+
+
+def test_apply_tech_cost_settings_merges_partial_dict(default_tecs):
+    editor = RichTecsEditor()
+    new_stim = TechCostSetting(
+        _tech_id=TechId.STIM_PACKS,
+        _uses_default_settings=False,
+        _mineral_cost=0,
+        _gas_cost=0,
+        _research_time=900,
+        _energy_cost=10,
+    )
+    new_lockdown = TechCostSetting(
+        _tech_id=TechId.LOCKDOWN,
+        _uses_default_settings=False,
+        _mineral_cost=200,
+        _gas_cost=200,
+        _research_time=1800,
+        _energy_cost=100,
+    )
+    updates = {TechId.STIM_PACKS: new_stim, TechId.LOCKDOWN: new_lockdown}
+    updated = editor.apply_tech_cost_settings(updates, default_tecs)
+    assert updated.tech_cost_settings[TechId.STIM_PACKS] == new_stim
+    assert updated.tech_cost_settings[TechId.LOCKDOWN] == new_lockdown
+    assert updated.tech_cost_settings[TechId.ARCHON_WARP].mineral_cost == 100
+
+
+def test_apply_tech_cost_settings_does_not_mutate_original(default_tecs):
+    editor = RichTecsEditor()
+    new_stim = TechCostSetting(
+        _tech_id=TechId.STIM_PACKS,
+        _uses_default_settings=False,
+        _mineral_cost=999,
+        _gas_cost=999,
+        _research_time=9999,
+        _energy_cost=999,
+    )
+    editor.apply_tech_cost_settings({TechId.STIM_PACKS: new_stim}, default_tecs)
+    assert default_tecs.tech_cost_settings[TechId.STIM_PACKS].mineral_cost == 100
