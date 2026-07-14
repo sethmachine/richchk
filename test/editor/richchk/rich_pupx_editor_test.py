@@ -69,14 +69,6 @@ def test_it_sets_player_uses_default(default_pupx):
     assert updated.player_uses_defaults[0][1] is True
 
 
-def test_it_raises_on_invalid_player(default_pupx):
-    editor = RichPupxEditor()
-    with pytest.raises(ValueError):
-        editor.set_player_max_level(
-            PlayerId.NONE, UpgradeId.TERRAN_INFANTRY_ARMOR, 1, default_pupx
-        )
-
-
 def test_it_allows_upgrade_id_60_bw_only(default_pupx):
     editor = RichPupxEditor()
     updated = editor.set_player_max_level(

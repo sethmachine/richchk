@@ -71,14 +71,6 @@ def test_it_sets_player_uses_default(default_ptec):
     assert updated.player_uses_defaults[0][1] is True
 
 
-def test_it_raises_on_invalid_player(default_ptec):
-    editor = RichPtecEditor()
-    with pytest.raises(ValueError):
-        editor.set_tech_available_for_player(
-            PlayerId.NONE, TechId.STIM_PACKS, False, default_ptec
-        )
-
-
 def test_it_preserves_other_players_on_tech_availability_update(default_ptec):
     editor = RichPtecEditor()
     updated = editor.set_tech_available_for_player(

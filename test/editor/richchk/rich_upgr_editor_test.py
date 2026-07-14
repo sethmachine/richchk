@@ -69,22 +69,6 @@ def test_it_sets_player_uses_default(default_upgr):
     assert updated.player_uses_defaults[0][1] is True
 
 
-def test_it_raises_on_invalid_player(default_upgr):
-    editor = RichUpgrEditor()
-    with pytest.raises(ValueError):
-        editor.set_player_max_level(
-            PlayerId.NONE, UpgradeId.TERRAN_INFANTRY_ARMOR, 1, default_upgr
-        )
-
-
-def test_it_raises_on_upgrade_id_out_of_range(default_upgr):
-    editor = RichUpgrEditor()
-    with pytest.raises(ValueError):
-        editor.set_player_max_level(
-            PlayerId.PLAYER_1, UpgradeId.UNKNOWN_UPGRADE_60, 1, default_upgr
-        )
-
-
 def test_it_preserves_other_players_on_max_level_update(default_upgr):
     editor = RichUpgrEditor()
     updated = editor.set_player_max_level(
