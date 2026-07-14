@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "richchk"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
     "PyYAML==6.0.1",
     "dataclass-wizard==0.22.3",
@@ -52,7 +52,7 @@ profile = "black"
 testpaths = [ "test" ]
 
 [tool.bumpversion]
-current_version = "0.1.2"
+current_version = "0.2.0"
 commit = true
 tag = true
 tag_name = "v{new_version}"
