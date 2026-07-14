@@ -76,6 +76,24 @@ def test_it_sets_player_uses_default(default_ptec):
     assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.LOCKDOWN] is True
 
 
+def test_it_sets_uses_defaults_false_on_tech_availability_override(default_ptec):
+    editor = RichPtecEditor()
+    updated = editor.set_tech_available_for_player(
+        PlayerId.PLAYER_1, TechId.STIM_PACKS, False, default_ptec
+    )
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.STIM_PACKS] is False
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.LOCKDOWN] is True
+
+
+def test_it_sets_uses_defaults_false_on_tech_researched_override(default_ptec):
+    editor = RichPtecEditor()
+    updated = editor.set_tech_researched_for_player(
+        PlayerId.PLAYER_1, TechId.STIM_PACKS, True, default_ptec
+    )
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.STIM_PACKS] is False
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.LOCKDOWN] is True
+
+
 def test_it_preserves_other_players_on_tech_availability_update(default_ptec):
     editor = RichPtecEditor()
     updated = editor.set_tech_available_for_player(
@@ -85,3 +103,41 @@ def test_it_preserves_other_players_on_tech_availability_update(default_ptec):
         if player == PlayerId.PLAYER_1:
             continue
         assert all(updated.player_tech_availability[player].values())
+
+
+def test_apply_player_tech_availability_merges_partial_dict(default_ptec):
+    editor = RichPtecEditor()
+    updates = {
+        PlayerId.PLAYER_1: {TechId.STIM_PACKS: False, TechId.LOCKDOWN: False},
+        PlayerId.PLAYER_2: {TechId.STIM_PACKS: False},
+    }
+    updated = editor.apply_player_tech_availability(updates, default_ptec)
+    assert (
+        updated.player_tech_availability[PlayerId.PLAYER_1][TechId.STIM_PACKS] is False
+    )
+    assert updated.player_tech_availability[PlayerId.PLAYER_1][TechId.LOCKDOWN] is False
+    assert (
+        updated.player_tech_availability[PlayerId.PLAYER_2][TechId.STIM_PACKS] is False
+    )
+    assert (
+        updated.player_tech_availability[PlayerId.PLAYER_1][TechId.ARCHON_WARP] is True
+    )
+    assert (
+        updated.player_tech_availability[PlayerId.PLAYER_3][TechId.STIM_PACKS] is True
+    )
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.STIM_PACKS] is False
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.ARCHON_WARP] is True
+
+
+def test_apply_player_tech_researched_merges_partial_dict(default_ptec):
+    editor = RichPtecEditor()
+    updates = {
+        PlayerId.PLAYER_1: {TechId.STIM_PACKS: True},
+        PlayerId.PLAYER_2: {TechId.LOCKDOWN: True},
+    }
+    updated = editor.apply_player_tech_researched(updates, default_ptec)
+    assert updated.player_tech_researched[PlayerId.PLAYER_1][TechId.STIM_PACKS] is True
+    assert updated.player_tech_researched[PlayerId.PLAYER_2][TechId.LOCKDOWN] is True
+    assert updated.player_tech_researched[PlayerId.PLAYER_1][TechId.LOCKDOWN] is False
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.STIM_PACKS] is False
+    assert updated.player_uses_defaults[PlayerId.PLAYER_1][TechId.LOCKDOWN] is True
