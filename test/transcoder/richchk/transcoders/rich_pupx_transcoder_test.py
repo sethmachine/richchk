@@ -4,6 +4,8 @@ from richchk.model.chk.pupx.decoded_pupx_section import DecodedPupxSection
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
+from richchk.model.richchk.trig.player_id import PlayerId
+from richchk.model.richchk.upgrades.upgrade_id import UpgradeId
 from richchk.transcoder.richchk.transcoders.rich_pupx_transcoder import (
     RichPupxTranscoder,
 )
@@ -55,26 +57,31 @@ def encode_context() -> RichChkEncodeContext:
     )
 
 
-def test_it_decodes_player_max_levels_as_2d(decode_context):
+def test_it_decodes_player_max_levels_as_dict(decode_context):
     decoded = _make_decoded_pupx(player_max=3)
     rich = RichPupxTranscoder().decode(decoded, decode_context)
     assert len(rich.player_max_levels) == _NUM_PLAYERS
-    assert len(rich.player_max_levels[0]) == _NUM_UPGRADES
-    assert rich.player_max_levels[0][0] == 3
+    assert len(rich.player_max_levels[PlayerId.PLAYER_1]) == _NUM_UPGRADES
+    assert (
+        rich.player_max_levels[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR] == 3
+    )
 
 
 def test_it_decodes_global_levels(decode_context):
     decoded = _make_decoded_pupx(global_max=2, global_start=1)
     rich = RichPupxTranscoder().decode(decoded, decode_context)
     assert len(rich.global_max_levels) == _NUM_UPGRADES
-    assert rich.global_max_levels[0] == 2
-    assert rich.global_start_levels[0] == 1
+    assert rich.global_max_levels[UpgradeId.TERRAN_INFANTRY_ARMOR] == 2
+    assert rich.global_start_levels[UpgradeId.TERRAN_INFANTRY_ARMOR] == 1
 
 
 def test_it_decodes_player_uses_defaults_as_bool(decode_context):
     decoded = _make_decoded_pupx(player_defaults=1)
     rich = RichPupxTranscoder().decode(decoded, decode_context)
-    assert rich.player_uses_defaults[0][0] is True
+    assert (
+        rich.player_uses_defaults[PlayerId.PLAYER_1][UpgradeId.TERRAN_INFANTRY_ARMOR]
+        is True
+    )
 
 
 def test_it_encodes_and_round_trips(decode_context, encode_context):

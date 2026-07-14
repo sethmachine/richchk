@@ -21,8 +21,8 @@ class RichPtecEditor:
         :param ptec: the existing PTEC section
         :return: new RichPtecSection with the updated availability
         """
-        updated = [row.copy() for row in ptec.player_tech_availability]
-        updated[player.id][tech.id] = available
+        updated = {p: dict(techs) for p, techs in ptec.player_tech_availability.items()}
+        updated[player][tech] = available
         return RichPtecSection(
             _player_tech_availability=updated,
             _player_tech_researched=ptec.player_tech_researched,
@@ -46,8 +46,8 @@ class RichPtecEditor:
         :param ptec: the existing PTEC section
         :return: new RichPtecSection with the updated researched state
         """
-        updated = [row.copy() for row in ptec.player_tech_researched]
-        updated[player.id][tech.id] = is_researched
+        updated = {p: dict(techs) for p, techs in ptec.player_tech_researched.items()}
+        updated[player][tech] = is_researched
         return RichPtecSection(
             _player_tech_availability=ptec.player_tech_availability,
             _player_tech_researched=updated,
@@ -71,8 +71,8 @@ class RichPtecEditor:
         :param ptec: the existing PTEC section
         :return: new RichPtecSection with the updated flag
         """
-        updated = [row.copy() for row in ptec.player_uses_defaults]
-        updated[player.id][tech.id] = uses_default
+        updated = {p: dict(techs) for p, techs in ptec.player_uses_defaults.items()}
+        updated[player][tech] = uses_default
         return RichPtecSection(
             _player_tech_availability=ptec.player_tech_availability,
             _player_tech_researched=ptec.player_tech_researched,

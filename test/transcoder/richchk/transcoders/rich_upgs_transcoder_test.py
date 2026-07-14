@@ -64,24 +64,40 @@ def test_it_decodes_correct_number_of_settings(decode_context):
     assert len(rich.upgrade_cost_settings) == _NUM_UPGRADES
 
 
-def test_it_decodes_upgrade_ids_in_order(decode_context):
+def test_it_decodes_upgrade_ids_as_keys(decode_context):
     decoded = _make_decoded_upgs()
     rich = RichUpgsTranscoder().decode(decoded, decode_context)
-    assert rich.upgrade_cost_settings[0].upgrade_id == UpgradeId.TERRAN_INFANTRY_ARMOR
-    assert rich.upgrade_cost_settings[1].upgrade_id == UpgradeId.TERRAN_VEHICLE_PLATING
+    assert (
+        rich.upgrade_cost_settings[UpgradeId.TERRAN_INFANTRY_ARMOR].upgrade_id
+        == UpgradeId.TERRAN_INFANTRY_ARMOR
+    )
+    assert (
+        rich.upgrade_cost_settings[UpgradeId.TERRAN_VEHICLE_PLATING].upgrade_id
+        == UpgradeId.TERRAN_VEHICLE_PLATING
+    )
 
 
 def test_it_decodes_uses_default_settings_as_bool(decode_context):
     decoded = _make_decoded_upgs(uses_default=1)
     rich = RichUpgsTranscoder().decode(decoded, decode_context)
-    assert rich.upgrade_cost_settings[0].uses_default_settings is True
+    assert (
+        rich.upgrade_cost_settings[
+            UpgradeId.TERRAN_INFANTRY_ARMOR
+        ].uses_default_settings
+        is True
+    )
 
 
 def test_it_decodes_costs_correctly(decode_context):
     decoded = _make_decoded_upgs(base_mineral=200, base_gas=50)
     rich = RichUpgsTranscoder().decode(decoded, decode_context)
-    assert rich.upgrade_cost_settings[0].base_mineral_cost == 200
-    assert rich.upgrade_cost_settings[0].base_gas_cost == 50
+    assert (
+        rich.upgrade_cost_settings[UpgradeId.TERRAN_INFANTRY_ARMOR].base_mineral_cost
+        == 200
+    )
+    assert (
+        rich.upgrade_cost_settings[UpgradeId.TERRAN_INFANTRY_ARMOR].base_gas_cost == 50
+    )
 
 
 def test_it_encodes_and_round_trips(decode_context, encode_context):

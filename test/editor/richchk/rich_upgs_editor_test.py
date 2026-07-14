@@ -5,7 +5,7 @@ from richchk.model.richchk.upgrades.upgrade_id import UpgradeId
 from richchk.model.richchk.upgs.rich_upgs_section import RichUpgsSection
 from richchk.model.richchk.upgs.upgrade_cost_setting import UpgradeCostSetting
 
-_NUM_UPGRADES = 46
+_CLASSIC_UPGRADES = [u for u in UpgradeId if u.id < 46]
 
 
 def _make_default_setting(upgrade_id: UpgradeId) -> UpgradeCostSetting:
@@ -22,10 +22,9 @@ def _make_default_setting(upgrade_id: UpgradeId) -> UpgradeCostSetting:
 
 
 def _make_upgs() -> RichUpgsSection:
-    settings = []
-    for i in range(_NUM_UPGRADES):
-        upgrade_id = next(u for u in UpgradeId if u.id == i)
-        settings.append(_make_default_setting(upgrade_id))
+    settings = {
+        upgrade: _make_default_setting(upgrade) for upgrade in _CLASSIC_UPGRADES
+    }
     return RichUpgsSection(_upgrade_cost_settings=settings)
 
 
@@ -47,7 +46,7 @@ def test_it_sets_upgrade_cost_setting(default_upgs):
         _research_time_factor=0,
     )
     updated = editor.set_upgrade_cost_setting(new_setting, default_upgs)
-    assert updated.upgrade_cost_settings[0] == new_setting
+    assert updated.upgrade_cost_settings[UpgradeId.TERRAN_INFANTRY_ARMOR] == new_setting
 
 
 def test_it_does_not_mutate_original(default_upgs):
@@ -63,7 +62,12 @@ def test_it_does_not_mutate_original(default_upgs):
         _research_time_factor=0,
     )
     editor.set_upgrade_cost_setting(new_setting, default_upgs)
-    assert default_upgs.upgrade_cost_settings[0].base_mineral_cost == 100
+    assert (
+        default_upgs.upgrade_cost_settings[
+            UpgradeId.TERRAN_INFANTRY_ARMOR
+        ].base_mineral_cost
+        == 100
+    )
 
 
 def test_it_preserves_other_upgrade_settings(default_upgs):
@@ -79,5 +83,7 @@ def test_it_preserves_other_upgrade_settings(default_upgs):
         _research_time_factor=999,
     )
     updated = editor.set_upgrade_cost_setting(new_setting, default_upgs)
-    for i in range(1, _NUM_UPGRADES):
-        assert updated.upgrade_cost_settings[i].base_mineral_cost == 100
+    for upgrade in _CLASSIC_UPGRADES:
+        if upgrade == UpgradeId.TERRAN_INFANTRY_ARMOR:
+            continue
+        assert updated.upgrade_cost_settings[upgrade].base_mineral_cost == 100

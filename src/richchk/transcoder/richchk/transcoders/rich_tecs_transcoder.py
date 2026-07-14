@@ -13,11 +13,8 @@ from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTran
 from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
-from ....transcoder.richchk.transcoders.helpers.richchk_enum_transcoder import (
-    RichChkEnumTranscoder,
-)
 
-_NUM_TECHS = 24
+_TECHS = list(TechId)
 
 _tecs_encode_cache: dict[
     Any, Any
@@ -34,21 +31,19 @@ class RichTecsTranscoder(
         decoded_chk_section: DecodedTecsSection,
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichTecsSection:
-        settings = []
-        for i in range(_NUM_TECHS):
-            tech_id = RichChkEnumTranscoder.decode_enum(i, TechId)
-            settings.append(
-                TechCostSetting(
-                    _tech_id=tech_id,
-                    _uses_default_settings=bool(
-                        decoded_chk_section.uses_default_settings[i]
-                    ),
-                    _mineral_cost=decoded_chk_section.mineral_cost[i],
-                    _gas_cost=decoded_chk_section.gas_cost[i],
-                    _research_time=decoded_chk_section.research_time[i],
-                    _energy_cost=decoded_chk_section.energy_cost[i],
-                )
+        settings = {
+            tech: TechCostSetting(
+                _tech_id=tech,
+                _uses_default_settings=bool(
+                    decoded_chk_section.uses_default_settings[tech.id]
+                ),
+                _mineral_cost=decoded_chk_section.mineral_cost[tech.id],
+                _gas_cost=decoded_chk_section.gas_cost[tech.id],
+                _research_time=decoded_chk_section.research_time[tech.id],
+                _energy_cost=decoded_chk_section.energy_cost[tech.id],
             )
+            for tech in _TECHS
+        }
         return RichTecsSection(_tech_cost_settings=settings)
 
     def encode(
@@ -60,7 +55,7 @@ class RichTecsTranscoder(
         cached = _tecs_encode_cache.get(cache_key)
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedTecsSection, cached[1])
-        settings = rich_chk_section.tech_cost_settings
+        settings = [rich_chk_section.tech_cost_settings[t] for t in _TECHS]
         result = DecodedTecsSection(
             _uses_default_settings=[int(s.uses_default_settings) for s in settings],
             _mineral_cost=[s.mineral_cost for s in settings],

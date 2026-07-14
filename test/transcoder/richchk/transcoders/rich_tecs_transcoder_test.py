@@ -60,23 +60,23 @@ def test_it_decodes_correct_number_of_settings(decode_context):
     assert len(rich.tech_cost_settings) == _NUM_TECHS
 
 
-def test_it_decodes_tech_ids_in_order(decode_context):
+def test_it_decodes_tech_ids_as_keys(decode_context):
     decoded = _make_decoded_tecs()
     rich = RichTecsTranscoder().decode(decoded, decode_context)
-    assert rich.tech_cost_settings[0].tech_id == TechId.STIM_PACKS
-    assert rich.tech_cost_settings[1].tech_id == TechId.LOCKDOWN
+    assert rich.tech_cost_settings[TechId.STIM_PACKS].tech_id == TechId.STIM_PACKS
+    assert rich.tech_cost_settings[TechId.LOCKDOWN].tech_id == TechId.LOCKDOWN
 
 
 def test_it_decodes_uses_default_settings_as_bool(decode_context):
     decoded = _make_decoded_tecs(uses_default=1)
     rich = RichTecsTranscoder().decode(decoded, decode_context)
-    assert rich.tech_cost_settings[0].uses_default_settings is True
+    assert rich.tech_cost_settings[TechId.STIM_PACKS].uses_default_settings is True
 
 
 def test_it_decodes_costs_correctly(decode_context):
     decoded = _make_decoded_tecs(mineral=200, gas=100, time=3600, energy=75)
     rich = RichTecsTranscoder().decode(decoded, decode_context)
-    setting = rich.tech_cost_settings[0]
+    setting = rich.tech_cost_settings[TechId.STIM_PACKS]
     assert setting.mineral_cost == 200
     assert setting.gas_cost == 100
     assert setting.research_time == 3600

@@ -7,24 +7,23 @@ import dataclasses
 
 from ...chk_section_name import ChkSectionName
 from ..rich_chk_section import RichChkSection
+from ..techs.tech_id import TechId
 from .tech_cost_setting import TechCostSetting
-
-_NUM_TECHS = 24
 
 
 @dataclasses.dataclass(frozen=True)
 class RichTecsSection(RichChkSection):
     """Represent TECS - Classic Tech Settings.
 
-    :param _tech_cost_settings: list of TechCostSetting, one per tech (24 total)
+    :param _tech_cost_settings: dict[TechId, TechCostSetting], one per tech (24 total)
     """
 
-    _tech_cost_settings: list[TechCostSetting]
+    _tech_cost_settings: dict[TechId, TechCostSetting]
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
         return ChkSectionName.TECS
 
     @property
-    def tech_cost_settings(self) -> list[TechCostSetting]:
+    def tech_cost_settings(self) -> dict[TechId, TechCostSetting]:
         return self._tech_cost_settings

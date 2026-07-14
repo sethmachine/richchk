@@ -17,6 +17,6 @@ class RichUpgsEditor:
         :param upgs: the existing UPGS section
         :return: new RichUpgsSection with the updated setting
         """
-        updated = list(upgs.upgrade_cost_settings)
-        updated[setting.upgrade_id.id] = setting
+        updated = dict(upgs.upgrade_cost_settings)
+        updated[setting.upgrade_id] = setting
         return RichUpgsSection(_upgrade_cost_settings=updated)

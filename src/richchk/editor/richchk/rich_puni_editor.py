@@ -21,8 +21,8 @@ class RichPuniEditor:
         :param puni: the existing PUNI section
         :return: new RichPuniSection with the updated availability
         """
-        updated = [row.copy() for row in puni.player_unit_availability]
-        updated[player.id][unit.id] = available
+        updated = {p: dict(units) for p, units in puni.player_unit_availability.items()}
+        updated[player][unit] = available
         return RichPuniSection(
             _player_unit_availability=updated,
             _global_unit_availability=puni.global_unit_availability,
@@ -44,8 +44,8 @@ class RichPuniEditor:
         :param puni: the existing PUNI section
         :return: new RichPuniSection with the updated flag
         """
-        updated = [row.copy() for row in puni.player_uses_defaults]
-        updated[player.id][unit.id] = uses_default
+        updated = {p: dict(units) for p, units in puni.player_uses_defaults.items()}
+        updated[player][unit] = uses_default
         return RichPuniSection(
             _player_unit_availability=puni.player_unit_availability,
             _global_unit_availability=puni.global_unit_availability,
@@ -65,8 +65,8 @@ class RichPuniEditor:
         :param puni: the existing PUNI section
         :return: new RichPuniSection with the updated global availability
         """
-        updated = list(puni.global_unit_availability)
-        updated[unit.id] = available
+        updated = dict(puni.global_unit_availability)
+        updated[unit] = available
         return RichPuniSection(
             _player_unit_availability=puni.player_unit_availability,
             _global_unit_availability=updated,
