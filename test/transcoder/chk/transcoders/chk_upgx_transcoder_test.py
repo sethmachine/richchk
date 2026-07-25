@@ -3,6 +3,7 @@ import struct
 from richchk.transcoder.chk.transcoders.chk_upgx_transcoder import ChkUpgxTranscoder
 
 _NUM_UPGRADES = 61
+_NUM_USES_DEFAULT = 62  # 61 real entries + 1 trailing byte
 
 
 def _build_upgx_binary(
@@ -14,7 +15,7 @@ def _build_upgx_binary(
     base_time: int = 1800,
     time_factor: int = 0,
 ) -> bytes:
-    data = struct.pack(f"{_NUM_UPGRADES}B", *([uses_default] * _NUM_UPGRADES))
+    data = struct.pack(f"{_NUM_USES_DEFAULT}B", *([uses_default] * _NUM_UPGRADES + [0]))
     data += struct.pack(f"{_NUM_UPGRADES}H", *([base_mineral] * _NUM_UPGRADES))
     data += struct.pack(f"{_NUM_UPGRADES}H", *([mineral_factor] * _NUM_UPGRADES))
     data += struct.pack(f"{_NUM_UPGRADES}H", *([base_gas] * _NUM_UPGRADES))
@@ -28,8 +29,8 @@ def test_it_decodes_expected_uses_default_settings():
     transcoder = ChkUpgxTranscoder()
     binary = _build_upgx_binary(uses_default=1)
     section = transcoder.decode(binary)
-    assert len(section.uses_default_settings) == _NUM_UPGRADES
-    assert all(v == 1 for v in section.uses_default_settings)
+    assert len(section.uses_default_settings) == _NUM_USES_DEFAULT
+    assert all(v == 1 for v in section.uses_default_settings[:_NUM_UPGRADES])
 
 
 def test_it_decodes_expected_costs():
@@ -59,7 +60,7 @@ def test_it_decodes_and_encodes_with_varied_values():
     base_time = [1800] * _NUM_UPGRADES
     time_factor = [0] * _NUM_UPGRADES
     binary = (
-        struct.pack(f"{_NUM_UPGRADES}B", *uses_default)
+        struct.pack(f"{_NUM_USES_DEFAULT}B", *(uses_default + [0]))
         + struct.pack(f"{_NUM_UPGRADES}H", *base_mineral)
         + struct.pack(f"{_NUM_UPGRADES}H", *mineral_factor)
         + struct.pack(f"{_NUM_UPGRADES}H", *base_gas)

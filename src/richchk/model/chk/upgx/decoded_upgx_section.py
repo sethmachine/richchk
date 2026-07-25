@@ -1,13 +1,13 @@
 """UPGx - Brood War Upgrade Settings (global cost overrides).
 
-u8[61]  uses_default_settings:  0=uses custom, 1=uses SC game defaults u16[61]
-base_mineral_cost:      base mineral cost per upgrade u16[61] mineral_cost_factor:
-mineral cost factor per upgrade u16[61] base_gas_cost:          base gas cost per
-upgrade u16[61] gas_cost_factor:        gas cost factor per upgrade u16[61]
-base_research_time:     base research time per upgrade u16[61] research_time_factor:
-research time factor per upgrade
+u8[62]  uses_default_settings:  0=uses custom, 1=uses SC game defaults; 62 bytes (61
+real entries + 1 trailing byte) u16[61] base_mineral_cost:      base mineral cost per
+upgrade u16[61] mineral_cost_factor:  mineral cost factor per upgrade u16[61]
+base_gas_cost:          base gas cost per upgrade u16[61] gas_cost_factor: gas cost
+factor per upgrade u16[61] base_research_time:     base research time per upgrade
+u16[61] research_time_factor:  research time factor per upgrade
 
-Total: 61 + 6*(2*61) = 61 + 732 = 793 bytes.
+Total: 62 + 6*(2*61) = 62 + 732 = 794 bytes.
 """
 
 import dataclasses
@@ -22,7 +22,8 @@ _NUM_UPGRADES = 61
 class DecodedUpgxSection(DecodedChkSection):
     """Represent UPGx - Brood War Upgrade Settings.
 
-    :param _uses_default_settings: u8[61]; 0=custom, 1=use SC defaults
+    :param _uses_default_settings: u8[62]; 0=custom, 1=use SC defaults; 62 entries (61
+        real + 1 trailing)
     :param _base_mineral_cost: u16[61]
     :param _mineral_cost_factor: u16[61]
     :param _base_gas_cost: u16[61]

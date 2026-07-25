@@ -1,10 +1,13 @@
 """Decode and encode UPGx - Brood War Upgrade Settings.
 
-u8[61]  uses_default_settings u16[61] base_mineral_cost u16[61] mineral_cost_factor
+u8[62]  uses_default_settings u16[61] base_mineral_cost u16[61] mineral_cost_factor
 u16[61] base_gas_cost u16[61] gas_cost_factor u16[61] base_research_time u16[61]
 research_time_factor
 
-Total: 793 bytes.
+Total: 62 + 6*(2*61) = 62 + 732 = 794 bytes.
+
+Note: uses_default_settings has 62 entries (61 real upgrades + 1 trailing byte); only
+indices 0-60 map to valid UpgradeIds.
 """
 
 import struct
@@ -15,6 +18,7 @@ from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
 from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
 
 _NUM_UPGRADES = 61
+_NUM_USES_DEFAULT = 62
 
 
 class ChkUpgxTranscoder(
@@ -25,7 +29,7 @@ class ChkUpgxTranscoder(
     def decode(self, chk_section_binary_data: bytes) -> DecodedUpgxSection:
         bytes_stream: BytesIO = BytesIO(chk_section_binary_data)
         uses_default_settings = list(
-            struct.unpack(f"{_NUM_UPGRADES}B", bytes_stream.read(_NUM_UPGRADES))
+            struct.unpack(f"{_NUM_USES_DEFAULT}B", bytes_stream.read(_NUM_USES_DEFAULT))
         )
         base_mineral_cost = list(
             struct.unpack(f"{_NUM_UPGRADES}H", bytes_stream.read(_NUM_UPGRADES * 2))
@@ -57,7 +61,7 @@ class ChkUpgxTranscoder(
 
     def _encode(self, decoded_chk_section: DecodedUpgxSection) -> bytes:
         data = struct.pack(
-            f"{_NUM_UPGRADES}B", *decoded_chk_section.uses_default_settings
+            f"{_NUM_USES_DEFAULT}B", *decoded_chk_section.uses_default_settings
         )
         data += struct.pack(f"{_NUM_UPGRADES}H", *decoded_chk_section.base_mineral_cost)
         data += struct.pack(
