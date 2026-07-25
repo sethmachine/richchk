@@ -5,7 +5,7 @@ from richchk.model.richchk.techs.tech_id import TechId
 from richchk.model.richchk.tecs.rich_tecs_section import RichTecsSection
 from richchk.model.richchk.tecs.tech_cost_setting import TechCostSetting
 
-_TECHS = list(TechId)
+_CLASSIC_TECHS = [t for t in TechId if t.id < 24]
 
 
 def _make_default_setting(tech_id: TechId) -> TechCostSetting:
@@ -20,7 +20,7 @@ def _make_default_setting(tech_id: TechId) -> TechCostSetting:
 
 
 def _make_tecs() -> RichTecsSection:
-    settings = {tech: _make_default_setting(tech) for tech in _TECHS}
+    settings = {tech: _make_default_setting(tech) for tech in _CLASSIC_TECHS}
     return RichTecsSection(_tech_cost_settings=settings)
 
 
@@ -68,7 +68,7 @@ def test_it_preserves_other_tech_settings(default_tecs):
         _energy_cost=999,
     )
     updated = editor.set_tech_cost_setting(new_setting, default_tecs)
-    for tech in _TECHS:
+    for tech in _CLASSIC_TECHS:
         if tech == TechId.STIM_PACKS:
             continue
         assert updated.tech_cost_settings[tech].mineral_cost == 100

@@ -1,10 +1,10 @@
-"""Decode and encode the PTEC - Classic Tech Restrictions section."""
+"""Decode and encode the PTEx - Brood War Tech Restrictions section."""
 
 import weakref
 from typing import Any, cast
 
-from ....model.chk.ptec.decoded_ptec_section import DecodedPtecSection
-from ....model.richchk.ptec.rich_ptec_section import RichPtecSection
+from ....model.chk.ptex.decoded_ptex_section import DecodedPtexSection
+from ....model.richchk.ptex.rich_ptex_section import RichPtexSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
 from ....model.richchk.techs.tech_id import TechId
@@ -15,25 +15,25 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 
 _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
-_CLASSIC_TECHS = [t for t in TechId if t.id < 24]
+_ALL_TECHS = list(TechId)
 
-_NUM_TECHS = 24
+_NUM_TECHS = 44
 
-_ptec_encode_cache: dict[
+_ptex_encode_cache: dict[
     Any, Any
-] = {}  # id(rich_ptec_section) → (weakref(section), DecodedPtecSection)
+] = {}  # id(rich_ptex_section) → (weakref(section), DecodedPtexSection)
 
 
-class RichPtecTranscoder(
-    RichChkSectionTranscoder[RichPtecSection, DecodedPtecSection],
+class RichPtexTranscoder(
+    RichChkSectionTranscoder[RichPtexSection, DecodedPtexSection],
     _RichChkRegistrableTranscoder,
-    chk_section_name=DecodedPtecSection.section_name(),
+    chk_section_name=DecodedPtexSection.section_name(),
 ):
     def decode(
         self,
-        decoded_chk_section: DecodedPtecSection,
+        decoded_chk_section: DecodedPtexSection,
         rich_chk_decode_context: RichChkDecodeContext,
-    ) -> RichPtecSection:
+    ) -> RichPtexSection:
         player_avail = {
             player: {
                 tech: bool(
@@ -41,7 +41,7 @@ class RichPtecTranscoder(
                         player.id * _NUM_TECHS + tech.id
                     ]
                 )
-                for tech in _CLASSIC_TECHS
+                for tech in _ALL_TECHS
             }
             for player in _GAME_PLAYERS
         }
@@ -52,17 +52,17 @@ class RichPtecTranscoder(
                         player.id * _NUM_TECHS + tech.id
                     ]
                 )
-                for tech in _CLASSIC_TECHS
+                for tech in _ALL_TECHS
             }
             for player in _GAME_PLAYERS
         }
         global_avail = {
             tech: bool(decoded_chk_section.global_tech_availability[tech.id])
-            for tech in _CLASSIC_TECHS
+            for tech in _ALL_TECHS
         }
         global_researched = {
             tech: bool(decoded_chk_section.global_tech_researched[tech.id])
-            for tech in _CLASSIC_TECHS
+            for tech in _ALL_TECHS
         }
         player_defaults = {
             player: {
@@ -71,11 +71,11 @@ class RichPtecTranscoder(
                         player.id * _NUM_TECHS + tech.id
                     ]
                 )
-                for tech in _CLASSIC_TECHS
+                for tech in _ALL_TECHS
             }
             for player in _GAME_PLAYERS
         }
-        return RichPtecSection(
+        return RichPtexSection(
             _player_tech_availability=player_avail,
             _player_tech_researched=player_researched,
             _global_tech_availability=global_avail,
@@ -85,13 +85,13 @@ class RichPtecTranscoder(
 
     def encode(
         self,
-        rich_chk_section: RichPtecSection,
+        rich_chk_section: RichPtexSection,
         rich_chk_encode_context: RichChkEncodeContext,
-    ) -> DecodedPtecSection:
+    ) -> DecodedPtexSection:
         cache_key = id(rich_chk_section)
-        cached = _ptec_encode_cache.get(cache_key)
+        cached = _ptex_encode_cache.get(cache_key)
         if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedPtecSection, cached[1])
+            return cast(DecodedPtexSection, cached[1])
         flat_avail = [0] * (12 * _NUM_TECHS)
         for player, techs in rich_chk_section.player_tech_availability.items():
             for tech, avail in techs.items():
@@ -110,16 +110,16 @@ class RichPtecTranscoder(
         for player, techs in rich_chk_section.player_uses_defaults.items():
             for tech, uses_default in techs.items():
                 flat_defaults[player.id * _NUM_TECHS + tech.id] = int(uses_default)
-        result = DecodedPtecSection(
+        result = DecodedPtexSection(
             _player_tech_availability=flat_avail,
             _player_tech_researched=flat_researched,
             _global_tech_availability=global_avail,
             _global_tech_researched=global_researched,
             _player_uses_defaults=flat_defaults,
         )
-        _ptec_encode_cache[cache_key] = (
+        _ptex_encode_cache[cache_key] = (
             weakref.ref(
-                rich_chk_section, lambda _: _ptec_encode_cache.pop(cache_key, None)
+                rich_chk_section, lambda _: _ptex_encode_cache.pop(cache_key, None)
             ),
             result,
         )
