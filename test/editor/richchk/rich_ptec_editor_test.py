@@ -6,7 +6,7 @@ from richchk.model.richchk.techs.tech_id import TechId
 from richchk.model.richchk.trig.player_id import PlayerId
 
 _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
-_TECHS = list(TechId)
+_CLASSIC_TECHS = [t for t in TechId if t.id < 24]
 
 
 def _make_ptec(
@@ -18,15 +18,15 @@ def _make_ptec(
 ) -> RichPtecSection:
     return RichPtecSection(
         _player_tech_availability={
-            p: {t: player_avail for t in _TECHS} for p in _GAME_PLAYERS
+            p: {t: player_avail for t in _CLASSIC_TECHS} for p in _GAME_PLAYERS
         },
         _player_tech_researched={
-            p: {t: player_researched for t in _TECHS} for p in _GAME_PLAYERS
+            p: {t: player_researched for t in _CLASSIC_TECHS} for p in _GAME_PLAYERS
         },
-        _global_tech_availability={t: global_avail for t in _TECHS},
-        _global_tech_researched={t: global_researched for t in _TECHS},
+        _global_tech_availability={t: global_avail for t in _CLASSIC_TECHS},
+        _global_tech_researched={t: global_researched for t in _CLASSIC_TECHS},
         _player_uses_defaults={
-            p: {t: player_defaults for t in _TECHS} for p in _GAME_PLAYERS
+            p: {t: player_defaults for t in _CLASSIC_TECHS} for p in _GAME_PLAYERS
         },
     )
 
