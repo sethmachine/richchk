@@ -10,6 +10,7 @@ from richchk.transcoder.richchk.transcoders.rich_upgx_transcoder import (
 )
 
 _NUM_UPGRADES = 61
+_NUM_USES_DEFAULT = 62
 
 _EMPTY_STR_LOOKUP = RichStrLookup(_string_by_id_lookup={}, _id_by_string_lookup={})
 
@@ -24,7 +25,7 @@ def _make_decoded_upgx(
     time_factor: int = 0,
 ) -> DecodedUpgxSection:
     return DecodedUpgxSection(
-        _uses_default_settings=[uses_default] * _NUM_UPGRADES,
+        _uses_default_settings=[uses_default] * _NUM_UPGRADES + [0],
         _base_mineral_cost=[base_mineral] * _NUM_UPGRADES,
         _mineral_cost_factor=[mineral_factor] * _NUM_UPGRADES,
         _base_gas_cost=[base_gas] * _NUM_UPGRADES,

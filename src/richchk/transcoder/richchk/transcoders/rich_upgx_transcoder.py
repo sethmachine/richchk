@@ -15,6 +15,7 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 
 _ALL_UPGRADES = list(UpgradeId)
+_NUM_USES_DEFAULT = 62
 
 _upgx_encode_cache: dict[
     Any, Any
@@ -62,8 +63,9 @@ class RichUpgxTranscoder(
         if cached is not None and cached[0]() is rich_chk_section:
             return cast(DecodedUpgxSection, cached[1])
         settings = [rich_chk_section.upgrade_cost_settings[u] for u in _ALL_UPGRADES]
+        uses_default = [int(s.uses_default_settings) for s in settings] + [0]
         result = DecodedUpgxSection(
-            _uses_default_settings=[int(s.uses_default_settings) for s in settings],
+            _uses_default_settings=uses_default,
             _base_mineral_cost=[s.base_mineral_cost for s in settings],
             _mineral_cost_factor=[s.mineral_cost_factor for s in settings],
             _base_gas_cost=[s.base_gas_cost for s in settings],
