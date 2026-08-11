@@ -36,6 +36,7 @@ class ChkSectionName(Enum):
     UNIX = ("UNIx",)
     MRGN = ("MRGN",)
     TRIG = ("TRIG",)
+    MBRF = ("MBRF",)
     UPRP = ("UPRP",)
     UPUS = ("UPUS",)
     SWNM = ("SWNM",)
