@@ -177,7 +177,10 @@ class BatchedTrigEncodeOptimizer:
             if at is SetDeathsAction:
                 if a.flags is not _DEFAULT_TRIGGER_ACTION_FLAGS:
                     return False
-            elif at is not PreserveTrigger:
+            elif (
+                at is not PreserveTrigger
+                or a.flags is not _DEFAULT_TRIGGER_ACTION_FLAGS
+            ):
                 return False
 
         fingerprint = self._compute_trigger_fingerprint(conds0, acts0, players0)
@@ -223,7 +226,10 @@ class BatchedTrigEncodeOptimizer:
                         return False
                     if a.amount != a0.amount:
                         act_amounts_vary[j] = True
-                elif at is not PreserveTrigger:
+                elif (
+                    at is not PreserveTrigger
+                    or a.flags is not _DEFAULT_TRIGGER_ACTION_FLAGS
+                ):
                     return False
 
         trig_sz = self._NUM_BYTES_PER_TRIGGER
@@ -593,7 +599,10 @@ class BatchedTrigEncodeOptimizer:
                         0,
                         0,
                     )
-                elif a_type is preserve_type:
+                elif (
+                    a_type is preserve_type
+                    and action.flags is _DEFAULT_TRIGGER_ACTION_FLAGS
+                ):
                     data[act_off : act_off + 32] = preserve_bytes
                 elif a_type is decoded_act_type:
                     raw_act = cast(DecodedTriggerAction, action)

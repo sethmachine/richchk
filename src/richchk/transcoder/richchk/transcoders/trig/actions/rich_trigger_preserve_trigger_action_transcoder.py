@@ -3,6 +3,9 @@
 from ......model.chk.trig.decoded_trigger_action import DecodedTriggerAction
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
+from ......model.richchk.trig.actions.flags.trigger_action_flags import (
+    _DEFAULT_TRIGGER_ACTION_FLAGS,
+)
 from ......model.richchk.trig.actions.preserve_trigger_action import PreserveTrigger
 from ......model.richchk.trig.trigger_action_id import TriggerActionId
 from ......util import logger
@@ -44,7 +47,9 @@ class RichTriggerPreserveTriggerActionTranscoder(
         rich_action: PreserveTrigger,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTriggerAction:
-        return self._ENCODED_ACTION
+        if rich_action.flags is _DEFAULT_TRIGGER_ACTION_FLAGS:
+            return self._ENCODED_ACTION
+        return super().encode(rich_action, rich_chk_encode_context)
 
     def _decode(
         self,
