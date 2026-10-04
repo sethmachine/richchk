@@ -1,4 +1,5 @@
 import ctypes
+import sys
 
 import pytest
 
@@ -43,3 +44,9 @@ def test_find_data_struct_is_large_enough_for_stormlib(embedded_stormlib):
     embedded_stormlib.close_archive(archive)
     written_past_struct = [b for b in bytes(buf)[size:] if b != _SENTINEL]
     assert written_past_struct == []
+
+
+def test_file_name_buffer_matches_stormlib_max_path_for_platform():
+    expected_max_path = 260 if sys.platform == "win32" else 1024
+    assert StormLibFileSearchResult.cFileName.size == expected_max_path
+    assert StormLibFileSearchResult.lcLocale.size == 4
