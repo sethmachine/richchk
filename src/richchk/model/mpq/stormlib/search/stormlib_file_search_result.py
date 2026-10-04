@@ -24,10 +24,13 @@ present)
 
 LCID   lcLocale;                         // Locale version };
 """
-from ctypes import Structure, c_char, c_char_p, c_uint16, c_uint32
+import sys
+from ctypes import Structure, c_char, c_char_p, c_uint32
 
-# suggested max file name size, change if needed
-_MAX_FILE_NAME_SIZE = 260
+# Must match StormLib's MAX_PATH, which is 260 on Windows but 1024 on macOS/Linux
+# (StormPort.h).  A smaller buffer makes StormLib write past the end of this struct,
+# corrupting the heap.
+_MAX_FILE_NAME_SIZE = 260 if sys.platform == "win32" else 1024
 
 
 class StormLibFileSearchResult(Structure):
@@ -41,7 +44,7 @@ class StormLibFileSearchResult(Structure):
         ("dwCompSize", c_uint32),
         ("dwFileTimeLo", c_uint32),
         ("dwFileTimeHi", c_uint32),
-        ("lcLocale", c_uint16),
+        ("lcLocale", c_uint32),
     ]
 
     def __str__(self) -> str:
