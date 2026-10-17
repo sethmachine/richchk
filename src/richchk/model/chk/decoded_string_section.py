@@ -14,3 +14,7 @@ class DecodedStringSection(Protocol):
     @property
     def strings(self) -> list[str]:
         raise NotImplementedError
+
+    @property
+    def encoding(self) -> str:
+        raise NotImplementedError

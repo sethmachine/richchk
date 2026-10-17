@@ -31,7 +31,7 @@ import os
 import struct
 import weakref
 from io import BytesIO
-from typing import Any, Protocol, Union, cast
+from typing import Any, Optional, Protocol, Union, cast
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
@@ -39,6 +39,7 @@ from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk_section_name import ChkSectionName
 from ...transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
 from ...transcoder.chk.chk_section_transcoder_factory import ChkSectionTranscoderFactory
+from ...transcoder.chk.strings_common import validate_string_encoding
 from ...util import logger
 
 _CHK_SECTION_NAME_NUM_BYTES: int = 4
@@ -65,12 +66,30 @@ class ChkIo:
     def __init__(self) -> None:
         self.log: logging.Logger = logger.get_logger(ChkIo.__name__)
 
-    def decode_chk_file(self, chk_file_path: str) -> DecodedChk:
-        with open(chk_file_path, "rb") as f:
-            return self._decode_chk_byte_stream(f)
+    def decode_chk_file(
+        self, chk_file_path: str, string_encoding: Optional[str] = None
+    ) -> DecodedChk:
+        """Decode a CHK file.
 
-    def decode_chk_binary_data(self, chk_binary_data: bytes) -> DecodedChk:
-        return self._decode_chk_byte_stream(BytesIO(chk_binary_data))
+        :param string_encoding: the encoding of the text in the STR/STRx section, e.g.
+            "cp949" for a Korean map. The CHK does not store this. If None (or "auto"),
+            UTF-8 is used if all strings are valid UTF-8, otherwise Windows-1252. Bytes
+            that are invalid in the encoding are preserved, so reading then writing
+            never changes them.
+        """
+        encoding = validate_string_encoding(string_encoding)
+        with open(chk_file_path, "rb") as f:
+            return self._decode_chk_byte_stream(f, encoding)
+
+    def decode_chk_binary_data(
+        self, chk_binary_data: bytes, string_encoding: Optional[str] = None
+    ) -> DecodedChk:
+        """Decode CHK binary data.
+
+        See decode_chk_file for string_encoding.
+        """
+        encoding = validate_string_encoding(string_encoding)
+        return self._decode_chk_byte_stream(BytesIO(chk_binary_data), encoding)
 
     def encode_chk_to_file(
         self,
@@ -141,7 +160,9 @@ class ChkIo:
         _chk_bytes_cache[cache_key] = (_wr, result)
         return result
 
-    def _decode_chk_byte_stream(self, chk_byte_stream: _ByteStream) -> DecodedChk:
+    def _decode_chk_byte_stream(
+        self, chk_byte_stream: _ByteStream, string_encoding: Optional[str] = None
+    ) -> DecodedChk:
         decoded_chk_sections: list[DecodedChkSection] = []
         maybe_chk_section_name_bytes = chk_byte_stream.read(_CHK_SECTION_NAME_NUM_BYTES)
         while maybe_chk_section_name_bytes != b"":
@@ -157,6 +178,7 @@ class ChkIo:
                 self._decode_chk_binary_data_to_chk_section(
                     maybe_chk_section_name,
                     chk_byte_stream.read(chk_section_size_in_bytes),
+                    string_encoding,
                 )
             )
             # get next CHK section name if it exists
@@ -166,7 +188,10 @@ class ChkIo:
         return DecodedChk(decoded_chk_sections)
 
     def _decode_chk_binary_data_to_chk_section(
-        self, maybe_chk_section_name: str, chk_section_binary_data: bytes
+        self,
+        maybe_chk_section_name: str,
+        chk_section_binary_data: bytes,
+        string_encoding: Optional[str] = None,
     ) -> DecodedChkSection:
         if not ChkSectionName.contains(maybe_chk_section_name):
             self.log.warning(
@@ -186,6 +211,14 @@ class ChkIo:
             ] = ChkSectionTranscoderFactory.make_chk_section_transcoder(
                 chk_section_name
             )
+            if chk_section_name in (ChkSectionName.STR, ChkSectionName.STRX):
+                # only the string sections have text of an unspecified encoding
+                return cast(
+                    DecodedChkSection,
+                    cast(Any, transcoder).decode(
+                        chk_section_binary_data, string_encoding=string_encoding
+                    ),
+                )
             return transcoder.decode(chk_section_binary_data)
         except NotImplementedError:
             self.log.error(

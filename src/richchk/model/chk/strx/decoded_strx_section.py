@@ -39,6 +39,9 @@ class DecodedStrxSection(DecodedChkSection, DecodedStringSection):
     # Strings: After the offsets, this is where every string in the map goes,
     # one after another. Each one is terminated by a null character.
     _strings: list[str]
+    # the encoding of the strings in this section.  It is not stored in the CHK so it
+    # is detected (or given) when decoding, and is used again when encoding.
+    _encoding: str = "utf-8"
 
     @classmethod
     def section_name(cls) -> ChkSectionName:
@@ -55,3 +58,7 @@ class DecodedStrxSection(DecodedChkSection, DecodedStringSection):
     @property
     def strings(self) -> list[str]:
         return self._strings
+
+    @property
+    def encoding(self) -> str:
+        return self._encoding

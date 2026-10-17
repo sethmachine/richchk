@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from ...io.richchk.rich_str_lookup_builder import RichStrLookupBuilder
 from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
-from ...transcoder.chk.strings_common import _STRING_ENCODING
+from ...transcoder.chk.strings_common import encode_string
 from ...transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 from ...util import logger
 
@@ -78,7 +78,7 @@ class DecodedStrxSectionEditor:
                 ) = self._find_initial_highest_offset_and_string(decoded_strx_section)
                 new_offset = (
                     (highest_offset + total_offset_increase)
-                    + len(highest_string.encode(_STRING_ENCODING))
+                    + len(encode_string(highest_string, decoded_strx_section.encoding))
                     + 1
                 )
             else:
@@ -86,7 +86,9 @@ class DecodedStrxSectionEditor:
                 # new_offset = string_offsets[-1] + len(strings_[-1]) + 1
                 # +1 is there to skip the null terminator
                 new_offset = (
-                    highest_offset + len(highest_string.encode(_STRING_ENCODING)) + 1
+                    highest_offset
+                    + len(encode_string(highest_string, decoded_strx_section.encoding))
+                    + 1
                 )
             new_string_offsets.append(new_offset)
             # set up the next string being added, if any
@@ -96,6 +98,7 @@ class DecodedStrxSectionEditor:
             _number_of_strings=new_number_of_strings,
             _string_offsets=new_string_offsets,
             _strings=decoded_strx_section.strings + list(unique_strings_to_add.keys()),
+            _encoding=decoded_strx_section.encoding,
         )
 
     def _find_initial_highest_offset_and_string(
@@ -108,6 +111,8 @@ class DecodedStrxSectionEditor:
             decoded_strx_section, include_header=False
         )
         string_for_highest_offset = RichStrLookupBuilder.get_rich_string_by_offset(
-            offset=highest_offset, str_binary_data=str_binary_data
+            offset=highest_offset,
+            str_binary_data=str_binary_data,
+            encoding=decoded_strx_section.encoding,
         ).value
         return highest_offset, string_for_highest_offset

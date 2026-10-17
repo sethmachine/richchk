@@ -31,11 +31,18 @@ non-empty string values.
 
 import struct
 from io import BytesIO
+from typing import Optional
 
 from ....model.chk.str.decoded_str_section import DecodedStrSection
 from ....transcoder.chk.chk_section_transcoder import ChkSectionTranscoder
 from ....transcoder.chk.chk_section_transcoder_factory import _RegistrableTranscoder
-from ....transcoder.chk.strings_common import _STRING_ENCODING
+from ....transcoder.chk.strings_common import (
+    _FALLBACK_MAP_STRING_ENCODING,
+    decode_string,
+    encode_string,
+    resolve_string_encoding,
+)
+from ....util import logger
 
 
 class ChkStrTranscoder(
@@ -43,7 +50,19 @@ class ChkStrTranscoder(
     _RegistrableTranscoder,
     chk_section_name=DecodedStrSection.section_name(),
 ):
-    def decode(self, chk_section_binary_data: bytes) -> DecodedStrSection:
+    def __init__(self) -> None:
+        self._log = logger.get_logger(ChkStrTranscoder.__name__)
+
+    def decode(
+        self,
+        chk_section_binary_data: bytes,
+        string_encoding: Optional[str] = None,
+    ) -> DecodedStrSection:
+        """Decode the STR section.
+
+        :param string_encoding: the encoding of the strings. If None (or "auto"), it is
+            UTF-8 if every string is valid UTF-8, otherwise Windows-1252.
+        """
         bytes_stream: BytesIO = BytesIO(chk_section_binary_data)
         num_strings: int = struct.unpack("H", bytes_stream.read(2))[0]
 
@@ -52,22 +71,33 @@ class ChkStrTranscoder(
             struct.unpack(f"{num_strings}H", bytes_stream.read(num_strings * 2))
         )
 
-        strings: list[str] = []
+        raw_strings: list[bytes] = []
         # there can be more offsets than actual string data,
         # means some offsets reference the same string!
         current_string = bytearray()
         while bytes_stream.tell() != len(chk_section_binary_data):
             char = bytes_stream.read(1)
             if char == b"\0":  # Null terminator
-                strings.append(current_string.decode(_STRING_ENCODING))
+                raw_strings.append(bytes(current_string))
                 current_string = bytearray()
             else:
                 current_string.extend(char)
 
+        encoding = resolve_string_encoding(string_encoding, raw_strings)
+        if encoding == _FALLBACK_MAP_STRING_ENCODING and string_encoding in (
+            None,
+            "auto",
+        ):
+            self._log.warning(
+                f"The STR section strings are not valid UTF-8, so they are assumed to "
+                f"be {encoding}.  If this is wrong (e.g. a Korean map), read the map "
+                f"with an explicit string encoding."
+            )
         return DecodedStrSection(
             _number_of_strings=num_strings,
             _string_offsets=string_offsets,
-            _strings=strings,
+            _strings=[decode_string(s, encoding) for s in raw_strings],
+            _encoding=encoding,
         )
 
     def _encode(self, decoded_chk_section: DecodedStrSection) -> bytes:
@@ -75,7 +105,8 @@ class ChkStrTranscoder(
         header_size = 2  # num_strings (2 bytes)
         offsets_size = decoded_chk_section.number_of_strings * 2  # 2 bytes per offset
         strings_size = sum(
-            len(s.encode(_STRING_ENCODING)) + 1 for s in decoded_chk_section.strings
+            len(encode_string(s, decoded_chk_section.encoding)) + 1
+            for s in decoded_chk_section.strings
         )  # +1 for null terminator
         total_size = header_size + offsets_size + strings_size
 
@@ -97,7 +128,7 @@ class ChkStrTranscoder(
 
         # Write all strings with null terminators
         for string_ in decoded_chk_section.strings:
-            encoded = string_.encode(_STRING_ENCODING)
+            encoded = encode_string(string_, decoded_chk_section.encoding)
             data[offset : offset + len(encoded)] = encoded
             offset += len(encoded)
             data[offset] = 0  # null terminator

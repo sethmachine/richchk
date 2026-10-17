@@ -12,7 +12,7 @@ from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from ...model.richchk.str.rich_string import RichString
-from ...transcoder.chk.strings_common import _STRING_ENCODING
+from ...transcoder.chk.strings_common import _STRING_ENCODING, decode_string
 from ...transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from ...transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 from ...util import logger
@@ -39,7 +39,7 @@ class RichStrLookupBuilder:
         id_by_string = {}
         idx = str_binary_data.index
         _RichString = RichString
-        _encoding = _STRING_ENCODING
+        _encoding = decoded_string_section.encoding
         for id_, offset in enumerate(decoded_string_section.strings_offsets):
             # string IDs are 1-indexed (0 denotes no string used)
             actual_string_id = id_ + 1
@@ -47,7 +47,7 @@ class RichStrLookupBuilder:
             if rich_string is None:
                 end = idx(0, offset)
                 rich_string = _RichString(
-                    _value=str_binary_data[offset:end].decode(_encoding)
+                    _value=decode_string(str_binary_data[offset:end], _encoding)
                 )
                 _offset_to_rich_string[offset] = rich_string
             string_by_id[actual_string_id] = rich_string
@@ -77,6 +77,8 @@ class RichStrLookupBuilder:
         return string_binary_data
 
     @staticmethod
-    def get_rich_string_by_offset(offset: int, str_binary_data: bytes) -> RichString:
+    def get_rich_string_by_offset(
+        offset: int, str_binary_data: bytes, encoding: str = _STRING_ENCODING
+    ) -> RichString:
         end = str_binary_data.index(0, offset)
-        return RichString(_value=str_binary_data[offset:end].decode(_STRING_ENCODING))
+        return RichString(_value=decode_string(str_binary_data[offset:end], encoding))
