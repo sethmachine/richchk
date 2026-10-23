@@ -11,15 +11,19 @@ class StarCraftMpqIoHelper:
     @staticmethod
     def create_mpq_io(
         path_to_stormlib_dll: Optional[str] = None,
+        string_encoding: Optional[str] = None,
     ) -> StarCraftMpqIo:
         """Create a StarcraftMpqIo from a path to StormLib DLL.
 
         :param path_to_stormlib_dll: path to the DLL on the local machine. If not
             provided, will attempt to use an embedded DLL in RichChk.
+        :param string_encoding: default encoding of the map text when reading maps, e.g.
+            "cp949" for a Korean map. If not provided, it is detected per map.
         :return:
         """
         return StarCraftMpqIo(
-            stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll)
+            stormlib_wrapper=StormLibHelper.load_stormlib(path_to_stormlib_dll),
+            string_encoding=string_encoding,
         )
 
     @staticmethod

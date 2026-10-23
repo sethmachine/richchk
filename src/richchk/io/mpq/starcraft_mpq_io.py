@@ -1,6 +1,7 @@
 """"""
 import os
 import shutil
+from typing import Optional
 
 from ...editor.chk.decoded_strx_section_generator import DecodedStrxSectionGenerator
 from ...editor.richchk.rich_chk_editor import RichChkEditor
@@ -14,6 +15,7 @@ from ...model.richchk.ver.rich_ver_section import RichVerSection
 from ...model.richchk.ver.ver_version import VerVersion
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
 from ...mpq.stormlib.stormlib_wrapper import StormLibWrapper
+from ...transcoder.chk.strings_common import validate_string_encoding
 from ...util.fileutils import CrossPlatformSafeTemporaryNamedFile
 from ..richchk.query.chk_query_util import ChkQueryUtil
 from .starcraft_audio_files_metadata_io import StarCraftAudioFilesMetadataIo
@@ -22,8 +24,18 @@ from .starcraft_audio_files_metadata_io import StarCraftAudioFilesMetadataIo
 class StarCraftMpqIo:
     _CHK_MPQ_PATH = "staredit\\scenario.chk"
 
-    def __init__(self, stormlib_wrapper: StormLibWrapper):
+    def __init__(
+        self,
+        stormlib_wrapper: StormLibWrapper,
+        string_encoding: Optional[str] = None,
+    ):
+        """
+        :param string_encoding: default encoding of the map text when reading maps, e.g.
+            "cp949" for a Korean map.  If None (or "auto"), it is detected per map: UTF-8
+            if every string is valid UTF-8, otherwise Windows-1252.
+        """
         self._stormlib_wrapper = stormlib_wrapper
+        self._string_encoding = validate_string_encoding(string_encoding)
 
     def extract_chk_from_mpq(
         self,
@@ -44,7 +56,23 @@ class StarCraftMpqIo:
         )
         self._stormlib_wrapper.close_archive(open_result)
 
-    def read_chk_from_mpq(self, path_to_starcraft_mpq_file: str) -> RichChk:
+    def read_chk_from_mpq(
+        self,
+        path_to_starcraft_mpq_file: str,
+        string_encoding: Optional[str] = None,
+    ) -> RichChk:
+        """Read the CHK of a map file into a RichChk.
+
+        :param string_encoding: the encoding of the map text, e.g. "cp949". Overrides
+            the encoding given to this class. If neither is given (or "auto"), it is
+            detected per map: UTF-8 if every string is valid UTF-8, otherwise
+            Windows-1252. Bytes that are invalid in the encoding are preserved.
+        """
+        encoding = (
+            validate_string_encoding(string_encoding)
+            if string_encoding is not None
+            else self._string_encoding
+        )
         if not os.path.exists(path_to_starcraft_mpq_file):
             raise FileNotFoundError(path_to_starcraft_mpq_file)
         with CrossPlatformSafeTemporaryNamedFile() as temp_chk_file:
@@ -57,7 +85,9 @@ class StarCraftMpqIo:
                 temp_chk_file,
                 overwrite_existing=True,
             )
-            chk = RichChkIo().decode_chk(ChkIo().decode_chk_file(temp_chk_file))
+            chk = RichChkIo().decode_chk(
+                ChkIo().decode_chk_file(temp_chk_file, string_encoding=encoding)
+            )
             self._stormlib_wrapper.close_archive(open_result)
             return chk
 

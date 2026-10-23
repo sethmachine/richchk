@@ -25,4 +25,5 @@ class DecodedStrxSectionGenerator:
                 for offset in decoded_str_section.strings_offsets
             ],
             _strings=decoded_str_section.strings,
+            _encoding=decoded_str_section.encoding,
         )
