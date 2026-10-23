@@ -5,7 +5,7 @@ in the RichChk representation.
 """
 
 import logging
-from typing import Any, cast
+from typing import Any
 
 from ...model.chk.decoded_string_section import DecodedStringSection
 from ...model.chk.str.decoded_str_section import DecodedStrSection
@@ -17,10 +17,6 @@ from ...transcoder.chk.transcoders.chk_str_transcoder import ChkStrTranscoder
 from ...transcoder.chk.transcoders.chk_strx_transcoder import ChkStrxTranscoder
 from ...util import logger
 
-_lookup_cache: dict[
-    Any, Any
-] = {}  # id(section) → (section, RichStrLookup) for identity-verified caching
-
 
 class RichStrLookupBuilder:
     def __init__(self) -> None:
@@ -29,10 +25,6 @@ class RichStrLookupBuilder:
     def build_lookup(
         self, decoded_string_section: DecodedStringSection
     ) -> RichStrLookup:
-        sect_id = id(decoded_string_section)
-        cached = _lookup_cache.get(sect_id)
-        if cached is not None and cached[0] is decoded_string_section:
-            return cast(RichStrLookup, cached[1])
         str_binary_data = self._get_bytes_for_string_section(decoded_string_section)
         _offset_to_rich_string: dict[Any, Any] = {}
         string_by_id = {}
@@ -55,7 +47,6 @@ class RichStrLookupBuilder:
         result = RichStrLookup(
             _string_by_id_lookup=string_by_id, _id_by_string_lookup=id_by_string
         )
-        _lookup_cache[sect_id] = (decoded_string_section, result)
         return result
 
     def _get_bytes_for_string_section(

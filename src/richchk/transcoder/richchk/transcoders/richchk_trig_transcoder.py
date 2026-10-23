@@ -224,11 +224,6 @@ class RichChkTrigTranscoder(
             return DecodedTrigSection(_triggers=[], _lazy_spec=raw)
         return DecodedTrigSection(_triggers=[], _raw_data=raw)
 
-    def get_secondary_cache_key(
-        self, rich_chk_section: RichTrigSection
-    ) -> Optional[tuple[Any, ...]]:
-        return self._optimizer.get_secondary_cache_key(rich_chk_section)
-
     def _encode_trigger(
         self, rich_trigger: RichTrigger, rich_chk_encode_context: RichChkEncodeContext
     ) -> DecodedTrigger:

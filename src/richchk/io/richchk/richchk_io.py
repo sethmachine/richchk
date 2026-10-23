@@ -1,7 +1,5 @@
-import collections
 import logging
-import weakref
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from ...model.chk.decoded_chk import DecodedChk
 from ...model.chk.decoded_chk_section import DecodedChkSection
@@ -22,7 +20,6 @@ from ...model.richchk.richchk_encode_context import RichChkEncodeContext
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
-from ...model.richchk.trig.rich_trig_section import RichTrigSection
 from ...model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from ...model.richchk.uprp.rich_uprp_section import RichUprpSection
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
@@ -33,9 +30,6 @@ from ...transcoder.richchk.richchk_section_transcoder_factory import (
 from ...transcoder.richchk.transcoders.rich_swnm_transcoder import RichChkSwnmTranscoder
 from ...transcoder.richchk.transcoders.richchk_mrgn_transcoder import (
     RichChkMrgnTranscoder,
-)
-from ...transcoder.richchk.transcoders.richchk_trig_transcoder import (
-    RichChkTrigTranscoder,
 )
 from ...transcoder.richchk.transcoders.richchk_uprp_transcoder import (
     RichChkUprpTranscoder,
@@ -52,20 +46,6 @@ from .lookups.upus.decoded_upus_rebuilder import DecodedUpusRebuilder
 from .query.chk_query_util import ChkQueryUtil
 from .rich_chk_object_collector import collect_rich_objects
 from .rich_str_lookup_builder import RichStrLookupBuilder
-
-_encode_cache: dict[
-    Any, Any
-] = {}  # (id(rich_chk), id(wav_lookup)) → (weakref(rich_chk), DecodedChk)
-_secondary_encode_cache: collections.OrderedDict[
-    Any, Any
-] = (
-    collections.OrderedDict()
-)  # (tuple(non_trig_ids), trig_key, id(wav_lookup)) → DecodedChk
-_SECONDARY_CACHE_MAX = 128
-_non_trig_cache: dict[Any, Any] = {}
-_NON_TRIG_CACHE_MAX = 8
-
-_trig_transcoder = RichChkTrigTranscoder()
 
 
 class RichChkIo:
@@ -97,75 +77,6 @@ class RichChkIo:
         rich_chk: RichChk,
         wav_metadata_lookup: Optional[RichWavMetadataLookup] = None,
     ) -> DecodedChk:
-        cache_key = (id(rich_chk), id(wav_metadata_lookup))
-        cached = _encode_cache.get(cache_key)
-        if cached is not None:
-            ref_obj = cached[0]()
-            if ref_obj is rich_chk:
-                return cast(DecodedChk, cached[1])
-            else:
-                del _encode_cache[cache_key]
-
-        id_secondary_key: Any = None
-        fp_secondary_key: Any = None
-        non_trig_cache_key: Any = None
-        if self._optimize:
-            trig_sec: Optional[RichTrigSection] = None
-            non_trig_ids: list[int] = []
-            for _sec in rich_chk.chk_sections:
-                if isinstance(_sec, RichTrigSection):
-                    trig_sec = _sec
-                else:
-                    non_trig_ids.append(id(_sec))
-            if trig_sec is not None:
-                non_trig_key = tuple(non_trig_ids)
-                wav_id = id(wav_metadata_lookup)
-                id_secondary_key = (non_trig_key, id(trig_sec), wav_id)
-                _sc = _secondary_encode_cache.get(id_secondary_key)
-                if _sc is not None:
-                    _secondary_encode_cache.move_to_end(id_secondary_key)
-                    _wr = weakref.ref(
-                        rich_chk, lambda _ref: _encode_cache.pop(cache_key, None)
-                    )
-                    _encode_cache[cache_key] = (_wr, _sc)
-                    return cast(DecodedChk, _sc)
-                _trig_key = _trig_transcoder.get_secondary_cache_key(trig_sec)
-                if _trig_key is not None:
-                    fp_secondary_key = (non_trig_key, _trig_key, wav_id)
-                    _sc = _secondary_encode_cache.get(fp_secondary_key)
-                    if _sc is not None:
-                        _secondary_encode_cache.move_to_end(fp_secondary_key)
-                        _wr = weakref.ref(
-                            rich_chk, lambda _ref: _encode_cache.pop(cache_key, None)
-                        )
-                        _encode_cache[cache_key] = (_wr, _sc)
-                        return cast(DecodedChk, _sc)
-                    non_trig_cache_key = (
-                        non_trig_key,
-                        _trig_key[0],
-                        _trig_key[1],
-                        wav_id,
-                    )
-                    _nt = _non_trig_cache.get(non_trig_cache_key)
-                    if _nt is not None:
-                        _cached_ctx, _base_sections, _trig_idx = _nt
-                        _new_trig = _trig_transcoder.encode(trig_sec, _cached_ctx)
-                        _new_sections = list(_base_sections)
-                        _new_sections[_trig_idx] = _new_trig
-                        result = DecodedChk(_decoded_chk_sections=_new_sections)
-                        _wr = weakref.ref(
-                            rich_chk, lambda _ref: _encode_cache.pop(cache_key, None)
-                        )
-                        _encode_cache[cache_key] = (_wr, result)
-                        if id_secondary_key is not None:
-                            _secondary_encode_cache[id_secondary_key] = result
-                            if len(_secondary_encode_cache) > _SECONDARY_CACHE_MAX:
-                                _secondary_encode_cache.popitem(last=False)
-                        _secondary_encode_cache[fp_secondary_key] = result
-                        if len(_secondary_encode_cache) > _SECONDARY_CACHE_MAX:
-                            _secondary_encode_cache.popitem(last=False)
-                        return result
-
         strings, locations, switches, cuwps = collect_rich_objects(rich_chk)
         new_str_section: DecodedStringSection = (
             DecodedStrSectionRebuilder.rebuild_str_section_from_strings(
@@ -272,39 +183,7 @@ class RichChkIo:
                 "This likely means create unit with properties is being used for 1st time."
             )
             decoded_sections.append(new_upus)
-        result = DecodedChk(_decoded_chk_sections=decoded_sections)
-        if non_trig_cache_key is not None:
-            _trig_pos = next(
-                (
-                    i
-                    for i, s in enumerate(rich_chk.chk_sections)
-                    if isinstance(s, RichTrigSection)
-                ),
-                None,
-            )
-            if _trig_pos is not None:
-                if len(_non_trig_cache) >= _NON_TRIG_CACHE_MAX:
-                    _non_trig_cache.pop(next(iter(_non_trig_cache)))
-                _base_no_trig: list[Optional[DecodedChkSection]] = list(
-                    decoded_sections
-                )
-                _base_no_trig[_trig_pos] = None
-                _non_trig_cache[non_trig_cache_key] = (
-                    encode_context,
-                    _base_no_trig,
-                    _trig_pos,
-                )
-        _wr2 = weakref.ref(rich_chk, lambda _ref: _encode_cache.pop(cache_key, None))
-        _encode_cache[cache_key] = (_wr2, result)
-        if id_secondary_key is not None:
-            _secondary_encode_cache[id_secondary_key] = result
-            if len(_secondary_encode_cache) > _SECONDARY_CACHE_MAX:
-                _secondary_encode_cache.popitem(last=False)
-        if fp_secondary_key is not None:
-            _secondary_encode_cache[fp_secondary_key] = result
-            if len(_secondary_encode_cache) > _SECONDARY_CACHE_MAX:
-                _secondary_encode_cache.popitem(last=False)
-        return result
+        return DecodedChk(_decoded_chk_sections=decoded_sections)
 
     def _build_decode_context(self, chk: DecodedChk) -> RichChkDecodeContext:
         rich_str_lookup = RichStrLookupBuilder().build_lookup(
