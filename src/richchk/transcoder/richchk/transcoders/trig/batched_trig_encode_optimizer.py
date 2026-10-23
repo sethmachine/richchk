@@ -257,7 +257,7 @@ class BatchedTrigEncodeOptimizer:
                 nz_pairs, template_bytes, cond_patches, act_patches = template_info
                 n = len(triggers)
                 # Fast path for 1-cond-patch (with optional 1-act-patch): compute
-                # amounts before allocation to enable bytes cache hit.
+                # amounts before allocation.
                 if len(cond_patches) == 1:
                     cond_idx, cond_off_rel = cond_patches[0]
                     if (
