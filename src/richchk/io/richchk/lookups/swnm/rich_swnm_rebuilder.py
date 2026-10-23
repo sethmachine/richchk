@@ -5,8 +5,7 @@ There is a maximum of 256 switches.
 """
 
 import dataclasses
-import weakref
-from typing import Any, Tuple
+from typing import Tuple
 
 from .....model.chk.swnm.swnm_constants import MAX_SWITCHES
 from .....model.richchk.rich_chk import RichChk
@@ -18,12 +17,6 @@ from .....model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from .....util import logger
 from ....richchk.query.chk_query_util import ChkQueryUtil
 
-_swnm_rebuild_cache: dict[
-    Any, Any
-] = (
-    {}
-)  # (id(swnm_section), frozenset_switch_ids) → (weakref(swnm_section), section, lookup)
-
 
 class RichSwnmRebuilder:
     _LOG = logger.get_logger("RichSwnmRebuilder")
@@ -33,16 +26,7 @@ class RichSwnmRebuilder:
         cls, used_switches: set[RichSwitch], rich_chk: RichChk
     ) -> Tuple[RichSwnmSection, RichSwnmLookup]:
         """Rebuild SWNM from a pre-collected switch set (skips the internal walk)."""
-        swnm = cls._find_or_create_rich_swnm(rich_chk)
-        sw_key = frozenset(id(sw) for sw in used_switches)
-        cache_key = (id(swnm), sw_key)
-        cached = _swnm_rebuild_cache.get(cache_key)
-        if cached is not None and cached[0]() is swnm:
-            return cached[1], cached[2]
-        result_section, result_lookup = cls._rebuild_swnm_impl(used_switches, rich_chk)
-        _wr = weakref.ref(swnm, lambda _: _swnm_rebuild_cache.pop(cache_key, None))
-        _swnm_rebuild_cache[cache_key] = (_wr, result_section, result_lookup)
-        return result_section, result_lookup
+        return cls._rebuild_swnm_impl(used_switches, rich_chk)
 
     @classmethod
     def rebuild_rich_swnm_from_rich_chk(
