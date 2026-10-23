@@ -67,18 +67,6 @@ class BatchedTrigEncodeOptimizer:
     _action_type_cache: ClassVar[dict[Any, Any]] = {}
     _condition_type_cache: ClassVar[dict[Any, Any]] = {}
     _fused_pe_bytes_cache: ClassVar[dict[Any, Any]] = {}
-    _MAX_TEMPLATE_CACHE_ENTRIES: ClassVar[int] = 16
-    _template_cache: ClassVar[
-        dict[Any, Any]
-    ] = {}  # id(triggers) → (triggers, template info or False)
-    _template_fingerprint_cache: ClassVar[
-        dict[Any, Any]
-    ] = (
-        {}
-    )  # structural fingerprint → (nz_pairs, template_bytes, cond_patches, act_patches)
-    _nz_bufs_cache: ClassVar[
-        dict[Any, Any]
-    ] = {}  # (id(nz_pairs), n) → [(pos, buf)] pre-built strided write buffers
     _player_execution_cache: ClassVar[dict[Any, Any]] = {}
 
     def encode(
@@ -89,69 +77,6 @@ class BatchedTrigEncodeOptimizer:
         if context.optimize:
             return self._fused_encode_to_bytes(rich_chk_section, context)
         return self._simple_encode_to_bytes(rich_chk_section, context)
-
-    def get_secondary_cache_key(
-        self, rich_chk_section: RichTrigSection
-    ) -> Optional[tuple[Any, ...]]:
-        """Returns a stable key for the secondary encode cache, or None if not
-        applicable.
-
-        The key is stable across fresh RichTrigSection objects that share the same
-        structural fingerprint and amounts pattern.  Handles 1-cond-patch and
-        1-cond+1-act-patch cases.
-        """
-        triggers = rich_chk_section.triggers
-        if not triggers or rich_chk_section.cond0_amounts_bytes is None:
-            return None
-        template_info = self._get_template_info(triggers)
-        if template_info is False:
-            return None
-        nz_pairs, _, cond_patches, act_patches = template_info
-        if len(cond_patches) != 1:
-            return None
-        cond_idx, _ = cond_patches[0]
-        if cond_idx != 0:
-            return None
-        n = len(triggers)
-        nz_id = id(nz_pairs)
-        if not act_patches:
-            return (nz_id, n, rich_chk_section.cond0_amounts_hash)
-        if len(act_patches) == 1:
-            act_idx, _ = act_patches[0]
-            if act_idx == 0 and rich_chk_section.act0_amounts_bytes is not None:
-                combined = hash(
-                    (
-                        rich_chk_section.cond0_amounts_hash,
-                        rich_chk_section.act0_amounts_hash,
-                    )
-                )
-                return (nz_id, n, combined)
-        return None
-
-    @staticmethod
-    def _compute_trigger_fingerprint(
-        conds0: Any, acts0: Any, players0: Any
-    ) -> tuple[Any, ...]:
-        return (
-            tuple((c.group, c.unit, c.comparator) for c in conds0),
-            tuple(
-                (a.group, a.unit, a.amount_modifier)
-                if type(a) is SetDeathsAction
-                else ()
-                for a in acts0
-            ),
-            players0,
-        )
-
-    def _get_template_info(self, triggers: Any) -> Any:
-        entry = self._template_cache.get(id(triggers))
-        if entry is not None and entry[0] is triggers:
-            return entry[1]
-        template_info = self._build_template_info(triggers)
-        if len(self._template_cache) >= self._MAX_TEMPLATE_CACHE_ENTRIES:
-            self._template_cache.clear()
-        self._template_cache[id(triggers)] = (triggers, template_info)
-        return template_info
 
     def _build_template_info(self, triggers: Any) -> Any:
         """Try to build a per-trigger template for uniform
@@ -230,22 +155,6 @@ class BatchedTrigEncodeOptimizer:
                     or a.flags is not _DEFAULT_TRIGGER_ACTION_FLAGS
                 ):
                     return False
-
-        fingerprint = (
-            self._compute_trigger_fingerprint(conds0, acts0, players0),
-            tuple(
-                None if cond_amounts_vary[i] else c.amount for i, c in enumerate(conds0)
-            ),
-            tuple(
-                None
-                if type(a) is not SetDeathsAction or act_amounts_vary[j]
-                else a.amount
-                for j, a in enumerate(acts0)
-            ),
-        )
-        fp_result = self._template_fingerprint_cache.get(fingerprint)
-        if fp_result is not None:
-            return fp_result
 
         trig_sz = self._NUM_BYTES_PER_TRIGGER
         template = bytearray(trig_sz)
@@ -332,7 +241,6 @@ class BatchedTrigEncodeOptimizer:
 
         fp_nz_pairs = tuple((i, b) for i, b in enumerate(template) if b)
         result = (fp_nz_pairs, bytes(template), tuple(cond_patches), tuple(act_patches))
-        self._template_fingerprint_cache[fingerprint] = result
         return result
 
     def _fused_encode_to_bytes(
@@ -344,7 +252,7 @@ class BatchedTrigEncodeOptimizer:
         trig_sz = self._NUM_BYTES_PER_TRIGGER
 
         if triggers:
-            template_info = self._get_template_info(triggers)
+            template_info = self._build_template_info(triggers)
             if template_info is not False:
                 nz_pairs, template_bytes, cond_patches, act_patches = template_info
                 n = len(triggers)
@@ -357,7 +265,6 @@ class BatchedTrigEncodeOptimizer:
                         and rich_chk_section.cond0_amounts_bytes is not None
                     ):
                         ab = rich_chk_section.cond0_amounts_bytes
-                        ab_hash = rich_chk_section.cond0_amounts_hash
                     else:
                         amt = array.array(
                             "I", [t._conditions[cond_idx]._amount for t in triggers]
@@ -365,17 +272,15 @@ class BatchedTrigEncodeOptimizer:
                         if _IS_BIG_ENDIAN:
                             amt.byteswap()
                         ab = amt.tobytes()
-                        ab_hash = hash(ab)
-                    nz_pairs_id = id(nz_pairs)
                     act_ab: Optional[bytes] = None
                     act_off_rel: int = 0
+                    can_use_fast_path = True
                     if not act_patches:
-                        bytes_key: Any = (nz_pairs_id, n, ab_hash)
+                        pass
                     elif len(act_patches) == 1 and act_patches[0][0] == 0:
                         _, act_off_rel = act_patches[0]
                         if rich_chk_section.act0_amounts_bytes is not None:
                             act_ab = rich_chk_section.act0_amounts_bytes
-                            act_ah = rich_chk_section.act0_amounts_hash
                         else:
                             _amt2 = array.array(
                                 "I",
@@ -387,16 +292,10 @@ class BatchedTrigEncodeOptimizer:
                             if _IS_BIG_ENDIAN:
                                 _amt2.byteswap()
                             act_ab = _amt2.tobytes()
-                            act_ah = hash(act_ab)
-                        bytes_key = (nz_pairs_id, n, hash((ab_hash, act_ah)))
                     else:
-                        bytes_key = None
-                    if bytes_key is not None:
-                        nz_key = (nz_pairs_id, n)
-                        nz_bufs = self._nz_bufs_cache.get(nz_key)
-                        if nz_bufs is None:
-                            nz_bufs = [(pos, bytes([val]) * n) for pos, val in nz_pairs]
-                            self._nz_bufs_cache[nz_key] = nz_bufs
+                        can_use_fast_path = False
+                    if can_use_fast_path:
+                        nz_bufs = [(pos, bytes([val]) * n) for pos, val in nz_pairs]
                         if len(nz_pairs) <= 64:
                             return TrigLazySpec(
                                 n,
@@ -423,11 +322,7 @@ class BatchedTrigEncodeOptimizer:
                 # because bytearray(N) uses calloc (near-zero cost for reused pages) while
                 # template * n does a full 12 MB copy of mostly-zero content.
                 if nz_pairs and len(nz_pairs) <= 64:
-                    nz_key = (id(nz_pairs), n)
-                    nz_bufs = self._nz_bufs_cache.get(nz_key)
-                    if nz_bufs is None:
-                        nz_bufs = [(pos, bytes([val]) * n) for pos, val in nz_pairs]
-                        self._nz_bufs_cache[nz_key] = nz_bufs
+                    nz_bufs = [(pos, bytes([val]) * n) for pos, val in nz_pairs]
                     data = bytearray(n * trig_sz)
                     for pos, buf in nz_bufs:
                         data[pos::trig_sz] = buf
