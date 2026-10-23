@@ -1,7 +1,5 @@
 """Decode and encode the UPGS - Classic Upgrade Settings section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.upgs.decoded_upgs_section import DecodedUpgsSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -15,10 +13,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 
 _CLASSIC_UPGRADES = [u for u in UpgradeId if u.id < 46]
-
-_upgs_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_upgs_section) → (weakref(section), DecodedUpgsSection)
 
 
 class RichUpgsTranscoder(
@@ -57,10 +51,6 @@ class RichUpgsTranscoder(
         rich_chk_section: RichUpgsSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedUpgsSection:
-        cache_key = id(rich_chk_section)
-        cached = _upgs_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedUpgsSection, cached[1])
         settings = [
             rich_chk_section.upgrade_cost_settings[u] for u in _CLASSIC_UPGRADES
         ]
@@ -72,11 +62,5 @@ class RichUpgsTranscoder(
             _gas_cost_factor=[s.gas_cost_factor for s in settings],
             _base_research_time=[s.base_research_time for s in settings],
             _research_time_factor=[s.research_time_factor for s in settings],
-        )
-        _upgs_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _upgs_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

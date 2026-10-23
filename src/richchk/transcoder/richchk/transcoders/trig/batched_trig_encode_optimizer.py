@@ -64,11 +64,6 @@ class BatchedTrigEncodeOptimizer:
     _PE_STRUCT: ClassVar[struct.Struct] = struct.Struct(_PLAYER_EXECUTION_FORMAT)
     _I_STRUCT: ClassVar[struct.Struct] = struct.Struct("<I")
 
-    _action_type_cache: ClassVar[dict[Any, Any]] = {}
-    _condition_type_cache: ClassVar[dict[Any, Any]] = {}
-    _fused_pe_bytes_cache: ClassVar[dict[Any, Any]] = {}
-    _player_execution_cache: ClassVar[dict[Any, Any]] = {}
-
     def encode(
         self,
         rich_chk_section: RichTrigSection,
@@ -216,28 +211,12 @@ class BatchedTrigEncodeOptimizer:
 
         pe_sz = self._NUM_BYTES_PER_PE
         pe_base = conds_sz + self._ACTS_SECTION_SIZE
-        pe_cache = self._fused_pe_bytes_cache
-        pe_bytes = pe_cache.get(players0)
-        if pe_bytes is None:
-            pe_execution_cache = self._player_execution_cache
-            pe = pe_execution_cache.get(players0)
-            if pe is None:
-                player_flags = [0] * 27
-                for player_id in players0:
-                    player_flags[player_id.id] = 1
-                pe = DecodedPlayerExecution(
-                    _execution_flags=0,
-                    _player_flags=player_flags,
-                    _current_action_index=0,
-                )
-                pe_execution_cache[players0] = pe
-            buf = bytearray(pe_sz)
-            pack_into_pe(
-                buf, 0, pe.execution_flags, *pe.player_flags, pe.current_action_index
-            )
-            pe_bytes = bytes(buf)
-            pe_cache[players0] = pe_bytes
-        template[pe_base : pe_base + pe_sz] = pe_bytes
+        player_flags = [0] * 27
+        for player_id in players0:
+            player_flags[player_id.id] = 1
+        buf = bytearray(pe_sz)
+        pack_into_pe(buf, 0, 0, *player_flags, 0)
+        template[pe_base : pe_base + pe_sz] = buf
 
         fp_nz_pairs = tuple((i, b) for i, b in enumerate(template) if b)
         result = (fp_nz_pairs, bytes(template), tuple(cond_patches), tuple(act_patches))
@@ -385,10 +364,10 @@ class BatchedTrigEncodeOptimizer:
         set_deaths_type = SetDeathsAction
         decoded_cond_type = DecodedTriggerCondition
         decoded_act_type = DecodedTriggerAction
-        act_cache = self._action_type_cache
-        cond_cache = self._condition_type_cache
-        pe_cache = self._fused_pe_bytes_cache
-        pe_execution_cache = self._player_execution_cache
+        act_cache: dict[Any, Any] = {}
+        cond_cache: dict[Any, Any] = {}
+        pe_cache: dict[Any, Any] = {}
+        pe_execution_cache: dict[Any, Any] = {}
 
         offset = 0
         for trigger in triggers:

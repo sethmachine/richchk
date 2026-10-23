@@ -4,8 +4,6 @@ The rich transcoder drops the unused padding byte on decode and hardcodes it to 
 encode.
 """
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.thg2.decoded_thg2_entry import DecodedThg2Entry
 from ....model.chk.thg2.decoded_thg2_section import DecodedThg2Section
@@ -17,10 +15,6 @@ from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTran
 from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
-
-_thg2_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_thg2_section) -> (weakref(section), DecodedThg2Section)
 
 
 class RichThg2Transcoder(
@@ -50,10 +44,6 @@ class RichThg2Transcoder(
         rich_chk_section: RichThg2Section,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedThg2Section:
-        cache_key = id(rich_chk_section)
-        cached = _thg2_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedThg2Section, cached[1])
         decoded_entries = tuple(
             DecodedThg2Entry(
                 _sprite_id=sprite.sprite_id,
@@ -66,10 +56,4 @@ class RichThg2Transcoder(
             for sprite in rich_chk_section.sprites
         )
         result = DecodedThg2Section(_entries=decoded_entries)
-        _thg2_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _thg2_encode_cache.pop(cache_key, None)
-            ),
-            result,
-        )
         return result

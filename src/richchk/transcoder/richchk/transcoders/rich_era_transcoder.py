@@ -1,6 +1,4 @@
 """Decode ERA."""
-import weakref
-from typing import Any, cast
 
 from ....model.chk.era.decoded_era_section import DecodedEraSection
 from ....model.richchk.era.rich_era_section import RichEraSection
@@ -13,10 +11,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 from ....util import logger
 from .helpers.richchk_enum_transcoder import RichChkEnumTranscoder
-
-_era_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_era_section) -> (weakref(section), DecodedEraSection)
 
 
 class RichEraTranscoder(
@@ -43,17 +37,7 @@ class RichEraTranscoder(
         rich_chk_section: RichEraSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedEraSection:
-        cache_key = id(rich_chk_section)
-        cached = _era_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedEraSection, cached[1])
         result = DecodedEraSection(
             _tileset=RichChkEnumTranscoder.encode_enum(rich_chk_section.tileset)
-        )
-        _era_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _era_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

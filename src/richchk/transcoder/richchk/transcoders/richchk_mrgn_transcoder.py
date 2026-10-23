@@ -42,8 +42,6 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 """
 
 import dataclasses
-import weakref
-from typing import Any, cast
 
 from ....model.chk.mrgn.decoded_location import DecodedLocation
 from ....model.chk.mrgn.decoded_mrgn_section import DecodedMrgnSection
@@ -60,9 +58,6 @@ from ....util import logger
 _UNUSED_DECODED_LOCATION = DecodedLocation(
     _left_x1=0, _top_y1=0, _right_x2=0, _bottom_y2=0, _string_id=0, _elevation_flags=0
 )
-_mrgn_encode_cache: dict[
-    Any, Any
-] = {}  # (id(mrgn_section), id(str_lookup)) → (weakref(section), DecodedMrgnSection)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -166,10 +161,6 @@ class RichChkMrgnTranscoder(
         rich_chk_section: RichMrgnSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedMrgnSection:
-        cache_key = (id(rich_chk_section), id(rich_chk_encode_context.rich_str_lookup))
-        cached = _mrgn_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedMrgnSection, cached[1])
         # TODO: need to build the location index map before hand!  assign locations without indices an index
         # can be done in the RichChkEncodeContext generation step
         # subtract 1 to get zero index used for array storage
@@ -184,12 +175,6 @@ class RichChkMrgnTranscoder(
             for i in range(self._MAX_LOCATIONS)
         ]
         result = DecodedMrgnSection(_locations=decoded_locations)
-        _mrgn_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _mrgn_encode_cache.pop(cache_key, None)
-            ),
-            result,
-        )
         return result
 
     @classmethod

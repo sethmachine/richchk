@@ -1,6 +1,4 @@
 """Decode TILE."""
-import weakref
-from typing import Any, cast
 
 from ....model.chk.tile.decoded_tile_section import DecodedTileSection
 from ....model.richchk.mtxm.rich_tile import RichTile
@@ -12,10 +10,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
-
-_tile_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_tile_section) -> (weakref(section), DecodedTileSection)
 
 
 class RichTileTranscoder(
@@ -40,17 +34,7 @@ class RichTileTranscoder(
         rich_chk_section: RichTileSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTileSection:
-        cache_key = id(rich_chk_section)
-        cached = _tile_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedTileSection, cached[1])
         result = DecodedTileSection(
             _tiles=tuple(t.id for t in rich_chk_section.tiles),
-        )
-        _tile_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _tile_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

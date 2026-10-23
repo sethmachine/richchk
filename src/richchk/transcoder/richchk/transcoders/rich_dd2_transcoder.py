@@ -3,8 +3,6 @@
 The rich transcoder converts the enabled field between int (0/1) and bool.
 """
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.dd2.decoded_dd2_entry import DecodedDd2Entry
 from ....model.chk.dd2.decoded_dd2_section import DecodedDd2Section
@@ -16,10 +14,6 @@ from ....transcoder.richchk.richchk_section_transcoder import RichChkSectionTran
 from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
-
-_dd2_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_dd2_section) -> (weakref(section), DecodedDd2Section)
 
 
 class RichDd2Transcoder(
@@ -49,10 +43,6 @@ class RichDd2Transcoder(
         rich_chk_section: RichDd2Section,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedDd2Section:
-        cache_key = id(rich_chk_section)
-        cached = _dd2_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedDd2Section, cached[1])
         decoded_entries = tuple(
             DecodedDd2Entry(
                 _doodad_id=doodad.doodad_id,
@@ -64,10 +54,4 @@ class RichDd2Transcoder(
             for doodad in rich_chk_section.doodads
         )
         result = DecodedDd2Section(_entries=decoded_entries)
-        _dd2_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _dd2_encode_cache.pop(cache_key, None)
-            ),
-            result,
-        )
         return result
