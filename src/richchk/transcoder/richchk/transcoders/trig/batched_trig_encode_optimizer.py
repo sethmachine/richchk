@@ -67,11 +67,10 @@ class BatchedTrigEncodeOptimizer:
     _action_type_cache: ClassVar[dict[Any, Any]] = {}
     _condition_type_cache: ClassVar[dict[Any, Any]] = {}
     _fused_pe_bytes_cache: ClassVar[dict[Any, Any]] = {}
+    _MAX_TEMPLATE_CACHE_ENTRIES: ClassVar[int] = 16
     _template_cache: ClassVar[
         dict[Any, Any]
-    ] = (
-        {}
-    )  # id(triggers) → (nz_pairs, template_bytes, cond_patches, act_patches) or False
+    ] = {}  # id(triggers) → (triggers, template info or False)
     _template_fingerprint_cache: ClassVar[
         dict[Any, Any]
     ] = (
@@ -104,11 +103,7 @@ class BatchedTrigEncodeOptimizer:
         triggers = rich_chk_section.triggers
         if not triggers or rich_chk_section.cond0_amounts_bytes is None:
             return None
-        trig_id = id(triggers)
-        template_info = self._template_cache.get(trig_id)
-        if template_info is None:
-            template_info = self._build_template_info(triggers)
-            self._template_cache[trig_id] = template_info
+        template_info = self._get_template_info(triggers)
         if template_info is False:
             return None
         nz_pairs, _, cond_patches, act_patches = template_info
@@ -148,6 +143,16 @@ class BatchedTrigEncodeOptimizer:
             players0,
         )
 
+    def _get_template_info(self, triggers: Any) -> Any:
+        entry = self._template_cache.get(id(triggers))
+        if entry is not None and entry[0] is triggers:
+            return entry[1]
+        template_info = self._build_template_info(triggers)
+        if len(self._template_cache) >= self._MAX_TEMPLATE_CACHE_ENTRIES:
+            self._template_cache.clear()
+        self._template_cache[id(triggers)] = (triggers, template_info)
+        return template_info
+
     def _build_template_info(self, triggers: Any) -> Any:
         """Try to build a per-trigger template for uniform
         DeathsCondition+SetDeaths+Preserve batches.
@@ -183,15 +188,9 @@ class BatchedTrigEncodeOptimizer:
             ):
                 return False
 
-        fingerprint = self._compute_trigger_fingerprint(conds0, acts0, players0)
-        fp_result = self._template_fingerprint_cache.get(fingerprint)
-        if fp_result is not None:
-            return fp_result
-
         cond_amounts_vary = [False] * n_conds
         act_amounts_vary = [False] * n_acts
-        check_count = min(len(triggers), 200)
-        for i_check in range(check_count):
+        for i_check in range(len(triggers)):
             t = triggers[i_check]
             if len(t.conditions) != n_conds or len(t.actions) != n_acts:
                 return False
@@ -231,6 +230,22 @@ class BatchedTrigEncodeOptimizer:
                     or a.flags is not _DEFAULT_TRIGGER_ACTION_FLAGS
                 ):
                     return False
+
+        fingerprint = (
+            self._compute_trigger_fingerprint(conds0, acts0, players0),
+            tuple(
+                None if cond_amounts_vary[i] else c.amount for i, c in enumerate(conds0)
+            ),
+            tuple(
+                None
+                if type(a) is not SetDeathsAction or act_amounts_vary[j]
+                else a.amount
+                for j, a in enumerate(acts0)
+            ),
+        )
+        fp_result = self._template_fingerprint_cache.get(fingerprint)
+        if fp_result is not None:
+            return fp_result
 
         trig_sz = self._NUM_BYTES_PER_TRIGGER
         template = bytearray(trig_sz)
@@ -329,11 +344,7 @@ class BatchedTrigEncodeOptimizer:
         trig_sz = self._NUM_BYTES_PER_TRIGGER
 
         if triggers:
-            trig_id = id(triggers)
-            template_info = self._template_cache.get(trig_id)
-            if template_info is None:
-                template_info = self._build_template_info(triggers)
-                self._template_cache[trig_id] = template_info
+            template_info = self._get_template_info(triggers)
             if template_info is not False:
                 nz_pairs, template_bytes, cond_patches, act_patches = template_info
                 n = len(triggers)
