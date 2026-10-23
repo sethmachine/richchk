@@ -92,10 +92,13 @@ def test_it_encodes_and_round_trips(decode_context, encode_context):
     assert re_decoded == decoded
 
 
-def test_it_uses_encode_cache_for_same_object(decode_context, encode_context):
+def test_it_encodes_equal_but_separate_results_for_same_object(
+    decode_context, encode_context
+):
     decoded = _make_decoded_upgr()
     transcoder = RichUpgrTranscoder()
     rich = transcoder.decode(decoded, decode_context)
     result1 = transcoder.encode(rich, encode_context)
     result2 = transcoder.encode(rich, encode_context)
-    assert result1 is result2
+    assert result1 == result2
+    assert result1 is not result2

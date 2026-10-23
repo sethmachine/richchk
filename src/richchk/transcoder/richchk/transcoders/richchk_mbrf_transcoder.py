@@ -1,5 +1,5 @@
 """Decode the MBRF - Mission Briefings section."""
-from typing import Any, ClassVar, Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
 from ....model.chk.mbrf.decoded_mbrf_section import DecodedMbrfSection
 from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
@@ -38,8 +38,6 @@ class RichChkMbrfTranscoder(
     _NUM_CONDITIONS_PER_TRIGGER = 16
     _NUM_ACTIONS_PER_TRIGGER = 64
     _NUM_PLAYER_EXECUTION_IDS = 27
-
-    _action_type_cache: ClassVar[dict[Any, Any]] = {}
 
     _EMPTY_ACTION: DecodedTriggerAction = DecodedTriggerAction(
         _location_id=0,
@@ -207,7 +205,7 @@ class RichChkMbrfTranscoder(
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> list[DecodedTriggerAction]:
         decoded_actions = []
-        cache = RichChkMbrfTranscoder._action_type_cache
+        cache: dict[Any, Any] = {}
         for action in rich_actions:
             action_type = type(action)
             if action_type is DecodedTriggerAction:
@@ -241,20 +239,12 @@ class RichChkMbrfTranscoder(
                 )
         return cast(list[DecodedTriggerAction], decoded_actions)
 
-    _player_execution_cache: dict[Any, Any] = {}
-
     def _encode_player_execution(
         self, players: Union[set[PlayerId], frozenset[PlayerId]]
     ) -> DecodedPlayerExecution:
-        key = frozenset(players)
-        cached = self._player_execution_cache.get(key)
-        if cached is not None:
-            return cast(DecodedPlayerExecution, cached)
         player_flags = [0] * 27
         for player_id in players:
             player_flags[player_id.id] = 1
-        result = DecodedPlayerExecution(
+        return DecodedPlayerExecution(
             _execution_flags=0, _player_flags=player_flags, _current_action_index=0
         )
-        self._player_execution_cache[key] = result
-        return result

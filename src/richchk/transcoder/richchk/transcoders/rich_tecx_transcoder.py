@@ -1,7 +1,5 @@
 """Decode and encode the TECx - Brood War Tech Settings section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.tecx.decoded_tecx_section import DecodedTecxSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -15,10 +13,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 )
 
 _ALL_TECHS = list(TechId)
-
-_tecx_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_tecx_section) → (weakref(section), DecodedTecxSection)
 
 
 class RichTecxTranscoder(
@@ -51,10 +45,6 @@ class RichTecxTranscoder(
         rich_chk_section: RichTecxSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedTecxSection:
-        cache_key = id(rich_chk_section)
-        cached = _tecx_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedTecxSection, cached[1])
         settings = [rich_chk_section.tech_cost_settings[t] for t in _ALL_TECHS]
         result = DecodedTecxSection(
             _uses_default_settings=[int(s.uses_default_settings) for s in settings],
@@ -62,11 +52,5 @@ class RichTecxTranscoder(
             _gas_cost=[s.gas_cost for s in settings],
             _research_time=[s.research_time for s in settings],
             _energy_cost=[s.energy_cost for s in settings],
-        )
-        _tecx_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _tecx_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

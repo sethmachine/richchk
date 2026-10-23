@@ -45,8 +45,6 @@ class RichChkTrigTranscoder(
     chk_section_name=DecodedTrigSection.section_name(),
 ):
 
-    _action_type_cache: ClassVar[dict[Any, Any]] = {}
-    _condition_type_cache: ClassVar[dict[Any, Any]] = {}
     _optimizer: ClassVar[BatchedTrigEncodeOptimizer] = BatchedTrigEncodeOptimizer()
 
     _EMPTY_ACTION: DecodedTriggerAction = DecodedTriggerAction(
@@ -242,7 +240,7 @@ class RichChkTrigTranscoder(
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> list[DecodedTriggerCondition]:
         decoded_conditions = []
-        cache = RichChkTrigTranscoder._condition_type_cache
+        cache: dict[Any, Any] = {}
         for condition in rich_conditions:
             condition_type = type(condition)
             if condition_type is DecodedTriggerCondition:
@@ -285,7 +283,7 @@ class RichChkTrigTranscoder(
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> list[DecodedTriggerAction]:
         decoded_actions = []
-        cache = RichChkTrigTranscoder._action_type_cache
+        cache: dict[Any, Any] = {}
         for action in rich_actions:
             action_type = type(action)
             if action_type is DecodedTriggerAction:
@@ -322,20 +320,12 @@ class RichChkTrigTranscoder(
     def _generate_empty_action(self) -> DecodedTriggerAction:
         return self._EMPTY_ACTION
 
-    _player_execution_cache: dict[Any, Any] = {}
-
     def _encode_player_execution(
         self, players: Union[set[PlayerId], frozenset[PlayerId]]
     ) -> DecodedPlayerExecution:
-        key = frozenset(players)
-        cached = self._player_execution_cache.get(key)
-        if cached is not None:
-            return cast(DecodedPlayerExecution, cached)
         player_flags = [0] * 27
         for player_id in players:
             player_flags[player_id.id] = 1
-        result = DecodedPlayerExecution(
+        return DecodedPlayerExecution(
             _execution_flags=0, _player_flags=player_flags, _current_action_index=0
         )
-        self._player_execution_cache[key] = result
-        return result

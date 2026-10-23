@@ -9,8 +9,6 @@ u32[256]: One long for each switch, specifies the string number for the name of 
 switch. Unnamed switches will have an index of 0, and have a default switch name.
 """
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -21,10 +19,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
-
-_swnm_encode_cache: dict[
-    Any, Any
-] = {}  # (id(swnm_section), id(str_lookup)) → (weakref(section), DecodedSwnmSection)
 
 
 class RichChkSwnmTranscoder(
@@ -61,10 +55,6 @@ class RichChkSwnmTranscoder(
         rich_chk_section: RichSwnmSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedSwnmSection:
-        cache_key = (id(rich_chk_section), id(rich_chk_encode_context.rich_str_lookup))
-        cached = _swnm_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedSwnmSection, cached[1])
         string_ids = []
         for switch in rich_chk_section.switches:
             # 0 is returned if there's no custom name for the switch
@@ -74,10 +64,4 @@ class RichChkSwnmTranscoder(
                 )
             )
         result = DecodedSwnmSection(_switch_string_ids=string_ids)
-        _swnm_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _swnm_encode_cache.pop(cache_key, None)
-            ),
-            result,
-        )
         return result
