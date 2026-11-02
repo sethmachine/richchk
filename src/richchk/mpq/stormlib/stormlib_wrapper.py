@@ -19,8 +19,6 @@ from ...model.mpq.stormlib.stormlib_operation_result import StormLibOperationRes
 from ...model.mpq.stormlib.stormlib_reference import StormLibReference
 from ...util import logger
 
-_STORMLIB_STRING_ARG_ENCODING = "ascii"
-
 
 class StormLibWrapper:
     def __init__(self, stormlib_reference: StormLibReference):
@@ -221,7 +219,7 @@ class StormLibWrapper:
         """
         if platform.system().lower() == "windows":
             return path_to_file_on_disk
-        return path_to_file_on_disk.encode(_STORMLIB_STRING_ARG_ENCODING)
+        return os.fsencode(path_to_file_on_disk)
 
     def _throw_if_operation_fails(self, operation_name: str, result: int) -> None:
         if result == 0:
