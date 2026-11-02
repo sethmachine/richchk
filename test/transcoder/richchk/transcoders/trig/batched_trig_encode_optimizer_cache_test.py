@@ -13,6 +13,7 @@ from richchk.model.richchk.trig.conditions.comparators.numeric_comparator import
 )
 from richchk.model.richchk.trig.conditions.deaths_condition import DeathsCondition
 from richchk.model.richchk.trig.enums.amount_modifier import AmountModifier
+from richchk.model.richchk.trig.extended_player_id import AnyPlayerId, _ExtendedPlayerId
 from richchk.model.richchk.trig.player_id import PlayerId
 from richchk.model.richchk.trig.rich_trig_section import RichTrigSection
 from richchk.model.richchk.trig.rich_trigger import RichTrigger
@@ -21,6 +22,9 @@ from richchk.model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from richchk.transcoder.chk.transcoders.chk_trig_transcoder import ChkTrigTranscoder
 from richchk.transcoder.richchk.transcoders.richchk_trig_transcoder import (
     RichChkTrigTranscoder,
+)
+from richchk.transcoder.richchk.transcoders.trig.batched_trig_encode_optimizer import (
+    BatchedTrigEncodeOptimizer,
 )
 
 
@@ -44,13 +48,15 @@ def _trigger(
     i: int,
     unit: UnitId = UnitId.ZERG_SCOURGE,
     player: PlayerId = PlayerId.PLAYER_1,
+    cond_group: AnyPlayerId = PlayerId.PLAYER_8,
+    act_group: AnyPlayerId = PlayerId.PLAYER_1,
     cond_amount: Optional[int] = None,
     act_amount: Optional[int] = None,
 ) -> RichTrigger:
     return RichTrigger(
         _conditions=[
             DeathsCondition(
-                _group=PlayerId.PLAYER_8,
+                _group=cond_group,
                 _unit=unit,
                 _comparator=NumericComparator.AT_LEAST,
                 _amount=i if cond_amount is None else cond_amount,
@@ -58,7 +64,7 @@ def _trigger(
         ],
         _actions=[
             SetDeathsAction(
-                _group=PlayerId.PLAYER_1,
+                _group=act_group,
                 _unit=unit,
                 _amount=i if act_amount is None else act_amount,
                 _amount_modifier=AmountModifier.SET_TO,
@@ -142,3 +148,40 @@ def test_template_cache_does_not_leak_between_unrelated_lists():
     del first
     other = [_trigger(i, unit=UnitId.ZERG_ZERGLING) for i in range(1, 6)]
     _assert_matches_unoptimized(other)
+
+
+def test_it_encodes_separate_but_equal_extended_groups_like_the_unoptimized_path():
+    triggers = [
+        _trigger(
+            i,
+            cond_group=_ExtendedPlayerId(500),
+            act_group=_ExtendedPlayerId(4294956727),
+        )
+        for i in range(300)
+    ]
+    assert triggers[0]._conditions[0].group is not triggers[1]._conditions[0].group
+    assert _encode(triggers, optimize=True) == _encode(triggers, optimize=False)
+
+
+def test_it_encodes_different_extended_groups_per_trigger_like_the_unoptimized_path():
+    triggers = [
+        _trigger(i, cond_group=_ExtendedPlayerId(500 + (i % 3))) for i in range(300)
+    ]
+    assert _encode(triggers, optimize=True) == _encode(triggers, optimize=False)
+
+
+def test_it_keeps_the_fast_path_for_uniform_extended_groups():
+    optimizer = BatchedTrigEncodeOptimizer()
+    uniform = [
+        _trigger(
+            i,
+            cond_group=_ExtendedPlayerId(500),
+            act_group=_ExtendedPlayerId(4294956727),
+        )
+        for i in range(300)
+    ]
+    varying = [
+        _trigger(i, cond_group=_ExtendedPlayerId(500 + (i % 3))) for i in range(300)
+    ]
+    assert optimizer._build_template_info(uniform)
+    assert not optimizer._build_template_info(varying)

@@ -1,7 +1,7 @@
 import dataclasses
 
 from ..enums.score_type import ScoreType
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_condition import (
     RichTriggerCondition,
     _RichTriggerConditionDefaultsBase,
@@ -13,7 +13,7 @@ from .comparators.numeric_comparator import NumericComparator
 @dataclasses.dataclass(frozen=True)
 class _ScoreConditionBase(RichTriggerCondition):
 
-    _group: PlayerId
+    _group: AnyPlayerId
     _comparator: NumericComparator
     _amount: int
     _score_type: ScoreType
@@ -23,7 +23,7 @@ class _ScoreConditionBase(RichTriggerCondition):
         return TriggerConditionId.SCORE
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

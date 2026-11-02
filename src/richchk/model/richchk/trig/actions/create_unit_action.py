@@ -3,14 +3,14 @@ from abc import ABC
 
 from ...mrgn.rich_location import RichLocation
 from ...unis.unit_id import UnitId
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_action import RichTriggerAction, _RichTriggerActionDefaultsBase
 from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _CreateUnitActionBase(RichTriggerAction, ABC):
-    _group: PlayerId
+    _group: AnyPlayerId
     _amount: int
     _unit: UnitId
     _location: RichLocation
@@ -20,7 +20,7 @@ class _CreateUnitActionBase(RichTriggerAction, ABC):
         return TriggerActionId.CREATE_UNIT
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

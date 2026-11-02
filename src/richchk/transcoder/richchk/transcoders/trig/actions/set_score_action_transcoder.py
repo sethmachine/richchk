@@ -6,9 +6,9 @@ from ......model.richchk.richchk_encode_context import RichChkEncodeContext
 from ......model.richchk.trig.actions.set_score_action import SetScoreAction
 from ......model.richchk.trig.enums.amount_modifier import AmountModifier
 from ......model.richchk.trig.enums.score_type import ScoreType
-from ......model.richchk.trig.player_id import PlayerId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from ...helpers.richchk_player_id_transcoder import RichChkPlayerIdTranscoder
 from ..rich_trigger_action_transcoder import RichTriggerActionTranscoder
 from ..rich_trigger_action_transcoder_factory import (
     _RichTriggerActionRegistrableTranscoder,
@@ -30,9 +30,7 @@ class RichTriggerSetScoreActionTranscoder(
     ) -> SetScoreAction:
         assert decoded_action.action_id == SetScoreAction.action_id().id
         return SetScoreAction(
-            _group=RichChkEnumTranscoder.decode_enum(
-                decoded_action.first_group, PlayerId
-            ),
+            _group=RichChkPlayerIdTranscoder.decode(decoded_action.first_group),
             _amount_modifier=RichChkEnumTranscoder.decode_enum(
                 decoded_action.quantifier_or_switch_or_order, AmountModifier
             ),
@@ -52,7 +50,7 @@ class RichTriggerSetScoreActionTranscoder(
             _text_string_id=0,
             _wav_string_id=0,
             _time=0,
-            _first_group=RichChkEnumTranscoder.encode_enum(rich_action.group),
+            _first_group=RichChkPlayerIdTranscoder.encode(rich_action.group),
             _second_group=rich_action.amount,
             _action_argument_type=RichChkEnumTranscoder.encode_enum(
                 rich_action.score_type

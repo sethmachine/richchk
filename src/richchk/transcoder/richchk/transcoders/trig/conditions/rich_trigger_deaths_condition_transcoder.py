@@ -6,10 +6,10 @@ from ......model.richchk.trig.conditions.comparators.numeric_comparator import (
     NumericComparator,
 )
 from ......model.richchk.trig.conditions.deaths_condition import DeathsCondition
-from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from ...helpers.richchk_player_id_transcoder import RichChkPlayerIdTranscoder
 from ..rich_trigger_condition_transcoder import RichTriggerConditionTranscoder
 from ..rich_trigger_condition_transcoder_factory import (
     _RichTriggerConditionRegistrableTranscoder,
@@ -33,7 +33,7 @@ class RichTriggerDeathsConditionTranscoder(
     ) -> DeathsCondition:
         assert decoded_condition.condition_id == DeathsCondition.condition_id().id
         return DeathsCondition(
-            _group=RichChkEnumTranscoder.decode_enum(decoded_condition.group, PlayerId),
+            _group=RichChkPlayerIdTranscoder.decode(decoded_condition.group),
             _comparator=RichChkEnumTranscoder.decode_enum(
                 decoded_condition.numeric_comparison_operation, NumericComparator
             ),
@@ -48,7 +48,7 @@ class RichTriggerDeathsConditionTranscoder(
     ) -> DecodedTriggerCondition:
         return DecodedTriggerCondition(
             _location_id=0,
-            _group=rich_condition._group._id,
+            _group=RichChkPlayerIdTranscoder.encode(rich_condition._group),
             _quantity=rich_condition._amount,
             _unit_id=rich_condition._unit._id,
             _numeric_comparison_operation=rich_condition._comparator._id,

@@ -7,9 +7,9 @@ from ......model.richchk.trig.conditions.comparators.numeric_comparator import (
 )
 from ......model.richchk.trig.conditions.score_condition import ScoreCondition
 from ......model.richchk.trig.enums.score_type import ScoreType
-from ......model.richchk.trig.player_id import PlayerId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from ...helpers.richchk_player_id_transcoder import RichChkPlayerIdTranscoder
 from ..rich_trigger_condition_transcoder import RichTriggerConditionTranscoder
 from ..rich_trigger_condition_transcoder_factory import (
     _RichTriggerConditionRegistrableTranscoder,
@@ -31,7 +31,7 @@ class RichTriggerScoreConditionTranscoder(
     ) -> ScoreCondition:
         assert decoded_condition.condition_id == ScoreCondition.condition_id().id
         return ScoreCondition(
-            _group=RichChkEnumTranscoder.decode_enum(decoded_condition.group, PlayerId),
+            _group=RichChkPlayerIdTranscoder.decode(decoded_condition.group),
             _comparator=RichChkEnumTranscoder.decode_enum(
                 decoded_condition.numeric_comparison_operation, NumericComparator
             ),
@@ -48,7 +48,7 @@ class RichTriggerScoreConditionTranscoder(
     ) -> DecodedTriggerCondition:
         return DecodedTriggerCondition(
             _location_id=0,
-            _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
+            _group=RichChkPlayerIdTranscoder.encode(rich_condition.group),
             _quantity=rich_condition.amount,
             _unit_id=0,
             _numeric_comparison_operation=RichChkEnumTranscoder.encode_enum(

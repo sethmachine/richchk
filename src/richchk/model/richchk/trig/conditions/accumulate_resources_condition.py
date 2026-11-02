@@ -1,7 +1,7 @@
 import dataclasses
 
 from ..enums.resource_type import ResourceType
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_condition import (
     RichTriggerCondition,
     _RichTriggerConditionDefaultsBase,
@@ -12,7 +12,7 @@ from .comparators.numeric_comparator import NumericComparator
 
 @dataclasses.dataclass(frozen=True)
 class _AccumulateResourcesConditionBase(RichTriggerCondition):
-    _group: PlayerId
+    _group: AnyPlayerId
     _comparator: NumericComparator
     _amount: int
     _resource: ResourceType
@@ -22,7 +22,7 @@ class _AccumulateResourcesConditionBase(RichTriggerCondition):
         return TriggerConditionId.ACCUMULATE
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

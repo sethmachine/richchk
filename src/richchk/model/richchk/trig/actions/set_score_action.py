@@ -3,14 +3,14 @@ from abc import ABC
 
 from ..enums.amount_modifier import AmountModifier
 from ..enums.score_type import ScoreType
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_action import RichTriggerAction, _RichTriggerActionDefaultsBase
 from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _SetScoreActionBase(RichTriggerAction, ABC):
-    _group: PlayerId
+    _group: AnyPlayerId
     _amount_modifier: AmountModifier
     _amount: int
     _score_type: ScoreType
@@ -20,7 +20,7 @@ class _SetScoreActionBase(RichTriggerAction, ABC):
         return TriggerActionId.SET_SCORE
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

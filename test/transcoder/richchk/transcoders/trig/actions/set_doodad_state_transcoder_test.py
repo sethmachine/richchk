@@ -17,13 +17,13 @@ from richchk.transcoder.richchk.transcoders.trig.actions.set_doodad_state_transc
 )
 
 
-def _decoded_action(location_id: int) -> DecodedTriggerAction:
+def _decoded_action(location_id: int, first_group: int = 0) -> DecodedTriggerAction:
     return DecodedTriggerAction(
         _location_id=location_id,
         _text_string_id=0,
         _wav_string_id=0,
         _time=0,
-        _first_group=0,
+        _first_group=first_group,
         _second_group=0,
         _action_argument_type=0,
         _action_id=SetDoodadStateAction.action_id().id,
@@ -72,3 +72,28 @@ def test_it_round_trips_the_location_id(location_id, mrgn_lookup, str_lookup):
         ),
     )
     assert encoded.location_id == location_id
+
+
+@pytest.mark.parametrize("first_group", [0, 12, 26, 27, 255, 4294956727])
+def test_it_round_trips_the_player_group(first_group, mrgn_lookup, str_lookup):
+    transcoder = RichTriggerSetDoodadStateTranscoder()
+    rich = transcoder.decode(
+        _decoded_action(5, first_group),
+        RichChkDecodeContext(
+            _rich_str_lookup=str_lookup, _rich_mrgn_lookup=mrgn_lookup
+        ),
+    )
+    encoded = transcoder.encode(
+        rich,
+        RichChkEncodeContext(
+            _rich_str_lookup=str_lookup,
+            _rich_mrgn_lookup=mrgn_lookup,
+            _rich_swnm_lookup=RichSwnmLookup(
+                _switch_by_id_lookup={}, _id_by_switch_lookup={}
+            ),
+            _rich_cuwp_lookup=RichCuwpLookup(
+                _cuwp_by_id_lookup={}, _id_by_cuwp_lookup={}
+            ),
+        ),
+    )
+    assert encoded.first_group == first_group

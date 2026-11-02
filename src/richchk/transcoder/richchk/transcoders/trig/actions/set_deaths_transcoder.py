@@ -5,10 +5,10 @@ from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
 from ......model.richchk.trig.actions.set_deaths_action import SetDeathsAction
 from ......model.richchk.trig.enums.amount_modifier import AmountModifier
-from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from ...helpers.richchk_player_id_transcoder import RichChkPlayerIdTranscoder
 from ..rich_trigger_action_transcoder import RichTriggerActionTranscoder
 from ..rich_trigger_action_transcoder_factory import (
     _RichTriggerActionRegistrableTranscoder,
@@ -32,9 +32,7 @@ class RichTriggerSetDeathsActionTranscoder(
     ) -> SetDeathsAction:
         assert decoded_action.action_id == SetDeathsAction.action_id().id
         return SetDeathsAction(
-            _group=RichChkEnumTranscoder.decode_enum(
-                decoded_action.first_group, PlayerId
-            ),
+            _group=RichChkPlayerIdTranscoder.decode(decoded_action.first_group),
             _amount=decoded_action.second_group,
             _unit=RichChkEnumTranscoder.decode_enum(
                 decoded_action.action_argument_type, UnitId
@@ -54,7 +52,7 @@ class RichTriggerSetDeathsActionTranscoder(
             _text_string_id=0,
             _wav_string_id=0,
             _time=0,
-            _first_group=rich_action._group._id,
+            _first_group=RichChkPlayerIdTranscoder.encode(rich_action._group),
             _second_group=rich_action._amount,
             _action_argument_type=rich_action._unit._id,
             _action_id=self._ACTION_ID_INT,

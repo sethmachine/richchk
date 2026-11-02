@@ -6,10 +6,10 @@ from ......model.richchk.trig.conditions.bring_condition import BringCondition
 from ......model.richchk.trig.conditions.comparators.numeric_comparator import (
     NumericComparator,
 )
-from ......model.richchk.trig.player_id import PlayerId
 from ......model.richchk.unis.unit_id import UnitId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from ...helpers.richchk_player_id_transcoder import RichChkPlayerIdTranscoder
 from ..rich_trigger_condition_transcoder import RichTriggerConditionTranscoder
 from ..rich_trigger_condition_transcoder_factory import (
     _RichTriggerConditionRegistrableTranscoder,
@@ -31,7 +31,7 @@ class RichTriggerBringConditionTranscoder(
     ) -> BringCondition:
         assert decoded_condition.condition_id == BringCondition.condition_id().id
         return BringCondition(
-            _group=RichChkEnumTranscoder.decode_enum(decoded_condition.group, PlayerId),
+            _group=RichChkPlayerIdTranscoder.decode(decoded_condition.group),
             _comparator=RichChkEnumTranscoder.decode_enum(
                 decoded_condition.numeric_comparison_operation, NumericComparator
             ),
@@ -51,7 +51,7 @@ class RichTriggerBringConditionTranscoder(
             _location_id=rich_chk_encode_context.rich_mrgn_lookup.get_id_by_location_or_throw(
                 rich_condition.location
             ),
-            _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
+            _group=RichChkPlayerIdTranscoder.encode(rich_condition.group),
             _quantity=rich_condition.amount,
             _unit_id=RichChkEnumTranscoder.encode_enum(rich_condition.unit),
             _numeric_comparison_operation=RichChkEnumTranscoder.encode_enum(

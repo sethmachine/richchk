@@ -9,9 +9,9 @@ from ......model.richchk.trig.conditions.comparators.numeric_comparator import (
     NumericComparator,
 )
 from ......model.richchk.trig.enums.resource_type import ResourceType
-from ......model.richchk.trig.player_id import PlayerId
 from ......util import logger
 from ...helpers.richchk_enum_transcoder import RichChkEnumTranscoder
+from ...helpers.richchk_player_id_transcoder import RichChkPlayerIdTranscoder
 from ..rich_trigger_condition_transcoder import RichTriggerConditionTranscoder
 from ..rich_trigger_condition_transcoder_factory import (
     _RichTriggerConditionRegistrableTranscoder,
@@ -40,7 +40,7 @@ class RichTriggerAccumulateResourcesConditionTranscoder(
             == AccumulateResourcesCondition.condition_id().id
         )
         return AccumulateResourcesCondition(
-            _group=RichChkEnumTranscoder.decode_enum(decoded_condition.group, PlayerId),
+            _group=RichChkPlayerIdTranscoder.decode(decoded_condition.group),
             _comparator=RichChkEnumTranscoder.decode_enum(
                 decoded_condition.numeric_comparison_operation, NumericComparator
             ),
@@ -57,7 +57,7 @@ class RichTriggerAccumulateResourcesConditionTranscoder(
     ) -> DecodedTriggerCondition:
         return DecodedTriggerCondition(
             _location_id=0,
-            _group=RichChkEnumTranscoder.encode_enum(rich_condition.group),
+            _group=RichChkPlayerIdTranscoder.encode(rich_condition.group),
             _quantity=rich_condition.amount,
             _unit_id=0,
             _numeric_comparison_operation=RichChkEnumTranscoder.encode_enum(

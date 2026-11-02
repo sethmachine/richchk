@@ -1,6 +1,6 @@
 import dataclasses
 
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_condition import (
     RichTriggerCondition,
     _RichTriggerConditionDefaultsBase,
@@ -12,7 +12,7 @@ from .comparators.numeric_comparator import NumericComparator
 @dataclasses.dataclass(frozen=True)
 class _OpponentsRemainingConditionBase(RichTriggerCondition):
 
-    _group: PlayerId
+    _group: AnyPlayerId
     _amount: int
     _comparator: NumericComparator
 
@@ -21,7 +21,7 @@ class _OpponentsRemainingConditionBase(RichTriggerCondition):
         return TriggerConditionId.OPPONENTS
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

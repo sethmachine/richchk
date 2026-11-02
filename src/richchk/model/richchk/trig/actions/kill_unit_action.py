@@ -2,14 +2,14 @@ import dataclasses
 from abc import ABC
 
 from ...unis.unit_id import UnitId
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_action import RichTriggerAction, _RichTriggerActionDefaultsBase
 from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _KillUnitActionBase(RichTriggerAction, ABC):
-    _group: PlayerId
+    _group: AnyPlayerId
     _unit: UnitId
 
     @classmethod
@@ -17,7 +17,7 @@ class _KillUnitActionBase(RichTriggerAction, ABC):
         return TriggerActionId.KILL_UNIT
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

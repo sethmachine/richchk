@@ -1,7 +1,7 @@
 import dataclasses
 
 from ...unis.unit_id import UnitId
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_condition import (
     RichTriggerCondition,
     _RichTriggerConditionDefaultsBase,
@@ -17,7 +17,7 @@ from .flags.trigger_condition_flags import (
 @dataclasses.dataclass(frozen=True)
 class _DeathsConditionBase(RichTriggerCondition):
 
-    _group: PlayerId
+    _group: AnyPlayerId
     _comparator: NumericComparator
     _amount: int
     _unit: UnitId
@@ -27,7 +27,7 @@ class _DeathsConditionBase(RichTriggerCondition):
         return TriggerConditionId.DEATHS
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property
@@ -50,7 +50,7 @@ class DeathsCondition(
 ):
     def __init__(
         self,
-        _group: PlayerId,
+        _group: AnyPlayerId,
         _comparator: NumericComparator,
         _amount: int,
         _unit: UnitId,
