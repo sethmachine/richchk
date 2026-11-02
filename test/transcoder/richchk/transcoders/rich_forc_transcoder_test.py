@@ -6,7 +6,7 @@ from richchk.model.richchk.forc.force_id import ForceId
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
-from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.str.rich_string import RichString, _RichNullString
 from richchk.transcoder.chk.transcoders.chk_forc_transcoder import ChkForcTranscoder
 from richchk.transcoder.richchk.transcoders.rich_forc_transcoder import (
     RichForcTranscoder,
@@ -81,8 +81,8 @@ def test_it_decodes_force_names(real_decoded_forc, decode_context):
     rich_forc = RichForcTranscoder().decode(real_decoded_forc, decode_context)
     assert rich_forc.forces[0].name == RichString(_value=_FORCE_0_NAME)
     assert rich_forc.forces[1].name == RichString(_value=_FORCE_1_NAME)
-    assert isinstance(rich_forc.forces[2].name, RichNullString)
-    assert isinstance(rich_forc.forces[3].name, RichNullString)
+    assert isinstance(rich_forc.forces[2].name, _RichNullString)
+    assert isinstance(rich_forc.forces[3].name, _RichNullString)
 
 
 def test_it_decodes_force_flags(real_decoded_forc, decode_context):

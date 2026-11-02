@@ -13,7 +13,7 @@ class RichString:
 
 
 @dataclasses.dataclass(frozen=True)
-class RichNullString(RichString):
+class _RichNullString(RichString):
     """Indicates the absence of a non-default string name."""
 
     _value: str = ""
@@ -21,12 +21,12 @@ class RichNullString(RichString):
     def __post_init__(self) -> None:
         if self._value:
             raise ValueError(
-                "RichNullString can only have empty string values.  "
+                "_RichNullString can only have empty string values.  "
                 "Do not use this class to store custom string data."
             )
 
 
 def is_rich_string_null_or_empty(rs: RichString) -> bool:
-    if isinstance(rs, RichNullString):
+    if isinstance(rs, _RichNullString):
         return True
     return not rs.value

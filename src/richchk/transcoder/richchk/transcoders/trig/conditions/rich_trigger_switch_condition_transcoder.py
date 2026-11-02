@@ -2,7 +2,7 @@
 from ......model.chk.trig.decoded_trigger_condition import DecodedTriggerCondition
 from ......model.richchk.richchk_decode_context import RichChkDecodeContext
 from ......model.richchk.richchk_encode_context import RichChkEncodeContext
-from ......model.richchk.str.rich_string import RichNullString
+from ......model.richchk.str.rich_string import _RichNullString
 from ......model.richchk.swnm.rich_switch import RichSwitch
 from ......model.richchk.trig.conditions.switch_condition import SwitchCondition
 from ......model.richchk.trig.enums.switch_state import SwitchState
@@ -47,7 +47,7 @@ class RichTriggerSwitchConditionTranscoder(
             switch_id
         )
         if not maybe_switch:
-            return RichSwitch(_custom_name=RichNullString(), _index=switch_id)
+            return RichSwitch(_custom_name=_RichNullString(), _index=switch_id)
         return maybe_switch
 
     def _encode(

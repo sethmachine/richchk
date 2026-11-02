@@ -36,7 +36,7 @@ from ....model.chk.unis.unis_constants import NUM_UNITS
 from ....model.chk.unix.decoded_unix_section import DecodedUnixSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
 from ....model.richchk.richchk_encode_context import RichChkEncodeContext
-from ....model.richchk.str.rich_string import RichNullString
+from ....model.richchk.str.rich_string import _RichNullString
 from ....model.richchk.unis.unit_id import UnitId
 from ....model.richchk.unis.unit_setting import UnitSetting
 from ....model.richchk.unis.unit_to_weapon_lookup import get_weapons_for_unit
@@ -145,7 +145,7 @@ class RichChkUnixTranscoder(
             and (unit_setting.mineral_cost == 0)
             and (unit_setting.gas_cost == 0)
             and (unit_setting.build_time == 0)
-            and (isinstance(unit_setting.custom_unit_name, RichNullString))
+            and (isinstance(unit_setting.custom_unit_name, _RichNullString))
             and (
                 all(
                     [
@@ -187,7 +187,7 @@ class RichChkUnixTranscoder(
             build_times[unit_setting.unit_id.id] = unit_setting.build_time
             mineral_costs[unit_setting.unit_id.id] = unit_setting.mineral_cost
             gas_costs[unit_setting.unit_id.id] = unit_setting.gas_cost
-            if isinstance(unit_setting.custom_unit_name, RichNullString):
+            if isinstance(unit_setting.custom_unit_name, _RichNullString):
                 # units without modified names use 0 as their string ID
                 string_ids[unit_setting.unit_id.id] = 0
             else:

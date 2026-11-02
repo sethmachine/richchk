@@ -9,7 +9,7 @@ from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
-from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.str.rich_string import RichString, _RichNullString
 from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from richchk.model.richchk.unis.unit_id import UnitId
 from richchk.model.richchk.unis.weapon_id import WeaponId
@@ -216,7 +216,7 @@ def test_it_decodes_rich_unis_with_null_string_for_unit(
     assert rich_unis.unit_settings[0].build_time == 60
     assert rich_unis.unit_settings[0].mineral_cost == 25
     assert rich_unis.unit_settings[0].gas_cost == 75
-    assert rich_unis.unit_settings[0].custom_unit_name == RichNullString()
+    assert rich_unis.unit_settings[0].custom_unit_name == _RichNullString()
     assert rich_unis.unit_settings[0].weapons == [
         WeaponSetting(
             _weapon_id=RichChkEnumTranscoder.decode_enum(0, WeaponId),
@@ -236,7 +236,7 @@ def test_it_decodes_rich_unis_for_unit_without_weapons(
         rich_chk_decode_context=rich_chk_decode_context,
     )
     assert len(rich_unis.unit_settings) == 1
-    assert rich_unis.unit_settings[0].custom_unit_name == RichNullString()
+    assert rich_unis.unit_settings[0].custom_unit_name == _RichNullString()
     assert rich_unis.unit_settings[0].weapons == []
 
 

@@ -33,12 +33,12 @@ class RichTriggerOrderActionTranscoder(
         assert rich_chk_decode_context.rich_mrgn_lookup is not None
         # Location - source location in "Order" and "Move Unit", dest location in "Move Location"
         maybe_source_location = (
-            rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
+            rich_chk_decode_context.rich_mrgn_lookup.resolve_location_id(
                 decoded_action.location_id
             )
         )
         maybe_destination_location = (
-            rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
+            rich_chk_decode_context.rich_mrgn_lookup.resolve_location_id(
                 decoded_action.second_group
             )
         )

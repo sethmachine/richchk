@@ -37,7 +37,7 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 import dataclasses
 from typing import Any, Optional
 
-from ..str.rich_string import RichString
+from ..str.rich_string import RichString, _RichNullString, is_rich_string_null_or_empty
 
 
 @dataclasses.dataclass(frozen=True)
@@ -54,6 +54,34 @@ class RichLocation:
     _low_air: bool = True
     _medium_air: bool = True
     _high_air: bool = True
+
+    @classmethod
+    def unused_slot(cls, index: int) -> "RichLocation":
+        return cls(
+            _left_x1=0,
+            _top_y1=0,
+            _right_x2=0,
+            _bottom_y2=0,
+            _custom_location_name=_RichNullString(),
+            _index=index,
+        )
+
+    @property
+    def is_unused_slot(self) -> bool:
+        return (
+            self._index is not None
+            and self._left_x1 == 0
+            and self._top_y1 == 0
+            and self._right_x2 == 0
+            and self._bottom_y2 == 0
+            and is_rich_string_null_or_empty(self._custom_location_name)
+            and self._low_elevation
+            and self._medium_elevation
+            and self._high_elevation
+            and self._low_air
+            and self._medium_air
+            and self._high_air
+        )
 
     def __eq__(self, other: object) -> bool:
         # 2 locations are only equal if they both have been allocated an index in the MRGN
@@ -139,3 +167,16 @@ class RichLocation:
     @property
     def high_air(self) -> bool:
         return self._high_air
+
+
+class _RichNullLocation(RichLocation):
+    """Indicates a trigger action or condition that references location ID 0 (No
+    Location).
+
+    The CHK requires a location for these actions and conditions, but real maps leave it
+    unset. It does not point to any MRGN entry, and encoding it writes location ID 0
+    back unchanged.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(0, 0, 0, 0, _RichNullString(), 0)

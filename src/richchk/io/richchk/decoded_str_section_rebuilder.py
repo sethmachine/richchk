@@ -10,7 +10,7 @@ from ...model.chk.str.decoded_str_section import DecodedStrSection
 from ...model.chk.strx.decoded_strx_section import DecodedStrxSection
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
-from ...model.richchk.str.rich_string import RichNullString, RichString
+from ...model.richchk.str.rich_string import RichString, _RichNullString
 from .query.chk_query_util import ChkQueryUtil
 
 
@@ -66,7 +66,7 @@ class DecodedStrSectionRebuilder:
     @staticmethod
     def _walk_object_for_rich_strings(obj: object) -> OrderedDict[RichString, int]:
         strings = OrderedDict()
-        if isinstance(obj, RichString) and not isinstance(obj, RichNullString):
+        if isinstance(obj, RichString) and not isinstance(obj, _RichNullString):
             strings[obj] = 0
         elif isinstance(obj, (list, set, tuple)):
             for element in obj:

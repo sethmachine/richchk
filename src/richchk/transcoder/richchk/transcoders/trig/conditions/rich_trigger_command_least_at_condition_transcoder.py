@@ -34,7 +34,7 @@ class RichTriggerCommandLeastAtConditionTranscoder(
         )
         return CommandLeastAtCondition(
             _unit=RichChkEnumTranscoder.decode_enum(decoded_condition.unit_id, UnitId),
-            _location=rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id_or_throw(
+            _location=rich_chk_decode_context.rich_mrgn_lookup.resolve_location_id_or_throw(
                 decoded_condition.location_id
             ),
         )

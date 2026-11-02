@@ -3,7 +3,7 @@ import pytest
 from richchk.io.richchk.lookups.swnm.rich_swnm_rebuilder import RichSwnmRebuilder
 from richchk.model.chk.swnm.swnm_constants import MAX_SWITCHES
 from richchk.model.richchk.rich_chk import RichChk
-from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.str.rich_string import RichString, _RichNullString
 from richchk.model.richchk.swnm.rich_switch import RichSwitch
 from richchk.model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from richchk.model.richchk.trig.conditions.switch_condition import SwitchCondition
@@ -18,7 +18,7 @@ def rich_chk_with_switches() -> RichChk:
         _chk_sections=[
             RichSwnmSection(
                 _switches=[
-                    RichSwitch(RichNullString(), _index=x)
+                    RichSwitch(_RichNullString(), _index=x)
                     for x in range(0, MAX_SWITCHES)
                 ]
             ),
@@ -54,14 +54,14 @@ def rich_chk_with_switches() -> RichChk:
                             SwitchCondition(
                                 _switch_state=SwitchState.SET,
                                 _switch=RichSwitch(
-                                    _custom_name=RichNullString(),
+                                    _custom_name=_RichNullString(),
                                     _index=200,
                                 ),
                             ),
                             SwitchCondition(
                                 _switch_state=SwitchState.SET,
                                 _switch=RichSwitch(
-                                    _custom_name=RichNullString(),
+                                    _custom_name=_RichNullString(),
                                     _index=200,
                                 ),
                             ),
@@ -81,7 +81,7 @@ def rich_chk_with_more_than_max_unique_switches() -> RichChk:
         _chk_sections=[
             RichSwnmSection(
                 _switches=[
-                    RichSwitch(RichNullString(), _index=x)
+                    RichSwitch(_RichNullString(), _index=x)
                     for x in range(0, MAX_SWITCHES)
                 ]
             ),
@@ -109,7 +109,7 @@ def rich_chk_with_more_than_max_switches_but_not_all_unique() -> RichChk:
         _chk_sections=[
             RichSwnmSection(
                 _switches=[
-                    RichSwitch(RichNullString(), _index=x)
+                    RichSwitch(_RichNullString(), _index=x)
                     for x in range(0, MAX_SWITCHES)
                 ]
             ),

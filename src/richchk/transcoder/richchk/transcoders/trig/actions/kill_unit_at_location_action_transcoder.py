@@ -34,7 +34,7 @@ class RichTriggerKillUnitAtLocationActionTranscoder(
     ) -> KillUnitAtLocationAction:
         assert decoded_action.action_id == KillUnitAtLocationAction.action_id().id
         assert rich_chk_decode_context.rich_mrgn_lookup is not None
-        maybe_location = rich_chk_decode_context.rich_mrgn_lookup.get_location_by_id(
+        maybe_location = rich_chk_decode_context.rich_mrgn_lookup.resolve_location_id(
             decoded_action.location_id
         )
         assert isinstance(maybe_location, RichLocation)

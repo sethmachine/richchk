@@ -9,7 +9,7 @@ import logging
 
 from ....model.chk.unis.decoded_unis_section import _STRING_ID_FOR_DEFAULT_UNIT_NAME
 from ....util import logger
-from .rich_string import RichNullString, RichString
+from .rich_string import RichString, _RichNullString
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,18 +28,18 @@ class RichStrLookup:
             self._log.warning(
                 f"No string found for string ID {string_id}.  "
                 f"Verify the string ID is valid.  "
-                f"This will return a RichNullString for non-existent entries."
+                f"This will return a _RichNullString for non-existent entries."
             )
         elif string_id == _STRING_ID_FOR_DEFAULT_UNIT_NAME:
             self._log.debug(
                 f"String ID is {_STRING_ID_FOR_DEFAULT_UNIT_NAME}, "
-                f"returning RichNullString "
+                f"returning _RichNullString "
                 f"as this means the object uses its default name."
             )
-        return self._string_by_id_lookup.get(string_id, RichNullString())
+        return self._string_by_id_lookup.get(string_id, _RichNullString())
 
     def get_id_by_string(self, rich_string: RichString) -> int:
-        if isinstance(rich_string, RichNullString):
+        if isinstance(rich_string, _RichNullString):
             # zero corresponds to unused string value for the object
             return 0
         return self._id_by_string_lookup[rich_string.value]
