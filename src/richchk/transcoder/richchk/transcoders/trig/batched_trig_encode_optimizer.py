@@ -122,7 +122,7 @@ class BatchedTrigEncodeOptimizer:
                 if (
                     type(c) is not DeathsCondition
                     or c.flags is not _DEFAULT_TRIGGER_CONDITION_FLAGS
-                    or c.group is not c0.group
+                    or c.group != c0.group
                     or c.unit is not c0.unit
                     or c.comparator is not c0.comparator
                 ):
@@ -138,7 +138,7 @@ class BatchedTrigEncodeOptimizer:
                 if at is SetDeathsAction:
                     if (
                         a.flags is not _DEFAULT_TRIGGER_ACTION_FLAGS
-                        or a.group is not a0.group
+                        or a.group != a0.group
                         or a.unit is not a0.unit
                         or a.amount_modifier is not a0.amount_modifier
                     ):

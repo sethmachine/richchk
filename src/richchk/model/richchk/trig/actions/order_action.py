@@ -4,14 +4,14 @@ from abc import ABC
 from ...mrgn.rich_location import RichLocation
 from ...unis.unit_id import UnitId
 from ..enums.unit_order import UnitOrder
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_action import RichTriggerAction, _RichTriggerActionDefaultsBase
 from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _OrderActionBase(RichTriggerAction, ABC):
-    _group: PlayerId
+    _group: AnyPlayerId
     _unit: UnitId
     _source_location: RichLocation
     _destination_location: RichLocation
@@ -22,7 +22,7 @@ class _OrderActionBase(RichTriggerAction, ABC):
         return TriggerActionId.ORDER
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property

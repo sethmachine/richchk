@@ -7,14 +7,14 @@ from ..actions.flags.trigger_action_flags import (
     TriggerActionFlags,
 )
 from ..enums.amount_modifier import AmountModifier
-from ..player_id import PlayerId
+from ..extended_player_id import AnyPlayerId
 from ..rich_trigger_action import RichTriggerAction, _RichTriggerActionDefaultsBase
 from ..trigger_action_id import TriggerActionId
 
 
 @dataclasses.dataclass(frozen=True)
 class _SetDeathsActionBase(RichTriggerAction, ABC):
-    _group: PlayerId
+    _group: AnyPlayerId
     _unit: UnitId
     _amount: int
     _amount_modifier: AmountModifier
@@ -24,7 +24,7 @@ class _SetDeathsActionBase(RichTriggerAction, ABC):
         return TriggerActionId.SET_DEATHS
 
     @property
-    def group(self) -> PlayerId:
+    def group(self) -> AnyPlayerId:
         return self._group
 
     @property
@@ -44,7 +44,7 @@ class _SetDeathsActionBase(RichTriggerAction, ABC):
 class SetDeathsAction(_RichTriggerActionDefaultsBase, _SetDeathsActionBase):
     def __init__(
         self,
-        _group: PlayerId,
+        _group: AnyPlayerId,
         _unit: UnitId,
         _amount: int,
         _amount_modifier: AmountModifier,
