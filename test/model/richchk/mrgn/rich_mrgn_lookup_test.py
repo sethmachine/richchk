@@ -1,6 +1,6 @@
 import pytest
 
-from richchk.model.richchk.mrgn.rich_location import RichLocation
+from richchk.model.richchk.mrgn.rich_location import RichLocation, RichNullLocation
 from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from richchk.model.richchk.str.rich_string import RichNullString, RichString
 
@@ -32,12 +32,25 @@ def test_it_still_reports_unallocated_ids_as_missing_when_checking_existence(loo
         lookup.get_location_by_id_or_throw(14)
 
 
-def test_it_resolves_no_location_id_to_an_unused_slot_with_index_zero(lookup):
+def test_it_resolves_no_location_id_to_a_null_location(lookup):
     location = lookup.resolve_location_id(0)
-    assert location is not None
+    assert isinstance(location, RichNullLocation)
     assert location.index == 0
-    assert location.is_unused_slot
     assert lookup.get_id_by_location_or_throw(location) == 0
+    assert lookup.resolve_location_id_or_throw(0) == RichNullLocation()
+
+
+def test_it_does_not_resolve_an_empty_slot_id_to_a_null_location(lookup):
+    assert not isinstance(lookup.resolve_location_id(14), RichNullLocation)
+
+
+def test_it_only_allows_the_null_location_to_be_empty_with_index_zero():
+    with pytest.raises(ValueError):
+        RichNullLocation(_index=5)
+    with pytest.raises(ValueError):
+        RichNullLocation(_right_x2=1)
+    with pytest.raises(ValueError):
+        RichNullLocation(_custom_location_name=RichString(_value="named"))
 
 
 def test_it_resolves_an_empty_slot_id_to_an_unused_slot_with_that_index(lookup):

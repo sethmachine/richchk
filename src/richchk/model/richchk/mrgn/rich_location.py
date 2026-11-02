@@ -167,3 +167,27 @@ class RichLocation:
     @property
     def high_air(self) -> bool:
         return self._high_air
+
+
+@dataclasses.dataclass(frozen=True, eq=False)
+class RichNullLocation(RichLocation):
+    """Indicates a trigger action or condition that references location ID 0 (No
+    Location).
+
+    The CHK requires a location for these actions and conditions, but real maps leave it
+    unset. Encoding this writes location ID 0 back unchanged.
+    """
+
+    _left_x1: int = 0
+    _top_y1: int = 0
+    _right_x2: int = 0
+    _bottom_y2: int = 0
+    _custom_location_name: RichString = RichNullString()
+    _index: Optional[int] = 0
+
+    def __post_init__(self) -> None:
+        if not self.is_unused_slot or self._index != 0:
+            raise ValueError(
+                "RichNullLocation can only be the empty location with index 0.  "
+                "Do not use this class to store location data."
+            )

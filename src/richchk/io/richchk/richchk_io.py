@@ -11,6 +11,7 @@ from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from ...model.chk.upus.decoded_upus_section import DecodedUpusSection
+from ...model.richchk.mrgn.rich_location import RichNullLocation
 from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
@@ -20,6 +21,7 @@ from ...model.richchk.richchk_encode_context import RichChkEncodeContext
 from ...model.richchk.str.rich_str_lookup import RichStrLookup
 from ...model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
+from ...model.richchk.trig.rich_trig_section import RichTrigSection
 from ...model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from ...model.richchk.uprp.rich_uprp_section import RichUprpSection
 from ...model.richchk.wav.rich_wav_metadata_lookup import RichWavMetadataLookup
@@ -70,7 +72,31 @@ class RichChkIo:
                     decoded_chk_section.section_name()
                 )
                 sections.append(transcoder.decode(decoded_chk_section, decode_context))
+        for section in sections:
+            if isinstance(section, RichTrigSection):
+                self._warn_if_triggers_have_null_locations(section)
         return RichChk(_chk_sections=sections)
+
+    def _warn_if_triggers_have_null_locations(self, trig: RichTrigSection) -> None:
+        counts: dict[str, int] = {}
+        num_triggers = 0
+        for trigger in trig.triggers:
+            found = False
+            for item in (*trigger.conditions, *trigger.actions):
+                for value in getattr(item, "__dict__", {}).values():
+                    if isinstance(value, RichNullLocation):
+                        name = type(item).__name__
+                        counts[name] = counts.get(name, 0) + 1
+                        found = True
+                        break
+            num_triggers += found
+        if counts:
+            details = ", ".join(f"{k} x{v}" for k, v in sorted(counts.items()))
+            self.log.warning(
+                f"{num_triggers} trigger(s) use location ID 0 (No Location) where the "
+                f"action or condition requires a location: {details}.  "
+                f"Decoded as RichNullLocation and written back as location ID 0."
+            )
 
     def encode_chk(
         self,
