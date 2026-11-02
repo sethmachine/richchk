@@ -12,6 +12,7 @@ from ....util import logger
 from .rich_location import RichLocation
 
 _UNUSED_LOCATION_ID = 0
+_MAX_LOCATION_ID = 255
 
 
 @dataclasses.dataclass(frozen=True)
@@ -59,11 +60,33 @@ class RichMrgnLookup:
         assert isinstance(maybe_location, RichLocation)
         return maybe_location
 
+    def resolve_location_id(self, location_id: int) -> Optional[RichLocation]:
+        maybe_location = self._location_by_id_lookup.get(location_id)
+        if maybe_location is not None:
+            return maybe_location
+        if _UNUSED_LOCATION_ID <= location_id <= _MAX_LOCATION_ID:
+            return RichLocation.unused_slot(location_id)
+        self._log.warning(
+            f"No location found for location ID {location_id}."
+            + "Verify the location ID is valid."
+        )
+        return None
+
+    def resolve_location_id_or_throw(self, location_id: int) -> RichLocation:
+        maybe_location = self.resolve_location_id(location_id)
+        if maybe_location is None:
+            self._log_and_throw_if_location_id_does_not_exist(location_id)
+        assert isinstance(maybe_location, RichLocation)
+        return maybe_location
+
     def get_id_by_location(self, location: RichLocation) -> Optional[int]:
-        return self._id_by_location_lookup.get(location, None)
+        maybe_location_id = self._id_by_location_lookup.get(location, None)
+        if maybe_location_id is None and location.is_unused_slot:
+            return location.index
+        return maybe_location_id
 
     def get_id_by_location_or_throw(self, location: RichLocation) -> int:
-        maybe_location_id = self._id_by_location_lookup.get(location, None)
+        maybe_location_id = self.get_id_by_location(location)
         if maybe_location_id is None:
             self._log_and_throw_if_location_does_not_exist(location)
         assert isinstance(maybe_location_id, int)

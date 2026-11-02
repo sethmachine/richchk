@@ -37,7 +37,7 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 import dataclasses
 from typing import Any, Optional
 
-from ..str.rich_string import RichString
+from ..str.rich_string import RichNullString, RichString, is_rich_string_null_or_empty
 
 
 @dataclasses.dataclass(frozen=True)
@@ -54,6 +54,34 @@ class RichLocation:
     _low_air: bool = True
     _medium_air: bool = True
     _high_air: bool = True
+
+    @classmethod
+    def unused_slot(cls, index: int) -> "RichLocation":
+        return cls(
+            _left_x1=0,
+            _top_y1=0,
+            _right_x2=0,
+            _bottom_y2=0,
+            _custom_location_name=RichNullString(),
+            _index=index,
+        )
+
+    @property
+    def is_unused_slot(self) -> bool:
+        return (
+            self._index is not None
+            and self._left_x1 == 0
+            and self._top_y1 == 0
+            and self._right_x2 == 0
+            and self._bottom_y2 == 0
+            and is_rich_string_null_or_empty(self._custom_location_name)
+            and self._low_elevation
+            and self._medium_elevation
+            and self._high_elevation
+            and self._low_air
+            and self._medium_air
+            and self._high_air
+        )
 
     def __eq__(self, other: object) -> bool:
         # 2 locations are only equal if they both have been allocated an index in the MRGN
