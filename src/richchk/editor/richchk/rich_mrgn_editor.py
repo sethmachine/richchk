@@ -21,7 +21,7 @@ class RichMrgnEditor:
     ) -> tuple[RichMrgnSection, RichMrgnLookup]:
         """Add the locations to the MRGN, allocating location indices where appropriate.
 
-        Skip RichNullLocation and unused slot locations, as they do not correspond to
+        Skip _RichNullLocation and unused slot locations, as they do not correspond to
         any MRGN entry.
         """
         unique_locations_to_add = self._build_location_set(

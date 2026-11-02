@@ -11,7 +11,7 @@ from ...model.chk.swnm.decoded_swnm_section import DecodedSwnmSection
 from ...model.chk.unknown.decoded_unknown_section import DecodedUnknownSection
 from ...model.chk.uprp.decoded_uprp_section import DecodedUprpSection
 from ...model.chk.upus.decoded_upus_section import DecodedUpusSection
-from ...model.richchk.mrgn.rich_location import RichNullLocation
+from ...model.richchk.mrgn.rich_location import _RichNullLocation
 from ...model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
@@ -84,7 +84,7 @@ class RichChkIo:
             found = False
             for item in (*trigger.conditions, *trigger.actions):
                 for value in getattr(item, "__dict__", {}).values():
-                    if isinstance(value, RichNullLocation):
+                    if isinstance(value, _RichNullLocation):
                         name = type(item).__name__
                         counts[name] = counts.get(name, 0) + 1
                         found = True
@@ -95,7 +95,7 @@ class RichChkIo:
             self.log.warning(
                 f"{num_triggers} trigger(s) use location ID 0 (No Location) where the "
                 f"action or condition requires a location: {details}.  "
-                f"Decoded as RichNullLocation and written back as location ID 0."
+                f"Decoded as _RichNullLocation and written back as location ID 0."
             )
 
     def encode_chk(

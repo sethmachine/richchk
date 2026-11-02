@@ -3,12 +3,12 @@
 import dataclasses
 from typing import Any, Optional
 
-from ..str.rich_string import RichNullString, RichString, is_rich_string_null_or_empty
+from ..str.rich_string import RichString, _RichNullString, is_rich_string_null_or_empty
 
 
 @dataclasses.dataclass(frozen=True)
 class RichSwitch:
-    _custom_name: RichString = RichNullString()
+    _custom_name: RichString = _RichNullString()
     _index: Optional[int] = None
 
     @property

@@ -37,7 +37,7 @@ larger than Top. However, you can reverse one or both of these for Inverted Loca
 import dataclasses
 from typing import Any, Optional
 
-from ..str.rich_string import RichNullString, RichString, is_rich_string_null_or_empty
+from ..str.rich_string import RichString, _RichNullString, is_rich_string_null_or_empty
 
 
 @dataclasses.dataclass(frozen=True)
@@ -62,7 +62,7 @@ class RichLocation:
             _top_y1=0,
             _right_x2=0,
             _bottom_y2=0,
-            _custom_location_name=RichNullString(),
+            _custom_location_name=_RichNullString(),
             _index=index,
         )
 
@@ -169,7 +169,7 @@ class RichLocation:
         return self._high_air
 
 
-class RichNullLocation(RichLocation):
+class _RichNullLocation(RichLocation):
     """Indicates a trigger action or condition that references location ID 0 (No
     Location).
 
@@ -179,4 +179,4 @@ class RichNullLocation(RichLocation):
     """
 
     def __init__(self) -> None:
-        super().__init__(0, 0, 0, 0, RichNullString(), 0)
+        super().__init__(0, 0, 0, 0, _RichNullString(), 0)

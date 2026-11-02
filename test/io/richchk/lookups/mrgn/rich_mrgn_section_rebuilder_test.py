@@ -1,7 +1,7 @@
 from richchk.io.richchk.lookups.mrgn.rich_mrgn_section_rebuilder import (
     RichMrgnSectionRebuilder,
 )
-from richchk.model.richchk.mrgn.rich_location import RichLocation, RichNullLocation
+from richchk.model.richchk.mrgn.rich_location import RichLocation, _RichNullLocation
 from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from richchk.model.richchk.rich_chk import RichChk
 from richchk.model.richchk.str.rich_string import RichString
@@ -36,7 +36,7 @@ def test_it_does_not_add_null_or_unused_slot_locations_to_the_mrgn():
     trig = RichTrigSection(
         _triggers=[
             _trigger(used),
-            _trigger(RichNullLocation()),
+            _trigger(_RichNullLocation()),
             _trigger(RichLocation.unused_slot(14)),
         ]
     )
@@ -46,7 +46,7 @@ def test_it_does_not_add_null_or_unused_slot_locations_to_the_mrgn():
     )
     assert new_mrgn.locations == [used]
     assert lookup.get_id_by_location_or_throw(used) == 5
-    assert lookup.get_id_by_location_or_throw(RichNullLocation()) == 0
+    assert lookup.get_id_by_location_or_throw(_RichNullLocation()) == 0
     assert lookup.get_id_by_location_or_throw(RichLocation.unused_slot(14)) == 14
 
 
@@ -55,7 +55,7 @@ def test_it_does_not_add_null_or_unused_slot_locations_when_rebuilding_from_loca
     mrgn = RichMrgnSection(_locations=[used])
     rich_chk = RichChk(_chk_sections=[mrgn])
     new_mrgn, lookup = RichMrgnSectionRebuilder.rebuild_from_locations(
-        {used, RichNullLocation(), RichLocation.unused_slot(14)}, rich_chk
+        {used, _RichNullLocation(), RichLocation.unused_slot(14)}, rich_chk
     )
     assert new_mrgn.locations == [used]
-    assert lookup.get_id_by_location_or_throw(RichNullLocation()) == 0
+    assert lookup.get_id_by_location_or_throw(_RichNullLocation()) == 0

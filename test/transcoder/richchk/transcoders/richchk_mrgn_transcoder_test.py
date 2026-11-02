@@ -8,7 +8,7 @@ from richchk.model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
 from richchk.model.richchk.str.rich_str_lookup import RichStrLookup
-from richchk.model.richchk.str.rich_string import RichNullString, RichString
+from richchk.model.richchk.str.rich_string import RichString, _RichNullString
 from richchk.model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from richchk.model.richchk.uprp.rich_cuwp_lookup import RichCuwpLookup
 from richchk.transcoder.chk.transcoders.chk_mrgn_transcoder import ChkMrgnTranscoder
@@ -97,7 +97,7 @@ def test_it_does_not_include_empty_locations_in_rich_mrgn():
     assert only_location.top_y1 == expected_decoded_location.top_y1
     assert only_location.right_x2 == expected_decoded_location.right_x2
     assert only_location.bottom_y2 == expected_decoded_location.bottom_y2
-    assert only_location.custom_location_name == RichNullString()
+    assert only_location.custom_location_name == _RichNullString()
     # the "empty" location occupies index 1
     assert only_location.index == 2
 

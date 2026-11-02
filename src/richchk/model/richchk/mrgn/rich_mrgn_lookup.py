@@ -9,7 +9,7 @@ import logging
 from typing import Optional
 
 from ....util import logger
-from .rich_location import RichLocation, RichNullLocation
+from .rich_location import RichLocation, _RichNullLocation
 
 _UNUSED_LOCATION_ID = 0
 _MAX_LOCATION_ID = 255
@@ -62,7 +62,7 @@ class RichMrgnLookup:
 
     def resolve_location_id(self, location_id: int) -> Optional[RichLocation]:
         if location_id == _UNUSED_LOCATION_ID:
-            return RichNullLocation()
+            return _RichNullLocation()
         maybe_location = self._location_by_id_lookup.get(location_id)
         if maybe_location is not None:
             return maybe_location
@@ -82,7 +82,7 @@ class RichMrgnLookup:
         return maybe_location
 
     def get_id_by_location(self, location: RichLocation) -> Optional[int]:
-        if isinstance(location, RichNullLocation):
+        if isinstance(location, _RichNullLocation):
             return _UNUSED_LOCATION_ID
         maybe_location_id = self._id_by_location_lookup.get(location, None)
         if maybe_location_id is None and location.is_unused_slot:

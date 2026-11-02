@@ -12,7 +12,7 @@ from ...model.richchk.mrgn.rich_location import RichLocation
 from ...model.richchk.mrgn.rich_mrgn_section import RichMrgnSection
 from ...model.richchk.rich_chk import RichChk
 from ...model.richchk.rich_chk_section import RichChkSection
-from ...model.richchk.str.rich_string import RichNullString, RichString
+from ...model.richchk.str.rich_string import RichString, _RichNullString
 from ...model.richchk.swnm.rich_switch import RichSwitch
 from ...model.richchk.swnm.rich_swnm_section import RichSwnmSection
 from ...model.richchk.trig.rich_trig_section import RichTrigSection
@@ -245,7 +245,7 @@ def _walk(
 
         # RichString always handled specially — never cache this type
         if isinstance(obj, RichString):
-            if not isinstance(obj, RichNullString):
+            if not isinstance(obj, _RichNullString):
                 strings[obj] = 0
             continue
 

@@ -10,7 +10,7 @@ from typing import Tuple
 from .....model.chk.swnm.swnm_constants import MAX_SWITCHES
 from .....model.richchk.rich_chk import RichChk
 from .....model.richchk.rich_chk_section import RichChkSection
-from .....model.richchk.str.rich_string import RichNullString
+from .....model.richchk.str.rich_string import _RichNullString
 from .....model.richchk.swnm.rich_switch import RichSwitch
 from .....model.richchk.swnm.rich_swnm_lookup import RichSwnmLookup
 from .....model.richchk.swnm.rich_swnm_section import RichSwnmSection
@@ -49,7 +49,7 @@ class RichSwnmRebuilder:
         allocable_ids = cls._generate_allocable_ids(all_used_switches)
         allocable_id_pointer = 0
         new_switches = [
-            RichSwitch(_custom_name=RichNullString(), _index=switch_index)
+            RichSwitch(_custom_name=_RichNullString(), _index=switch_index)
             for switch_index in range(0, MAX_SWITCHES)
         ]
         id_by_switch = {}
@@ -128,7 +128,7 @@ class RichSwnmRebuilder:
     @classmethod
     def _determine_if_switch_has_no_custom_name(cls, switch: RichSwitch) -> bool:
         if switch.custom_name:
-            return isinstance(switch.custom_name, RichNullString) or (
+            return isinstance(switch.custom_name, _RichNullString) or (
                 not switch.custom_name.value
             )
         return True

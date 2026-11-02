@@ -1,7 +1,7 @@
 import logging
 
 from richchk.io.richchk.richchk_io import RichChkIo
-from richchk.model.richchk.mrgn.rich_location import RichLocation, RichNullLocation
+from richchk.model.richchk.mrgn.rich_location import RichLocation, _RichNullLocation
 from richchk.model.richchk.str.rich_string import RichString
 from richchk.model.richchk.trig.actions.set_doodad_state_action import (
     SetDoodadStateAction,
@@ -31,8 +31,8 @@ def _trigger(location: RichLocation) -> RichTrigger:
 def test_it_warns_once_naming_the_action_when_a_trigger_has_a_null_location(caplog):
     trig = RichTrigSection(
         _triggers=[
-            _trigger(RichNullLocation()),
-            _trigger(RichNullLocation()),
+            _trigger(_RichNullLocation()),
+            _trigger(_RichNullLocation()),
             _trigger(RichLocation(1, 2, 3, 4, RichString(_value="a"), _index=1)),
         ]
     )

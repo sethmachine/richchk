@@ -1,7 +1,7 @@
 import pytest
 
 from richchk.model.chk.trig.decoded_trigger_action import DecodedTriggerAction
-from richchk.model.richchk.mrgn.rich_location import RichLocation, RichNullLocation
+from richchk.model.richchk.mrgn.rich_location import RichLocation, _RichNullLocation
 from richchk.model.richchk.mrgn.rich_mrgn_lookup import RichMrgnLookup
 from richchk.model.richchk.richchk_decode_context import RichChkDecodeContext
 from richchk.model.richchk.richchk_encode_context import RichChkEncodeContext
@@ -57,7 +57,7 @@ def test_it_round_trips_the_location_id(location_id, mrgn_lookup, str_lookup):
             _rich_str_lookup=str_lookup, _rich_mrgn_lookup=mrgn_lookup
         ),
     )
-    assert isinstance(rich.location, RichNullLocation) == (location_id == 0)
+    assert isinstance(rich.location, _RichNullLocation) == (location_id == 0)
     encoded = transcoder.encode(
         rich,
         RichChkEncodeContext(
