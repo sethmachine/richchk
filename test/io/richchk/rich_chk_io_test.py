@@ -38,7 +38,7 @@ def test_integration_rich_chk_io_decodes_decoded_chk():
     richhk_io = RichChkIo()
     chk: DecodedChk = DecodedChk(
         _decoded_chk_sections=[
-            DecodedUnknownSection(ChkSectionName.UNKNOWN.value, b""),
+            DecodedUnknownSection(ChkSectionName.UNKNOWN.value.encode(), b""),
             DecodedStrSection(_number_of_strings=0, _string_offsets=[], _strings=[]),
             DecodedMrgnSection(_locations=[]),
             DecodedUnisSection([], [], [], [], [], [], [], [], [], []),

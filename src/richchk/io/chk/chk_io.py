@@ -43,6 +43,7 @@ from ...util import logger
 
 _CHK_SECTION_NAME_NUM_BYTES: int = 4
 _CHK_SECTION_TOTAL_BYTES_NUM_BYTES: int = 4
+_SECTIONS_THAT_CANNOT_BE_UNKNOWN = (ChkSectionName.STR, ChkSectionName.STRX)
 
 
 class _ByteStream(Protocol):
@@ -123,17 +124,32 @@ class ChkIo:
         decoded_chk_sections: list[DecodedChkSection] = []
         maybe_chk_section_name_bytes = chk_byte_stream.read(_CHK_SECTION_NAME_NUM_BYTES)
         while maybe_chk_section_name_bytes != b"":
+            maybe_chk_section_size_bytes = chk_byte_stream.read(
+                _CHK_SECTION_TOTAL_BYTES_NUM_BYTES
+            )
+            if (
+                len(maybe_chk_section_name_bytes) < _CHK_SECTION_NAME_NUM_BYTES
+                or len(maybe_chk_section_size_bytes)
+                < _CHK_SECTION_TOTAL_BYTES_NUM_BYTES
+            ):
+                num_trailing_bytes = len(maybe_chk_section_name_bytes) + len(
+                    maybe_chk_section_size_bytes
+                )
+                self.log.error(
+                    f"The CHK ends with {num_trailing_bytes} trailing bytes that are "
+                    f"too few for a section header.  "
+                    f"Ignoring them, so they are not written back."
+                )
+                break
             # u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
-            maybe_chk_section_name = struct.unpack("4s", maybe_chk_section_name_bytes)[
-                0
-            ].decode("utf-8")
+            # It is kept as raw bytes, so a name that is not text is not altered.
             # u32 Size - The size, in bytes, of the chunk (not including this header)
             chk_section_size_in_bytes = struct.unpack(
-                "I", chk_byte_stream.read(_CHK_SECTION_TOTAL_BYTES_NUM_BYTES)
+                "I", maybe_chk_section_size_bytes
             )[0]
             decoded_chk_sections.append(
                 self._decode_chk_binary_data_to_chk_section(
-                    maybe_chk_section_name,
+                    maybe_chk_section_name_bytes,
                     chk_byte_stream.read(chk_section_size_in_bytes),
                     string_encoding,
                 )
@@ -146,22 +162,21 @@ class ChkIo:
 
     def _decode_chk_binary_data_to_chk_section(
         self,
-        maybe_chk_section_name: str,
+        chk_section_name_bytes: bytes,
         chk_section_binary_data: bytes,
         string_encoding: Optional[str] = None,
     ) -> DecodedChkSection:
-        if not ChkSectionName.contains(maybe_chk_section_name):
+        display_name = DecodedUnknownSection.display_name(chk_section_name_bytes)
+        chk_section_name = ChkSectionName.get_by_bytes(chk_section_name_bytes)
+        if chk_section_name is None:
             self.log.warning(
                 f"Unknown CHK section name not found in ChkSectionName enum: "
-                f"{maybe_chk_section_name}.  "
+                f"{display_name}.  "
                 f"Will decode as unknown section."
             )
             return self._decode_unknown_chk_section(
-                maybe_chk_section_name, chk_section_binary_data
+                chk_section_name_bytes, chk_section_binary_data
             )
-        chk_section_name: ChkSectionName = ChkSectionName.get_by_value(
-            maybe_chk_section_name
-        )
         try:
             transcoder: ChkSectionTranscoder[
                 Any
@@ -180,25 +195,39 @@ class ChkIo:
         except NotImplementedError:
             self.log.error(
                 f"CHK section name is available as enum but not registered "
-                f"as a transcoder: {maybe_chk_section_name}.  "
+                f"as a transcoder: {display_name}.  "
                 f"Will decode as unknown section."
             )
             return self._decode_unknown_chk_section(
-                maybe_chk_section_name, chk_section_binary_data
+                chk_section_name_bytes, chk_section_binary_data
+            )
+        except Exception as e:
+            if chk_section_name in _SECTIONS_THAT_CANNOT_BE_UNKNOWN:
+                raise
+            self.log.error(
+                f"Failed to decode CHK section {display_name!r} "
+                f"({len(chk_section_binary_data)} bytes): {type(e).__name__}: {e}.  "
+                f"StarCraft ignores invalid sections.  Keeping it as an unknown "
+                f"section so its bytes are written back unchanged."
+            )
+            return self._decode_unknown_chk_section(
+                chk_section_name_bytes, chk_section_binary_data
             )
 
     @classmethod
     def _decode_unknown_chk_section(
-        cls, unknown_chk_section_name: str, chk_section_binary_data: bytes
+        cls, unknown_chk_section_name_bytes: bytes, chk_section_binary_data: bytes
     ) -> DecodedUnknownSection:
-        return DecodedUnknownSection(unknown_chk_section_name, chk_section_binary_data)
+        return DecodedUnknownSection(
+            unknown_chk_section_name_bytes, chk_section_binary_data
+        )
 
     @classmethod
     def _encode_unknown_chk_section(
         cls, unknown_chk_section: DecodedUnknownSection
     ) -> bytes:
         data = ChkSectionTranscoder.encode_chk_section_header(
-            unknown_chk_section.actual_section_name,
+            unknown_chk_section.actual_section_name_bytes,
             len(unknown_chk_section.chk_binary_data),
         )
         data += unknown_chk_section.chk_binary_data

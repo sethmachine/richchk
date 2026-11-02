@@ -37,16 +37,21 @@ class ChkSectionTranscoder(Protocol[_T]):
 
     @classmethod
     def encode_chk_section_header(
-        cls, chk_section_name: Union[ChkSectionName, str], chk_binary_data_size: int
+        cls,
+        chk_section_name: Union[ChkSectionName, str, bytes],
+        chk_binary_data_size: int,
     ) -> bytes:
-        if isinstance(chk_section_name, ChkSectionName):
-            raw_section_name: str = chk_section_name.value
+        if isinstance(chk_section_name, bytes):
+            raw_section_name_bytes = chk_section_name
         else:
-            raw_section_name = chk_section_name
+            if isinstance(chk_section_name, ChkSectionName):
+                raw_section_name: str = chk_section_name.value
+            else:
+                raw_section_name = chk_section_name
+            raw_section_name_bytes = bytes(raw_section_name, _STRING_ENCODING)
         data: bytes = b""
         data += struct.pack(
-            "{}s".format(len(raw_section_name)),
-            bytes(raw_section_name, _STRING_ENCODING),
+            "{}s".format(len(raw_section_name_bytes)), raw_section_name_bytes
         )
         data += struct.pack("I", chk_binary_data_size)
         return data

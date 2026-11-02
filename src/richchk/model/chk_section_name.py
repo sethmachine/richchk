@@ -9,6 +9,7 @@ u32 Name - A 4-byte string uniquely identifying that chunk's purpose.
 """
 
 from enum import Enum
+from typing import Optional
 
 
 class ChkSectionName(Enum):
@@ -68,3 +69,16 @@ class ChkSectionName(Enum):
     @classmethod
     def contains(cls, value: str) -> bool:
         return value in {e.value: e for e in ChkSectionName}
+
+    @classmethod
+    def get_by_bytes(cls, value: bytes) -> Optional["ChkSectionName"]:
+        """Find the section named by the 4 raw name bytes of a chunk, if there is
+        one."""
+        return _SECTION_NAME_BY_BYTES.get(value)
+
+
+_SECTION_NAME_BY_BYTES: dict[bytes, ChkSectionName] = {
+    section_name.value.encode("ascii"): section_name
+    for section_name in ChkSectionName
+    if section_name != ChkSectionName.UNKNOWN
+}
