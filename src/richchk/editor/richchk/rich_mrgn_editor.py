@@ -19,9 +19,14 @@ class RichMrgnEditor:
     def add_locations(
         self, locations: Collection[RichLocation], mrgn: RichMrgnSection
     ) -> tuple[RichMrgnSection, RichMrgnLookup]:
-        """Add the locations to the MRGN, allocating location indices where
-        appropriate."""
-        unique_locations_to_add = self._build_location_set(locations)
+        """Add the locations to the MRGN, allocating location indices where appropriate.
+
+        Skip RichNullLocation and unused slot locations, as they do not correspond to
+        any MRGN entry.
+        """
+        unique_locations_to_add = self._build_location_set(
+            [loc for loc in locations if not loc.is_unused_slot]
+        )
         location_lookup = RichMrgnLookupBuilder().build_lookup(rich_mrgn=mrgn)
         allocable_indices = self._generate_allocable_location_indices(location_lookup)
         new_locations = [loc for loc in mrgn.locations]

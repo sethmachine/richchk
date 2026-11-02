@@ -82,6 +82,8 @@ class RichMrgnLookup:
         return maybe_location
 
     def get_id_by_location(self, location: RichLocation) -> Optional[int]:
+        if isinstance(location, RichNullLocation):
+            return _UNUSED_LOCATION_ID
         maybe_location_id = self._id_by_location_lookup.get(location, None)
         if maybe_location_id is None and location.is_unused_slot:
             return location.index
