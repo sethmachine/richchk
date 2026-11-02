@@ -82,19 +82,24 @@ class RichChkTrigTranscoder(
         rich_chk_decode_context: RichChkDecodeContext,
     ) -> RichTrigSection:
         rich_triggers = []
-        for trigger in decoded_chk_section.triggers:
-            rich_triggers.append(self._decode_trigger(trigger, rich_chk_decode_context))
+        for trigger_index, trigger in enumerate(decoded_chk_section.triggers):
+            rich_triggers.append(
+                self._decode_trigger(trigger, rich_chk_decode_context, trigger_index)
+            )
         return RichTrigSection(_triggers=rich_triggers)
 
     def _decode_trigger(
         self,
         decoded_trigger: DecodedTrigger,
         rich_chk_decode_context: RichChkDecodeContext,
+        trigger_index: int = 0,
     ) -> RichTrigger:
         conditions = self._decode_conditions(
-            decoded_trigger.conditions, rich_chk_decode_context
+            decoded_trigger.conditions, rich_chk_decode_context, trigger_index
         )
-        actions = self._decode_actions(decoded_trigger.actions, rich_chk_decode_context)
+        actions = self._decode_actions(
+            decoded_trigger.actions, rich_chk_decode_context, trigger_index
+        )
         players = self._decode_player_execution(decoded_trigger.player_execution)
         return RichTrigger(_conditions=conditions, _actions=actions, _players=players)
 
@@ -102,6 +107,7 @@ class RichChkTrigTranscoder(
         self,
         decoded_conditions: list[DecodedTriggerCondition],
         rich_chk_decode_context: RichChkDecodeContext,
+        trigger_index: int = 0,
     ) -> list[Union[RichTriggerCondition, DecodedTriggerCondition]]:
         conditions: list[Union[RichTriggerCondition, DecodedTriggerCondition]] = []
         for condition in decoded_conditions:
@@ -115,7 +121,7 @@ class RichChkTrigTranscoder(
                 conditions.append(condition)
             else:
                 maybe_condition = self._decode_single_condition(
-                    condition, rich_chk_decode_context
+                    condition, rich_chk_decode_context, trigger_index
                 )
                 if maybe_condition:
                     conditions.append(maybe_condition)
@@ -125,6 +131,7 @@ class RichChkTrigTranscoder(
         self,
         decoded_condition: DecodedTriggerCondition,
         rich_chk_decode_context: RichChkDecodeContext,
+        trigger_index: int = 0,
     ) -> Optional[Union[RichTriggerCondition, DecodedTriggerCondition]]:
         condition_id = RichChkEnumTranscoder.decode_enum(
             decoded_condition.condition_id, TriggerConditionId
@@ -136,7 +143,17 @@ class RichChkTrigTranscoder(
                 transcoder = RichTriggerConditionTranscoderFactory.make_rich_trigger_condition_transcoder(
                     condition_id
                 )
-                return transcoder.decode(decoded_condition, rich_chk_decode_context)
+                try:
+                    return transcoder.decode(decoded_condition, rich_chk_decode_context)
+                except Exception as e:
+                    self.log.error(
+                        f"Failed to decode trigger condition {condition_id.name} "
+                        f"(ID {condition_id.id}) in trigger {trigger_index}: "
+                        f"{type(e).__name__}: {e}.  Keeping the raw condition so it "
+                        f"is written back unchanged.  The triggers in this map may "
+                        f"have problems."
+                    )
+                    return decoded_condition
             else:
                 return decoded_condition
         return None
@@ -145,6 +162,7 @@ class RichChkTrigTranscoder(
         self,
         decoded_actions: list[DecodedTriggerAction],
         rich_chk_decode_context: RichChkDecodeContext,
+        trigger_index: int = 0,
     ) -> list[Union[RichTriggerAction, DecodedTriggerAction]]:
         actions: list[Union[RichTriggerAction, DecodedTriggerAction]] = []
         for action in decoded_actions:
@@ -158,7 +176,7 @@ class RichChkTrigTranscoder(
                 actions.append(action)
             else:
                 maybe_action = self._decode_single_action(
-                    action, rich_chk_decode_context
+                    action, rich_chk_decode_context, trigger_index
                 )
                 if maybe_action:
                     actions.append(maybe_action)
@@ -168,6 +186,7 @@ class RichChkTrigTranscoder(
         self,
         decoded_action: DecodedTriggerAction,
         rich_chk_decode_context: RichChkDecodeContext,
+        trigger_index: int = 0,
     ) -> Optional[Union[RichTriggerAction, DecodedTriggerAction]]:
         action_id = RichChkEnumTranscoder.decode_enum(
             decoded_action.action_id, TriggerActionId
@@ -179,7 +198,17 @@ class RichChkTrigTranscoder(
                 transcoder = RichTriggerActionTranscoderFactory.make_rich_trigger_action_transcoder(
                     action_id
                 )
-                return transcoder.decode(decoded_action, rich_chk_decode_context)
+                try:
+                    return transcoder.decode(decoded_action, rich_chk_decode_context)
+                except Exception as e:
+                    self.log.error(
+                        f"Failed to decode trigger action {action_id.name} "
+                        f"(ID {action_id.id}) in trigger {trigger_index}: "
+                        f"{type(e).__name__}: {e}.  Keeping the raw action so it "
+                        f"is written back unchanged.  The triggers in this map may "
+                        f"have problems."
+                    )
+                    return decoded_action
             else:
                 return decoded_action
         return None
