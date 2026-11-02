@@ -130,7 +130,7 @@ will add more triggers.
 """
 import struct
 from io import BytesIO
-from typing import Any, ClassVar
+from typing import Any
 
 from ....model.chk.trig.decoded_player_execution import DecodedPlayerExecution
 from ....model.chk.trig.decoded_trig_section import DecodedTrigSection
@@ -180,10 +180,6 @@ class ChkTrigTranscoder(
         _CONDITION_FORMAT * _NUM_CONDITIONS_PER_TRIGGER
     )  # 16 conditions
     _ALL_ACTIONS_FORMAT = _ACTION_FORMAT * _NUM_ACTIONS_PER_TRIGGER  # 64 actions
-
-    # Cache: id(DecodedPlayerExecution) → pre-packed 32-byte bytes.
-    # PE objects are permanent (held in _player_execution_cache), so id() is stable.
-    _pe_bytes_cache: ClassVar[dict[Any, Any]] = {}
 
     def decode(self, chk_section_binary_data: bytes) -> DecodedTrigSection:
         num_triggers = len(chk_section_binary_data) // self._NUM_BYTES_PER_TRIGGER
@@ -299,16 +295,21 @@ class ChkTrigTranscoder(
         data = bytearray(total_size)
         offset = 0
 
+        pe_bytes_cache: dict[Any, Any] = {}
         for trigger in decoded_chk_section.triggers:
             # Encode directly into the main bytearray
-            self._encode_trigger_into(trigger, data, offset)
+            self._encode_trigger_into(trigger, data, offset, pe_bytes_cache)
             offset += self._NUM_BYTES_PER_TRIGGER
 
         return bytes(data)
 
     @classmethod
     def _encode_trigger_into(
-        cls, trigger: DecodedTrigger, data: bytearray, base_offset: int
+        cls,
+        trigger: DecodedTrigger,
+        data: bytearray,
+        base_offset: int,
+        pe_bytes_cache: dict[Any, Any],
     ) -> None:
         # The bytearray is pre-zeroed, and empty conditions/actions are all-zeros.
         # Real slots always precede empty slots, so we break on the first empty slot.
@@ -369,7 +370,7 @@ class ChkTrigTranscoder(
             tuple(pe._player_flags),
             pe._current_action_index,
         )
-        pe_bytes = cls._pe_bytes_cache.get(pe_key)
+        pe_bytes = pe_bytes_cache.get(pe_key)
         if pe_bytes is None:
             buf = bytearray(cls._NUM_BYTES_PER_PLAYER_EXECUTION)
             struct.pack_into(
@@ -381,5 +382,5 @@ class ChkTrigTranscoder(
                 pe._current_action_index,
             )
             pe_bytes = bytes(buf)
-            cls._pe_bytes_cache[pe_key] = pe_bytes
+            pe_bytes_cache[pe_key] = pe_bytes
         data[pe_base : pe_base + cls._NUM_BYTES_PER_PLAYER_EXECUTION] = pe_bytes

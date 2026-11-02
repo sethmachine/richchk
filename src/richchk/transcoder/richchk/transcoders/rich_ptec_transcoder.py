@@ -1,7 +1,5 @@
 """Decode and encode the PTEC - Classic Tech Restrictions section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.ptec.decoded_ptec_section import DecodedPtecSection
 from ....model.richchk.ptec.rich_ptec_section import RichPtecSection
@@ -18,10 +16,6 @@ _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
 _CLASSIC_TECHS = [t for t in TechId if t.id < 24]
 
 _NUM_TECHS = 24
-
-_ptec_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_ptec_section) → (weakref(section), DecodedPtecSection)
 
 
 class RichPtecTranscoder(
@@ -88,10 +82,6 @@ class RichPtecTranscoder(
         rich_chk_section: RichPtecSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedPtecSection:
-        cache_key = id(rich_chk_section)
-        cached = _ptec_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedPtecSection, cached[1])
         flat_avail = [0] * (12 * _NUM_TECHS)
         for player, techs in rich_chk_section.player_tech_availability.items():
             for tech, avail in techs.items():
@@ -116,11 +106,5 @@ class RichPtecTranscoder(
             _global_tech_availability=global_avail,
             _global_tech_researched=global_researched,
             _player_uses_defaults=flat_defaults,
-        )
-        _ptec_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _ptec_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

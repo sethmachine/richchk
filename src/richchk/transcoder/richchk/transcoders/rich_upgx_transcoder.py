@@ -1,7 +1,5 @@
 """Decode and encode the UPGx - Brood War Upgrade Settings section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.upgx.decoded_upgx_section import DecodedUpgxSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -16,10 +14,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
 
 _ALL_UPGRADES = list(UpgradeId)
 _NUM_USES_DEFAULT = 62
-
-_upgx_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_upgx_section) → (weakref(section), DecodedUpgxSection)
 
 
 class RichUpgxTranscoder(
@@ -58,10 +52,6 @@ class RichUpgxTranscoder(
         rich_chk_section: RichUpgxSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedUpgxSection:
-        cache_key = id(rich_chk_section)
-        cached = _upgx_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedUpgxSection, cached[1])
         settings = [rich_chk_section.upgrade_cost_settings[u] for u in _ALL_UPGRADES]
         uses_default = [int(s.uses_default_settings) for s in settings] + [0]
         result = DecodedUpgxSection(
@@ -72,11 +62,5 @@ class RichUpgxTranscoder(
             _gas_cost_factor=[s.gas_cost_factor for s in settings],
             _base_research_time=[s.base_research_time for s in settings],
             _research_time_factor=[s.research_time_factor for s in settings],
-        )
-        _upgx_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _upgx_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

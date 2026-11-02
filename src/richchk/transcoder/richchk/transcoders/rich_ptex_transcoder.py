@@ -1,7 +1,5 @@
 """Decode and encode the PTEx - Brood War Tech Restrictions section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.ptex.decoded_ptex_section import DecodedPtexSection
 from ....model.richchk.ptex.rich_ptex_section import RichPtexSection
@@ -18,10 +16,6 @@ _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
 _ALL_TECHS = list(TechId)
 
 _NUM_TECHS = 44
-
-_ptex_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_ptex_section) → (weakref(section), DecodedPtexSection)
 
 
 class RichPtexTranscoder(
@@ -88,10 +82,6 @@ class RichPtexTranscoder(
         rich_chk_section: RichPtexSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedPtexSection:
-        cache_key = id(rich_chk_section)
-        cached = _ptex_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedPtexSection, cached[1])
         flat_avail = [0] * (12 * _NUM_TECHS)
         for player, techs in rich_chk_section.player_tech_availability.items():
             for tech, avail in techs.items():
@@ -116,11 +106,5 @@ class RichPtexTranscoder(
             _global_tech_availability=global_avail,
             _global_tech_researched=global_researched,
             _player_uses_defaults=flat_defaults,
-        )
-        _ptex_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _ptex_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

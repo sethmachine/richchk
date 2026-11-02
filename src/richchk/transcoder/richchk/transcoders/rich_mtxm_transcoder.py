@@ -1,6 +1,4 @@
 """Decode MTXM."""
-import weakref
-from typing import Any, cast
 
 from ....model.chk.mtxm.decoded_mtxm_section import DecodedMtxmSection
 from ....model.richchk.mtxm.rich_mtxm_section import RichMtxmSection
@@ -12,10 +10,6 @@ from ....transcoder.richchk.richchk_section_transcoder_factory import (
     _RichChkRegistrableTranscoder,
 )
 from ....util import logger
-
-_mtxm_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_mtxm_section) -> (weakref(section), DecodedMtxmSection)
 
 
 class RichMtxmTranscoder(
@@ -40,17 +34,7 @@ class RichMtxmTranscoder(
         rich_chk_section: RichMtxmSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedMtxmSection:
-        cache_key = id(rich_chk_section)
-        cached = _mtxm_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedMtxmSection, cached[1])
         result = DecodedMtxmSection(
             _tiles=tuple(t.id for t in rich_chk_section.tiles),
-        )
-        _mtxm_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _mtxm_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

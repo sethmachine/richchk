@@ -1,7 +1,5 @@
 """Decode and encode the PUNI - Player Unit Restrictions section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.puni.decoded_puni_section import DecodedPuniSection
 from ....model.richchk.puni.rich_puni_section import RichPuniSection
@@ -18,10 +16,6 @@ _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
 _GAME_UNITS = [u for u in UnitId if u.id < 228]
 
 _NUM_UNITS = 228
-
-_puni_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_puni_section) → (weakref(section), DecodedPuniSection)
 
 
 class RichPuniTranscoder(
@@ -71,10 +65,6 @@ class RichPuniTranscoder(
         rich_chk_section: RichPuniSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedPuniSection:
-        cache_key = id(rich_chk_section)
-        cached = _puni_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedPuniSection, cached[1])
         flat_availability = [0] * (12 * _NUM_UNITS)
         for player, units in rich_chk_section.player_unit_availability.items():
             for unit, avail in units.items():
@@ -90,11 +80,5 @@ class RichPuniTranscoder(
             _player_unit_availability=flat_availability,
             _global_unit_availability=global_flat,
             _player_uses_defaults=flat_defaults,
-        )
-        _puni_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _puni_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

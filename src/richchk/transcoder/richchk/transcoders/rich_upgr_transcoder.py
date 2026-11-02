@@ -1,7 +1,5 @@
 """Decode and encode the UPGR - Classic Upgrade Restrictions section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.upgr.decoded_upgr_section import DecodedUpgrSection
 from ....model.richchk.richchk_decode_context import RichChkDecodeContext
@@ -18,10 +16,6 @@ _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
 _CLASSIC_UPGRADES = [u for u in UpgradeId if u.id < 46]
 
 _NUM_UPGRADES = 46
-
-_upgr_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_upgr_section) → (weakref(section), DecodedUpgrSection)
 
 
 class RichUpgrTranscoder(
@@ -84,10 +78,6 @@ class RichUpgrTranscoder(
         rich_chk_section: RichUpgrSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedUpgrSection:
-        cache_key = id(rich_chk_section)
-        cached = _upgr_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedUpgrSection, cached[1])
         flat_max = [0] * (12 * _NUM_UPGRADES)
         for player, upgrades in rich_chk_section.player_max_levels.items():
             for upgrade, level in upgrades.items():
@@ -114,11 +104,5 @@ class RichUpgrTranscoder(
             _global_max_levels=global_max,
             _global_start_levels=global_start,
             _player_uses_defaults=flat_defaults,
-        )
-        _upgr_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _upgr_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result

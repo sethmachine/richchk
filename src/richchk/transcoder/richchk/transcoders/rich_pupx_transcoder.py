@@ -1,7 +1,5 @@
 """Decode and encode the PUPx - Brood War Upgrade Restrictions section."""
 
-import weakref
-from typing import Any, cast
 
 from ....model.chk.pupx.decoded_pupx_section import DecodedPupxSection
 from ....model.richchk.pupx.rich_pupx_section import RichPupxSection
@@ -18,10 +16,6 @@ _GAME_PLAYERS = [p for p in PlayerId if p.id < 12]
 _BW_UPGRADES = list(UpgradeId)
 
 _NUM_UPGRADES = 61
-
-_pupx_encode_cache: dict[
-    Any, Any
-] = {}  # id(rich_pupx_section) → (weakref(section), DecodedPupxSection)
 
 
 class RichPupxTranscoder(
@@ -84,10 +78,6 @@ class RichPupxTranscoder(
         rich_chk_section: RichPupxSection,
         rich_chk_encode_context: RichChkEncodeContext,
     ) -> DecodedPupxSection:
-        cache_key = id(rich_chk_section)
-        cached = _pupx_encode_cache.get(cache_key)
-        if cached is not None and cached[0]() is rich_chk_section:
-            return cast(DecodedPupxSection, cached[1])
         flat_max = [0] * (12 * _NUM_UPGRADES)
         for player, upgrades in rich_chk_section.player_max_levels.items():
             for upgrade, level in upgrades.items():
@@ -114,11 +104,5 @@ class RichPupxTranscoder(
             _global_max_levels=global_max,
             _global_start_levels=global_start,
             _player_uses_defaults=flat_defaults,
-        )
-        _pupx_encode_cache[cache_key] = (
-            weakref.ref(
-                rich_chk_section, lambda _: _pupx_encode_cache.pop(cache_key, None)
-            ),
-            result,
         )
         return result
